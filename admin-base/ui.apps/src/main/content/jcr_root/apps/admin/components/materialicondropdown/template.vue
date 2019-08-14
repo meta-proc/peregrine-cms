@@ -11,6 +11,7 @@
         :close-on-select="true"
         :allow-empty="false"
         :show-labels="false"
+        custom-label="icon"
     >
       <template slot="singleLabel" slot-scope="props">
         <a title="screen-dropdown" class="btn-floating waves-effect waves-light">
