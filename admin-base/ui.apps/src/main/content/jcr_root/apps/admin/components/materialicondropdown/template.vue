@@ -3,7 +3,7 @@
     <vue-multiselect
         v-model="modelFromValue"
         :options="model.children"
-        track-by="target"
+        track-by="path"
         :multiple="false"
         :searchable="false"
         label=""
@@ -15,7 +15,7 @@
         :allow-empty="false"
         :show-labels="false"
     >
-      <template slot="option">
+      <template slot="option" slot-scope="props">
         <component v-bind:is="props.option.component" v-bind:model="props.option"></component>
       </template>
     </vue-multiselect>
