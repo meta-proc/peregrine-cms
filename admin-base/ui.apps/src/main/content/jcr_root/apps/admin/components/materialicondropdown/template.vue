@@ -1,31 +1,51 @@
 <template>
-  <div class="drpdwn" v-bind:data-per-path="model.path">
-    <button class="drpbtn">
-      <a title="screen-dropdown" class="btn-floating waves-effect waves-light">
-        <i class="material-icons">{{icon}}</i>
-      </a>
-    </button>
-    <div class="drpdwn-content" >
-      <template v-for="child in model.children">
-        <component v-bind:is="child.component" v-bind:model="child"></component>
+  <div class="wrap">
+    <vue-multiselect
+        v-model="modelFromValue"
+        :options="model.children"
+        track-by="target"
+        :multiple="false"
+        :searchable="false"
+        label=""
+        deselectLabel=""
+        :taggable="false"
+        :clear-on-select="true"
+        :close-on-select="true"
+        :placeholder="placeholder"
+        :allow-empty="false"
+        :show-labels="false"
+    >
+      <template slot="option">
+        <component v-bind:is="props.option.component" v-bind:model="props.option"></component>
       </template>
-    </div>
+    </vue-multiselect>
   </div>
 </template>
 <script>
   export default {
     props: ['model'],
-    computed:{
-      icon: function(){
-        let currentState = $perAdminApp.getNodeFromViewOrNull("/state/tools/workspace/view")
-        let foundicon = this.model.icon;
-
-        this.model.children.forEach( function(child){
-          if (child.target === currentState){
-            foundicon = child.icon;
+    computed: {
+      modelFromValue: {
+        get() {
+          // will catch falsy, null or undefined
+          if (this.value) {
+            // if model is a string, convert to object with name and value
+            if (typeof this.value === 'string') {
+              return this.schema.values.filter(item => item.value === this.value)[0];
+            } else {
+              return this.value;
+            }
+          } else {
+            return '';
           }
-        });
-        return foundicon;
+        },
+        set(newValue) {
+          if (newValue) {
+            this.value = newValue[this.trackBy];
+          } else {
+            this.value = '';
+          }
+        }
       }
     }
   }
@@ -33,42 +53,4 @@
 </script>
 
 <style scoped>
-  /* The dropdown container */
-  .drpdwn {
-    display: inline-block;
-    vertical-align: middle;
-    height: 40px;
-  }
-
-  /* Dropdown button */
-  .drpbtn {
-    border: none;
-    outline: none;
-    background-color: inherit;
-    margin: 0; /* Important for vertical align on mobile phones */
-    height: inherit;
-  }
-
-  /* Dropdown content (hidden by default) */
-  .drpdwn-content {
-    display: none;
-    position: absolute;
-    max-width: 54px;
-    padding-top: 1px;
-  }
-
-  /* Add shadow to dropdown content items*/
-  .drpdwn-content span {
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  }
-
-  /* Set line-height for icons inside the navigation bar */
-  .material-icons {
-    line-height: 40px;
-  }
-
-  /* Show the dropdown menu on hover */
-  .drpdwn:hover .drpdwn-content {
-    display: block;
-  }
 </style>
