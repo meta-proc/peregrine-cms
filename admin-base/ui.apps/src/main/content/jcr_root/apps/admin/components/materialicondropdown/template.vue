@@ -12,6 +12,11 @@
         :allow-empty="false"
         :show-labels="false"
     >
+      <template slot="singleLabel" slot-scope="props">
+        <a title="screen-dropdown" class="btn-floating waves-effect waves-light">
+          <i class="material-icons">{{props.option.icon}}</i>
+        </a>
+      </template>
       <template slot="option" slot-scope="props">
         <component v-bind:is="props.option.component" v-bind:model="props.option"></component>
       </template>
