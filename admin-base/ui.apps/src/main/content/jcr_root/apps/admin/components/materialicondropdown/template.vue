@@ -1,6 +1,5 @@
 <template>
   <div class="wrap">
-    LOLOLOLOL
     <vue-multiselect
         v-model="value"
         label="icon"
