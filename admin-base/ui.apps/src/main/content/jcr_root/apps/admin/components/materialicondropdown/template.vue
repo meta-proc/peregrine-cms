@@ -2,16 +2,12 @@
   <div class="wrap">
     <vue-multiselect
         v-model="value"
+        label="icon"
         :options="model.children"
         track-by="target"
-        :multiple="false"
-        :searchable="false"
-        :taggable="false"
-        :clear-on-select="false"
-        :close-on-select="true"
         :allow-empty="false"
         :show-labels="false"
-        custom-label="icon"
+        :custom-label="customLabel"
     >
       <template slot="singleLabel" slot-scope="props">
         <a title="screen-dropdown" class="btn-floating waves-effect waves-light">
@@ -32,7 +28,11 @@
         value: this.model.children[0]
       }
     },
-    computed: {}
+    methods: {
+      customLabel({icon}) {
+        return icon;
+      }
+    }
   }
 
 </script>
