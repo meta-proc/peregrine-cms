@@ -1,5 +1,5 @@
 <template>
-	<div class="wrapper">
+	<div class="wrapper test">
 		<div v-if="!schema.preview" class="input-field">
 			<textarea 
 				ref="textarea"
