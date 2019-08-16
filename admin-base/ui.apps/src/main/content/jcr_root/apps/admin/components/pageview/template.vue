@@ -54,36 +54,61 @@
                         </a>
                     </li>
                 </template>
-                <li>
+                <li class="icon-list">
+                  <div class="icons-left">
+                    <a title="og-tags"
+                       class="icon-list-tab waves-effect waves-light"
+                       :class="{'active': (tab==='og-tag')}"
+                       v-on:click.stop.prevent="onTabClicked('og-tag')">
+                      <i class="editor-icon material-icons">label</i>
+                    </a>
+                    <a title="page-info"
+                       class="icon-list-tab waves-effect waves-light"
+                       :class="{'active': (tab==='info')}"
+                       v-on:click.stop.prevent="onTabClicked('info')">
+                      <i class="editor-icon material-icons">settings</i>
+                    </a>
+                  </div>
+                  <div class="icons-right">
                     <a  v-if="edit"
                         title="cancel edit"
-                        class="waves-effect waves-light"
+                        class="icon-list-btn waves-effect waves-light"
                         v-on:click.stop.prevent="onCancel">
-                        <i class="material-icons">info</i>
+                      <i class="editor-icon material-icons">info</i>
                     </a>
                     <a  v-else
                         title="edit page properties"
-                        class="waves-effect waves-light"
+                        class="icon-list-btn waves-effect waves-light"
                         v-on:click.stop.prevent="onEdit">
-                        <i class="material-icons">edit</i>
+                      <i class="editor-icon material-icons">edit</i>
                     </a>
+                  </div>
                 </li>
 
             </ul>
-            <vue-form-generator
+            <div v-if="tab==='og-tag'">
+
+            </div>
+            <div v-else-if="tab==='info'">
+              <vue-form-generator
                 v-if="!edit"
                 class="vfg-preview"
                 v-on:validated = "onValidated"
                 v-bind:schema  = "readOnlySchema"
                 v-bind:model   = "page"
                 v-bind:options = "options">
-            </vue-form-generator>
+              </vue-form-generator></div>
             <template v-else>
-                <vue-form-generator
+                <div v-if="tab==='og-tag'">
+
+                </div>
+                <div v-else-if="tab==='info'">
+                  <vue-form-generator
                     v-bind:schema="schema"
                     v-bind:model="page"
                     v-bind:options="options">
-                </vue-form-generator>
+                  </vue-form-generator>
+                </div>
                 <div class="explorer-confirm-dialog">
                     <button
                         type="button"
@@ -160,6 +185,7 @@
         data: function() {
             return {
                 isOpen: false,
+                tab: "info",
                 browserRoot: '/content/sites',
                 currentPath: '/content/sites',
                 selectedPath: null,
@@ -221,7 +247,51 @@
             onOk() {
                 $perAdminApp.stateAction('savePageProperties', this.page )
                 $perAdminApp.getNodeFromView('/state/tools').edit = false
+            },
+            onTabClicked( clickedTab ){
+                this.tab = clickedTab;
             }
         }
     }
 </script>
+
+<style scoped>
+  .icon-list {
+    width: 100%;
+  }
+
+  .icon-list-tab {
+    height: 44px;
+    margin-top: -2px;
+    padding: 6px 5px 5px 5px;
+  }
+  .icon-list-btn {
+    height: 44px;
+    width: 44px;
+    margin-top: -2px;
+    padding: 6px 5px 5px 5px;
+  }
+
+  .icons-left {
+    float: left;
+    height: 44px;
+    margin-left: 10px;
+  }
+
+  .active {
+    background-color: #37474f;
+    color: #cfd8dc;
+  }
+
+  .icons-right {
+    float: right;
+    height: 44px;
+    margin-right: 10px;
+  }
+  .editor-icon {
+    /*width: 44px;*/
+    height: 44px;
+    margin-right: 5px;
+    margin-left: 5px;
+  }
+</style>
