@@ -59,13 +59,13 @@
                     <a title="og-tags"
                        class="icon-list-tab waves-effect waves-light"
                        :class="{'active': (tab==='og-tag')}"
-                       v-on:click.stop.prevent="onTabClicked('og-tag')">
+                       v-on:click.stop.prevent="onTabClick('og-tag')">
                       <i class="editor-icon material-icons">label</i>
                     </a>
                     <a title="page-info"
                        class="icon-list-tab waves-effect waves-light"
                        :class="{'active': (tab==='info')}"
-                       v-on:click.stop.prevent="onTabClicked('info')">
+                       v-on:click.stop.prevent="onTabClick('info')">
                       <i class="editor-icon material-icons">settings</i>
                     </a>
                   </div>
@@ -86,21 +86,22 @@
                 </li>
 
             </ul>
-            <div v-if="tab==='og-tag'">
-
+            <div v-if="!edit">
+              <div v-if="tab==='og-tag'">
+                <h1>Not Edit</h1>
+              </div>
+              <div v-else-if="tab==='info'">
+                <vue-form-generator
+                  class="vfg-preview"
+                  v-on:validated = "onValidated"
+                  v-bind:schema  = "readOnlySchema"
+                  v-bind:model   = "page"
+                  v-bind:options = "options">
+                </vue-form-generator></div>
             </div>
-            <div v-else-if="tab==='info'">
-              <vue-form-generator
-                v-if="!edit"
-                class="vfg-preview"
-                v-on:validated = "onValidated"
-                v-bind:schema  = "readOnlySchema"
-                v-bind:model   = "page"
-                v-bind:options = "options">
-              </vue-form-generator></div>
             <template v-else>
                 <div v-if="tab==='og-tag'">
-
+                  <h1>Edit</h1>
                 </div>
                 <div v-else-if="tab==='info'">
                   <vue-form-generator
@@ -248,7 +249,7 @@
                 $perAdminApp.stateAction('savePageProperties', this.page )
                 $perAdminApp.getNodeFromView('/state/tools').edit = false
             },
-            onTabClicked( clickedTab ){
+            onTabClick( clickedTab ){
                 this.tab = clickedTab;
             }
         }
