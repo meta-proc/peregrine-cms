@@ -11,9 +11,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -36,7 +36,7 @@ export default function(me, target) {
     nodeData.component = target.component
 
     const component = target.component
-    const schema = view.admin.componentDefinitions[component]
+    const schema = view.admin.componentDefinitions[component].model;
 
     for(let i = 0; i < schema.fields.length; i++) {
         if(!schema.fields[i].readonly) {

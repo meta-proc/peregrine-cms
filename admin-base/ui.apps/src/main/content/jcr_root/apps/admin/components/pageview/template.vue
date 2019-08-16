@@ -97,11 +97,16 @@
                   v-bind:schema  = "readOnlySchema"
                   v-bind:model   = "page"
                   v-bind:options = "options">
-                </vue-form-generator></div>
+                </vue-form-generator>
+              </div>
             </div>
             <template v-else>
                 <div v-if="tab==='og-tag'">
-                  <h1>Edit</h1>
+                  <vue-form-generator
+                    v-bind:schema="ogTagSchema"
+                    v-bind:model="page"
+                    v-bind:options="options">
+                  </vue-form-generator>
                 </div>
                 <div v-else-if="tab==='info'">
                   <vue-form-generator
@@ -174,12 +179,20 @@
                 return this.currentObject.split('/').length > 4
             },
             schema() {
-                const view = $perAdminApp.getView()
-                if(this.page) {
-                    const component = this.page.component
-                    const schema = view.admin.componentDefinitions[component]
-                    return schema
-                }
+              const view = $perAdminApp.getView()
+              if(this.page) {
+                const component = this.page.component
+                const schema = view.admin.componentDefinitions[component].model;
+                return schema
+              }
+            },
+            ogTagSchema() {
+              const view = $perAdminApp.getView();
+              if(this.page) {
+                const component = this.page.component;
+                const ogTagSchema = view.admin.componentDefinitions[component].ogTags;
+                return ogTagSchema;
+              }
             },
 
         },
