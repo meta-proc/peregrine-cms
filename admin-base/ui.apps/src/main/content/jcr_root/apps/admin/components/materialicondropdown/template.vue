@@ -1,24 +1,26 @@
 <template>
-  <div class="wrap">
+  <span class="wrap material-icon-drop-down">
     <vue-multiselect
         v-model="value"
-        label="icon"
         :options="model.children"
         track-by="target"
         :allow-empty="false"
         :show-labels="false"
-        :custom-label="customLabel"
+        :clear-on-select="false"
     >
       <template slot="singleLabel" slot-scope="props">
-        <a title="screen-dropdown" class="btn-floating waves-effect waves-light">
-          <i class="material-icons">{{props.option.icon}}</i>
-        </a>
+          <a title="screen-dropdown" class="btn-floating waves-effect waves-light">
+            <i class="material-icons">{{props.option.icon}}</i>
+          </a>
       </template>
-      <template slot="option" slot-scope="props">
-        <component v-bind:is="props.option.component" v-bind:model="props.option"></component>
+      <template slot="option" slot-scope="props" @click.native="selectOption(props.option)">
+        <component
+            v-bind:is="props.option.component"
+            v-bind:model="props.option">
+        </component>
       </template>
     </vue-multiselect>
-  </div>
+  </span>
 </template>
 <script>
   export default {
@@ -29,13 +31,30 @@
       }
     },
     methods: {
-      customLabel({icon}) {
-        return icon;
+      selectOption(option) {
+        console.log('new OPTION', option);
+        this.value = option;
       }
     }
   }
 
 </script>
 
-<style scoped>
+<style>
+  .material-icon-drop-down .multiselect .multiselect__select {
+    display: none;
+  }
+
+  .material-icon-drop-down .multiselect .multiselect__tags {
+     min-height: unset;
+     display: unset;
+     padding: unset;
+     border: unset;
+     background: unset;
+  }
+
+  .material-icon-drop-down .multiselect .multiselect__tags a.btn-floating .material-icons {
+    line-height: 40px;
+    height: 100%;
+  }
 </style>
