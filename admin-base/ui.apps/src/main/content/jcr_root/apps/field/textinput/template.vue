@@ -1,5 +1,5 @@
 <template>
-	<input class="wrapper">
+	<div class="wrapper">
 		<input
 			ref="textinput"
 			class="form-control"
@@ -9,8 +9,8 @@
 			:placeholder="schema.placeholder"
 			type="text">
 		</input>
-		<input></input>
 		<p ref="cc" v-if="schema.charCount">{{ countCharacters() }}</p>
+	</div>
 </template>
 
 <script>
@@ -25,16 +25,18 @@
 
 		mounted() {
 			// $(this.$refs.textarea).trigger('autoresize');
-			this.characterCount = this.$refs.textarea.value.length;
+			console.log(this.$refs.textinput);
+			console.log(this.$refs.textinput.value);
+			this.characterCount = this.$refs.textinput.value.length;
 		},
 
 		methods: {
 			countCharacters() {
-				let textArea = this.$refs.textarea;
+				let textArea = this.$refs.textinput;
 				if(!textArea) {
 					this.characterCount = 0;
 				} else {
-					this.characterCount = this.$refs.textarea.value.length;
+					this.characterCount = this.$refs.textinput.value.length;
 				}
 				return this.characterCount;
 			}
