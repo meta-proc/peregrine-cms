@@ -7,6 +7,7 @@
 			:id="getFieldID(schema)"
 			:disabled="disabled"
 			:placeholder="schema.placeholder"
+			:readonly="schema.readonly"
 			type="text">
 		</input>
 		<p ref="cc" v-if="schema.charCount">{{ countCharacters() }}</p>
@@ -25,8 +26,6 @@
 
 		mounted() {
 			// $(this.$refs.textarea).trigger('autoresize');
-			console.log(this.$refs.textinput);
-			console.log(this.$refs.textinput.value);
 			this.characterCount = this.$refs.textinput.value.length;
 		},
 
