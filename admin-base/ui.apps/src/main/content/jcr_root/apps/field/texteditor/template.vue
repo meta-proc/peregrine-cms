@@ -29,7 +29,7 @@
         </div>
         <p v-else v-html="value"></p>
         <p v-if="showCharCount">{{ charCount }}</p>
-        <p v-if="showCharCount">{{ charCount }}</p>
+        <p v-if="showWordCount">{{ wordCount }}</p>
     </div>
 </template>
 
