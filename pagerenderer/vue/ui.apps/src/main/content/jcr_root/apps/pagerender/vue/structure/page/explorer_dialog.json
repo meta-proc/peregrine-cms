@@ -8,12 +8,13 @@
     "placeholder": "page name"
   },
   {
-    "type": "input",
-    "inputType": "text",
+    "type": "textinput",
+    "placeholder": "page title",
+    "label": "Title",
     "model": "title",
     "x-model": "jcr:title",
-    "label": "Title",
-    "placeholder": "page title"
+    "charCounter": "true",
+    "wordCounter": "true"
   },
   {
     "type": "material-datetime",
@@ -69,7 +70,9 @@
     "model": "description",
     "label": "Description",
     "rows": 10,
-    "placeholder": "enter a description for this page"
+    "placeholder": "enter a description for this page",
+    "charCounter": "true",
+    "wordCounter": "true"
   },
   {
     "type": "material-select",
