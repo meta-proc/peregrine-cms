@@ -25,13 +25,13 @@
 		},
 		computed: {
 			showCharCount(){
-				return !!(this.schema.charCounter) && !this.schema.readonly;
+				return !this.schema.readonly && this.schema.charCounter === 'true';
 			},
 			charCount(){
 				return this.value.length;
 			},
 			showWordCount(){
-				return !!(this.schema.wordCounter) && !this.schema.readonly;
+				return !this.schema.readonly && this.schema.wordCounter === 'true';
 			},
 			wordCount(){
 				return this.value.split(" ").length;
