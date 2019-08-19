@@ -17,7 +17,7 @@
 		</div>
 		<p v-else>{{value}}</p>
 		<p v-if="showCharCount">{{ charCount }}</p>
-		<p v-if="showCharCount">{{ charCount }}</p>
+		<p v-if="showWordCount">{{ wordCount }}</p>
 	</div>
 </template>
 
@@ -31,13 +31,13 @@
 		},
 		computed: {
 			showCharCount(){
-				return this.schema.charCounter && !this.schema.readonly;
+				return !!(this.schema.charCounter) && !this.schema.readonly;
 			},
 			charCount(){
 				return this.value.length;
 			},
 			showWordCount(){
-				return this.schema.wordCounter && !this.schema.readonly;
+				return !!(this.schema.wordCounter) && !this.schema.readonly;
 			},
 			wordCount(){
 				return this.value.split(" ").length;
