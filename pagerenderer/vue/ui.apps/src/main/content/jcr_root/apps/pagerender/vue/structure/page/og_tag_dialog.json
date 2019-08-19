@@ -1,11 +1,74 @@
 {
   "fields": [
     {
+      "type": "material-checkbox",
+      "label": "Title für og:title übernehmen?",
+      "default": true,
+      "model": "useTitle"
+    },
+    {
       "type": "input",
       "inputType": "text",
-      "model": "ogBrand",
-      "label": "og:Brand",
-      "placeholder": "brand name"
+      "model": "og.title",
+      "label": "og:title",
+      "placeholder": "og.title",
+      "visible": "model.useTitle != true"
+    },
+    {
+      "type": "material-checkbox",
+      "label": "Description für og:description übernehmen?",
+      "default": true,
+      "model": "useDescription"
+    },
+    {
+      "type": "input",
+      "inputType": "text",
+      "model": "og.description",
+      "label": "og:description",
+      "placeholder": "og.description",
+      "visible": "model.useDescription != true"
+    },
+    {
+      "type": "material-select",
+      "label": "og:type",
+      "model": "og.type",
+      "placeholder": "og.type",
+      "default": "website",
+      "values" : [
+        {
+          "name": "website",
+          "value": "website"
+        }
+      ]
+    },
+    {
+      "type": "pathbrowser",
+      "browserRoot": "/content/assets",
+      "readonly": true,
+      "label": "og:image",
+      "placeholder": "og.image",
+      "model": "og.image"
+    },
+    {
+      "type": "input",
+      "inputType": "text",
+      "model": "og.imageAlt",
+      "placeholder": "og.imageAlt",
+      "label": "og:image:alt"
+    },
+    {
+      "type": "material-checkbox",
+      "label": "Canonical Link für og:url übernehmen?",
+      "default": true,
+      "model": "useCanonicalLink"
+    },
+    {
+      "type": "input",
+      "inputType": "text",
+      "model": "og.url",
+      "label": "og:url",
+      "placeholder": "og.url",
+      "visible": "model.useCanonicalLink != true"
     }
   ]
 }
