@@ -28,6 +28,8 @@
             <trumbowyg :config="config" v-model="value"></trumbowyg>
         </div>
         <p v-else v-html="value"></p>
+        <p v-if="showCharCount">{{ charCount }}</p>
+        <p v-if="showCharCount">{{ charCount }}</p>
     </div>
 </template>
 
@@ -96,6 +98,18 @@
                     }
                 }
                 return cfg;
+            },
+            showCharCount(){
+                return this.schema.charCounter && !this.schema.readonly;
+            },
+            charCount(){
+                return this.value.length;
+            },
+            showWordCount(){
+                return this.schema.wordCounter && !this.schema.readonly;
+            },
+            wordCount(){
+                return this.value.split(" ").length;
             }
         },
         methods: {
