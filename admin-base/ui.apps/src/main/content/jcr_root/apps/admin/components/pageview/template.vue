@@ -88,7 +88,13 @@
             </ul>
             <div v-if="!edit">
               <div v-if="tab==='og-tag'">
-                <h1>Not Edit</h1>
+                <vue-form-generator
+                  class="vfg-preview"
+                  v-on:validated = "onValidated"
+                  v-bind:schema  = "readOnlyOgTagSchema"
+                  v-bind:model   = "page"
+                  v-bind:options = "options">
+                </vue-form-generator>
               </div>
               <div v-else-if="tab==='info'">
                 <vue-form-generator
@@ -167,6 +173,21 @@
                     }
                 })
                 return roSchema
+
+            },
+            readOnlyOgTagSchema() {
+              if(!this.ogTagSchema) return {}
+              const roSchema = JSON.parse(JSON.stringify(this.ogTagSchema))
+              roSchema.fields.forEach( (field) => {
+                field.preview = true
+                field.readonly = true
+                if(field.fields) {
+                  field.fields.forEach( (field) => {
+                    field.readonly = true
+                  })
+                }
+              })
+              return roSchema
 
             },
             currentObject() {
