@@ -16,7 +16,8 @@
 			</textarea>
 		</div>
 		<p v-else>{{value}}</p>
-		<p ref="cc" v-if="schema.charCount">{{ countCharacters() }}</p>
+		<p v-if="showCharCount">{{ charCount }}</p>
+		<p v-if="showCharCount">{{ charCount }}</p>
 	</div>
 </template>
 
@@ -26,31 +27,21 @@
 
 		data() {
 			return {
-				characterCount: 0
 			}
 		},
-
-		mounted() {
-			// $(this.$refs.textarea).trigger('autoresize');
-			this.characterCount = this.$refs.textarea.value.length;
-		},
-
-		methods: {
-			countCharacters() {
-				let textArea = this.$refs.textarea;
-				if(!textArea) {
-					this.characterCount = 0;
-				} else {
-					this.characterCount = this.$refs.textarea.value.length;
-				}
-				return this.characterCount;
+		computed: {
+			showCharCount(){
+				return this.schema.charCounter && !this.schema.readonly;
+			},
+			charCount(){
+				return this.value.length;
+			},
+			showWordCount(){
+				return this.schema.wordCounter && !this.schema.readonly;
+			},
+			wordCount(){
+				return this.value.split(" ").length;
 			}
-		},
-
-		updated() {
-			// if( document.activeElement != this.$refs.textarea ){
-			// 	$(this.$refs.textarea).trigger('autoresize');
-			// }
 		}
 	}
 </script>
