@@ -9,7 +9,7 @@
     {
       "type": "input",
       "inputType": "text",
-      "model": "og.title",
+      "model": "ogTitle",
       "label": "og:title",
       "placeholder": "og.title",
       "visible": "model.useTitle != true"
@@ -23,7 +23,7 @@
     {
       "type": "input",
       "inputType": "text",
-      "model": "og.description",
+      "model": "ogDescription",
       "label": "og:description",
       "placeholder": "og.description",
       "visible": "model.useDescription != true"
@@ -31,7 +31,7 @@
     {
       "type": "material-select",
       "label": "og:type",
-      "model": "og.type",
+      "model": "ogType",
       "placeholder": "og.type",
       "default": "website",
       "values" : [
@@ -44,15 +44,15 @@
     {
       "type": "pathbrowser",
       "browserRoot": "/content/assets",
-      "readonly": true,
       "label": "og:image",
-      "placeholder": "og.image",
-      "model": "og.image"
+      "readonly": true,
+      "placeholder": "ogImage",
+      "model": "ogImage"
     },
     {
       "type": "input",
       "inputType": "text",
-      "model": "og.imageAlt",
+      "model": "ogImageAlt",
       "placeholder": "og.imageAlt",
       "label": "og:image:alt"
     },
@@ -65,7 +65,7 @@
     {
       "type": "input",
       "inputType": "text",
-      "model": "og.url",
+      "model": "ogUrl",
       "label": "og:url",
       "placeholder": "og.url",
       "visible": "model.useCanonicalLink != true"
