@@ -37,6 +37,7 @@ export default function(me, target) {
 
     const component = target.component
     const schema = view.admin.componentDefinitions[component].model;
+    const ogTagSchema = view.admin.componentDefinitions[component].ogTags;
 
     for(let i = 0; i < schema.fields.length; i++) {
         if(!schema.fields[i].readonly) {
@@ -44,6 +45,14 @@ export default function(me, target) {
             const dstName = schema.fields[i]['x-model'] ? schema.fields[i]['x-model'] : srcName
             nodeData[dstName] = target[srcName]
         }
+    }
+    for(let i = 0; i < ogTagSchema.fields.length; i++) {
+      if(!ogTagSchema.fields[i].readonly || (ogTagSchema.fields[i].type === "pathbrowser")) {
+        console.log( "Schema %s: %O", ogTagSchema.fields[i].type, ogTagSchema.fields[i]);
+        const srcName = ogTagSchema.fields[i].model
+        const dstName = ogTagSchema.fields[i]['x-model'] ? ogTagSchema.fields[i]['x-model'] : srcName
+        nodeData[dstName] = target[srcName]
+      }
     }
 
     log.fine(nodeData)
