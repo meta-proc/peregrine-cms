@@ -249,7 +249,6 @@ class PerAdminImpl {
                         data.model = component.methods.augmentEditorSchema(data.model)
                         data.ogTags = component.methods.augmentEditorSchema(data.ogTags);
                     }
-                    console.log( "ogTags: %O", data.ogTags);
                     let promises = []
                     if(data && data.model && data.ogTags) {
                         for(let i = 0; i < data.model.fields.length; i++) {
