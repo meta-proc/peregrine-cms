@@ -7,7 +7,22 @@
     <meta name="description" content="${helper.model.description}">
     <meta name="keywords" content="${helper.model.tags}">
 
+    <meta property="og:title" content="${ resource.useTitle ? helper.model.title : resource.ogTitle}"/>
+
+    <meta property="og:description" content="${ resource.useDescription ? helper.model.description : resource.ogDescription}"/>
+
+    <meta property="og:type" content="${resource.ogType}"/>
+
+    <meta property="og:image" content="${resource.ogImage}"/>
+
+    <meta property="og:image:alt" content="${resource.ogImageAlt}"/>
+
+    <meta property="og:url" content="${ resource.useCanonicalLink ? resource.canonicalLink : resource.ogUrl}"/>
+
+    <sly data-sly-list="${helper.model}"></sly>
+
     <title>${resource.jcr:title}</title>
+    <meta name="" content="${resource}"/>
     <sly data-sly-list="${helper.model.prefetchDNS}"><link rel="dns-prefetch" href="${item}"></sly>
 
     <link rel="manifest" href="${helper.siteRootPath}/manifest.json">
