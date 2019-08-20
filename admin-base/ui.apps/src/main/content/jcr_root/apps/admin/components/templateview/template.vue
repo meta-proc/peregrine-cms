@@ -106,7 +106,7 @@
             schema() {
                 const view = $perAdminApp.getView()
                 const component = this.page.component
-                const schema = view.admin.componentDefinitions[component]
+                const schema = view.admin.componentDefinitions[component].model
                 return schema
             },
 

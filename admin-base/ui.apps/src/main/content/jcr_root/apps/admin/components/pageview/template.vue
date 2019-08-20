@@ -86,7 +86,7 @@
                 </li>
 
             </ul>
-            <div v-if="!edit">
+            <div v-if="!edit" class="show-overflow">
               <div v-if="tab==='og-tag'">
                 <vue-form-generator
                   class="vfg-preview"
@@ -107,14 +107,14 @@
               </div>
             </div>
             <template v-else>
-                <div v-if="tab==='og-tag'">
+                <div v-if="tab==='og-tag'" class="show-overflow">
                   <vue-form-generator
                     v-bind:schema="ogTagSchema"
                     v-bind:model="page"
                     v-bind:options="options">
                   </vue-form-generator>
                 </div>
-                <div v-else-if="tab==='info'">
+                <div v-else-if="tab==='info'" class="show-overflow">
                   <vue-form-generator
                     v-bind:schema="schema"
                     v-bind:model="page"
@@ -316,6 +316,10 @@
   .active {
     background-color: #37474f;
     color: #cfd8dc;
+  }
+
+  .show-overflow {
+    overflow: auto;
   }
 
   .icons-right {
