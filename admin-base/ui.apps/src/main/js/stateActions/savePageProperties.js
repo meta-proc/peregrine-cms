@@ -48,7 +48,6 @@ export default function(me, target) {
     }
     for(let i = 0; i < ogTagSchema.fields.length; i++) {
       if(!ogTagSchema.fields[i].readonly || (ogTagSchema.fields[i].type === "pathbrowser")) {
-        console.log( "Schema %s: %O", ogTagSchema.fields[i].type, ogTagSchema.fields[i]);
         const srcName = ogTagSchema.fields[i].model
         const dstName = ogTagSchema.fields[i]['x-model'] ? ogTagSchema.fields[i]['x-model'] : srcName
         nodeData[dstName] = target[srcName]
