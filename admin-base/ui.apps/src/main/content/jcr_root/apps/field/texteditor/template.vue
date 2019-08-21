@@ -103,7 +103,9 @@
                 return this.schema.charCounter && !this.schema.readonly;
             },
             charCount(){
-                return this.value.length;
+                console.log(this.value);
+                console.log(this.value.replace("\\<.*?>",""));
+                return this.value.replace("\\<.*?>","").length;
             },
             showWordCount(){
                 return this.schema.wordCounter && !this.schema.readonly;
