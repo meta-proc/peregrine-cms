@@ -34,7 +34,7 @@
                v-on:click.stop.prevent="onTabClick('og-tag')">
               <i class="editor-icon material-icons">label</i>
             </a>
-            <a title="page-info"
+            <a title="template-info"
                class="icon-list-tab waves-effect waves-light"
                :class="{'active': (tab==='info')}"
                v-on:click.stop.prevent="onTabClick('info')">
@@ -48,19 +48,19 @@
               <a  href="#!"
                   title="rename template"
                   class="icon-list-btn waves-effect waves-light"
-                  v-on:click.stop.prevent="renamePage">
+                  v-on:click.stop.prevent="renameTemplate">
                 <i class="svg-icons svg-icon-rename"></i>
               </a>
               <a  href="#!"
                   title="move template"
                   class="icon-list-btn waves-effect waves-light"
-                  v-on:click.stop.prevent="movePage">
+                  v-on:click.stop.prevent="moveTemplate">
                 <i class="material-icons">compare_arrows</i>
               </a>
               <a  href="#!"
                   title="delete template"
                   class="icon-list-btn waves-effect waves-light"
-                  v-on:click.stop.prevent="deletePage">
+                  v-on:click.stop.prevent="deleteTemplate">
                 <i class="material-icons">delete</i>
               </a>
             </template>
@@ -71,7 +71,7 @@
               <i class="editor-icon material-icons">info</i>
             </a>
             <a v-else
-               title="edit page properties"
+               title="edit template properties"
                class="icon-list-btn waves-effect waves-light"
                v-on:click.stop.prevent="onEdit">
               <i class="editor-icon material-icons">edit</i>
@@ -85,7 +85,7 @@
             class="vfg-preview"
             v-on:validated = "onValidated"
             v-bind:schema  = "readOnlyOgTagSchema"
-            v-bind:model   = "page"
+            v-bind:model   = "template"
             v-bind:options = "options">
           </vue-form-generator>
         </div>
@@ -94,7 +94,7 @@
             class="vfg-preview"
             v-on:validated = "onValidated"
             v-bind:schema  = "readOnlySchema"
-            v-bind:model   = "page"
+            v-bind:model   = "template"
             v-bind:options = "options">
           </vue-form-generator>
         </div>
@@ -103,14 +103,14 @@
         <div v-if="tab==='og-tag'" class="show-overflow">
           <vue-form-generator
             v-bind:schema="ogTagSchema"
-            v-bind:model="page"
+            v-bind:model="template"
             v-bind:options="options">
           </vue-form-generator>
         </div>
         <div v-else-if="tab==='info'" class="show-overflow">
           <vue-form-generator
             v-bind:schema="schema"
-            v-bind:model="page"
+            v-bind:model="template"
             v-bind:options="options">
           </vue-form-generator>
         </div>
@@ -125,7 +125,7 @@
           </button>
           <button
             type="button"
-            title="save page properties"
+            title="save template properties"
             v-bind:disabled="!valid"
             class="btn btn-raised waves-effect waves-light right"
             v-on:click.stop.prevent="onOk">
@@ -143,7 +143,7 @@
       v-if="isOpen"
       :isOpen="isOpen"
       :browserRoot="browserRoot"
-      :browserType="'page'"
+      :browserType="'template'"
       :currentPath="currentPath"
       :selectedPath="selectedPath"
       :setCurrentPath="setCurrentPath"
@@ -195,7 +195,7 @@ export default {
     currentObject() {
       return $perAdminApp.getNodeFromViewOrNull("/state/tools/template")
     },
-    page() {
+    template() {
       return $perAdminApp.findNodeFromPath(this.$root.$data.admin.nodes, this.currentObject)
     },
     allowOperations() {
@@ -203,14 +203,14 @@ export default {
     },
     schema() {
       const view = $perAdminApp.getView()
-      const component = this.page.component
+      const component = this.template.component
       const schema = view.admin.componentDefinitions[component].model
       return schema
     },
     ogTagSchema() {
       const view = $perAdminApp.getView();
-      if(this.page) {
-        const component = this.page.component;
+      if(this.template) {
+        const component = this.template.component;
         const ogTagSchema = view.admin.componentDefinitions[component].ogTags;
         return ogTagSchema;
       }
@@ -239,18 +239,18 @@ export default {
     onValidated(isValid, errors) {
       this.valid = isValid
     },
-    renamePage() {
-      let newName = prompt('new name for '+this.page.name)
+    renameTemplate() {
+      let newName = prompt('new name for '+this.template.name)
       if(newName) {
-        $perAdminApp.stateAction('renamePage', { path: this.page.path, name: newName})
+        $perAdminApp.stateAction('renamePage', { path: this.template.path, name: newName})
         let newPath = this.currentObject.split('/')
         newPath.pop()
         newPath.push(newName)
         $perAdminApp.stateAction('showPageInfo', { selected: newPath.join('/') })
       }
     },
-    deletePage() {
-      $perAdminApp.stateAction('deletePage', this.page.path)
+    deleteTemplate() {
+      $perAdminApp.stateAction('deletePage', this.template.path)
       $perAdminApp.stateAction('showPageInfo', { selected: null })
     },
     setCurrentPath(path){
@@ -259,7 +259,7 @@ export default {
     setSelectedPath(path){
       this.selectedPath = path
     },
-    movePage() {
+    moveTemplate() {
       $perAdminApp.getApi().populateNodesForBrowser(this.currentPath, 'pathBrowser')
         .then( () => {
           this.isOpen = true
@@ -271,16 +271,16 @@ export default {
       this.isOpen = false
     },
     onMoveSelect() {
-      $perAdminApp.stateAction('moveTemplate', { path: this.page.path, to: this.selectedPath, type: 'child'})
+      $perAdminApp.stateAction('moveTemplate', { path: this.template.path, to: this.selectedPath, type: 'child'})
       $perAdminApp.stateAction('unselectTemplate', { })
       this.isOpen = false
     },
     onCancel: function() {
-      $perAdminApp.stateAction('showPageInfo', { selected: this.page.path  })
+      $perAdminApp.stateAction('showPageInfo', { selected: this.template.path  })
       $perAdminApp.getNodeFromView('/state/tools').edit = false
     },
     onOk() {
-      $perAdminApp.stateAction('savePageProperties', this.page )
+      $perAdminApp.stateAction('savePageProperties', this.template )
       $perAdminApp.getNodeFromView('/state/tools').edit = false
     },
     onTabClick( clickedTab ){
