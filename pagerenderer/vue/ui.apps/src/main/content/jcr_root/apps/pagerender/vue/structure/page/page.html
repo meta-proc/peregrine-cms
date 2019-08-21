@@ -12,15 +12,10 @@
     </sly>
 
     <meta data-sly-test="${((resource.useTitle) && resource.ogTitle) || (!(resource.useTitle) && helper.model.title)}" property="og:title" content="${ resource.useTitle ? helper.model.title : resource.ogTitle}"/>
-
     <meta data-sly-test="${(resource.useDescription && resource.ogDescription) || (!resource.useDescription && helper.model.description)}" property="og:description" content="${ resource.useDescription ? helper.model.description : resource.ogDescription}"/>
-
     <meta data-sly-test="${resource.ogType}" property="og:type" content="${resource.ogType}"/>
-
     <meta data-sly-test="${resource.ogImage}" property="og:image" content="${resource.ogImage}"/>
-
     <meta data-sly-test="${resource.ogImageAlt}" property="og:image:alt" content="${resource.ogImageAlt}"/>
-
     <meta data-sly-test="${(resource.useCanonicalLink && resource.ogUrl) || (!resource.useCanonicalLink && resource.canonicalLink)}" property="og:url" content="${ resource.useCanonicalLink ? resource.canonicalLink : resource.ogUrl}"/>
 
     <sly data-sly-list="${helper.model}"></sly>
