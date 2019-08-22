@@ -28,8 +28,8 @@
             <trumbowyg :config="config" v-model="value"></trumbowyg>
         </div>
         <p v-else v-html="value"></p>
-        <p v-if="showCharCount">{{ charCount }}</p>
-        <p v-if="showWordCount">{{ wordCount }}</p>
+        <p v-if="showCharCount">{{ countCharacters() }}</p>
+        <p v-if="showWordCount">{{ countWords() }}</p>
     </div>
 </template>
 
@@ -69,7 +69,9 @@
                             'removeformat'
                         ]
                     }
-                }
+                },
+                characterCount: 0,
+                wordCount: 0
             }
         },
         computed: {
@@ -102,26 +104,35 @@
             showCharCount(){
                 return this.schema.charCounter && !this.schema.readonly;
             },
-            charCount(){
-                if(this.$refs.trumbowyg){
-                    console.log(this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText);
-                    return this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText;
-                } else {
-                    return 0;
-                }
-
-                // console.log($(this.$refs.trumbowyg).textContent);
-                // console.log($(this.$refs.trumbowyg).textContent.length);
-                // return this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText;
-            },
             showWordCount(){
                 return this.schema.wordCounter && !this.schema.readonly;
+            }
+        },
+        mounted() {
+
+            this.characterCount = this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText.length;
+
+        },
+        methods: {
+            isArrayAndNotEmpty(p) {
+                return Array.isArray(p) && p.length > 0
             },
-            wordCount(){
+            isObjectAndNotEmpty(p) {
+                return typeof p === 'object' && Object.entries(p).length > 0
+            },
+            countCharacters() {
+                let trumbowyg = this.$refs.trumbowyg;
+                if(trumbowyg) {
+                    this.characterCount = trumbowyg.querySelector('.trumbowyg-editor').innerText.length;
+                }
+                return this.characterCount;
+            },
+            countWords() {
                 let wordsArray = "";
                 let wordCount = 0;
-                if(this.$refs.trumbowyg){
-                    wordsArray = this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText.split(" ");
+                let trumbowyg = this.$refs.trumbowyg;
+                if(trumbowyg){
+                    wordsArray = trumbowyg.querySelector('.trumbowyg-editor').innerText.split(" ");
                     for(let i = 0; i < wordsArray.length; i++) {
                         let wordArray = wordsArray[i].split("\n");
                         for(let j = 0; j < wordArray.length; j++) {
@@ -132,15 +143,7 @@
                     }
                 }
 
-                return this.value.split(" ").length;
-            }
-        },
-        methods: {
-            isArrayAndNotEmpty(p) {
-                return Array.isArray(p) && p.length > 0
-            },
-            isObjectAndNotEmpty(p) {
-                return typeof p === 'object' && Object.entries(p).length > 0
+                return wordCount;
             }
         }
     }
