@@ -24,7 +24,7 @@
   -->
 <template>
     <div>
-        <div v-if="!schema.preview" class="wrapper wysiwygeditor">
+        <div ref="trumbowyg" v-if="!schema.preview" class="wrapper wysiwygeditor">
             <trumbowyg :config="config" v-model="value"></trumbowyg>
         </div>
         <p v-else v-html="value"></p>
@@ -103,14 +103,35 @@
                 return this.schema.charCounter && !this.schema.readonly;
             },
             charCount(){
-                console.log(this.value);
-                console.log(this.value.replace("\\<.*?>",""));
-                return this.value.replace("\\<.*?>","").length;
+                if(this.$refs.trumbowyg){
+                    console.log(this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText);
+                    return this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText;
+                } else {
+                    return 0;
+                }
+
+                // console.log($(this.$refs.trumbowyg).textContent);
+                // console.log($(this.$refs.trumbowyg).textContent.length);
+                // return this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText;
             },
             showWordCount(){
                 return this.schema.wordCounter && !this.schema.readonly;
             },
             wordCount(){
+                let wordsArray = "";
+                let wordCount = 0;
+                if(this.$refs.trumbowyg){
+                    wordsArray = this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText.split(" ");
+                    for(let i = 0; i < wordsArray.length; i++) {
+                        let wordArray = wordsArray[i].split("\n");
+                        for(let j = 0; j < wordArray.length; j++) {
+                            if(wordArray[j] != "") {
+                                wordCount++;
+                            }
+                        }
+                    }
+                }
+
                 return this.value.split(" ").length;
             }
         },
