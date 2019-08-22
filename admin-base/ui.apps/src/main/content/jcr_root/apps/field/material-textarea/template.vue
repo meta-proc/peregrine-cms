@@ -16,8 +16,10 @@
 			</textarea>
 		</div>
 		<p v-else>{{value}}</p>
-		<p v-if="showCharCount">{{ charCount }}</p>
-		<p v-if="showWordCount">{{ wordCount }}</p>
+<!--		<p v-if="showCharCount">Zeichen: {{ charCount }}</p>-->
+<!--		<p v-if="showWordCount">Wörter: {{ wordCount }}</p>-->
+		<admin-components-charactercounter v-if="showCharCount" :text="value"></admin-components-charactercounter>
+		<admin-components-wordcounter v-if="showWordCount" :text="value"></admin-components-wordcounter>
 	</div>
 </template>
 
@@ -33,14 +35,8 @@
 			showCharCount(){
 				return !this.schema.readonly && this.schema.charCounter === 'true';
 			},
-			charCount(){
-				return this.value.length;
-			},
 			showWordCount(){
 				return !this.schema.readonly && this.schema.wordCounter === 'true';
-			},
-			wordCount(){
-				return this.value.split(" ").length;
 			}
 		}
 	}
