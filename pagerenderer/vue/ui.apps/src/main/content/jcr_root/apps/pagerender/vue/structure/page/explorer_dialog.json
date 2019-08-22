@@ -5,47 +5,47 @@
     "model": "name",
     "label": "Name",
     "readonly": true,
-    "placeholder": "page name"
+    "placeholder": "Name der Seite"
   },
   {
     "type": "input",
     "inputType": "text",
     "model": "title",
     "x-model": "jcr:title",
-    "label": "Title",
-    "placeholder": "page title"
+    "label": "Titel",
+    "placeholder": "Titel der Seite"
   },
   {
     "type": "material-datetime",
     "inputType": "text",
     "model": "created",
-    "label": "Created",
+    "label": "Erstellt am",
     "readonly": true,
-    "placeholder": "created"
+    "placeholder": "Datum"
   },
   {
     "type": "input",
     "inputType": "text",
     "model": "createdBy",
-    "label": "Created By",
+    "label": "Erstellt von",
     "readonly": true,
-    "placeholder": "created by"
+    "placeholder": "Name"
   },
   {
     "type": "material-datetime",
     "inputType": "text",
     "model": "lastModified",
-    "label": "Last Modified",
+    "label": "Zuletzt bearbeitet",
     "readonly": true,
-    "placeholder": "lastModified"
+    "placeholder": "Datum"
   },
   {
     "type": "input",
     "inputType": "text",
     "model": "lastModifiedBy",
-    "label": "Last Modified By",
+    "label": "Zuletzt bearbeitet von",
     "readonly": true,
-    "placeholder": "lastModifiedBy"
+    "placeholder": "Name"
   },
   {
     "type": "material-multiselect",
@@ -71,54 +71,13 @@
     "type": "material-textarea",
     "inputType": "text",
     "model": "description",
-    "label": "Description",
+    "label": "Beschreibung",
     "rows": 10,
-    "placeholder": "enter a description for this page"
-  },
-  {
-    "type": "collection",
-    "multifield": true,
-    "fieldLabel": [
-      "property",
-      "value"
-    ],
-    "fields": [
-      {
-        "type": "material-select",
-        "label": "Type",
-        "model": "metatype",
-        "selectOptions": {
-          "name": "name",
-          "value": "value"
-        },
-        "values": [
-          {"name": "property", "value": "property" },
-          {"name": "name", "value": "name" }
-        ],
-        "required": true,
-        "validator": "required"
-      },
-      {
-        "type": "input",
-        "inputType": "text",
-        "placeholder": "og:title",
-        "label": "meta property",
-        "model": "key"
-      },
-      {
-        "type": "input",
-        "inputType": "text",
-        "placeholder": "title",
-        "label": "meta content",
-        "model": "value"
-      }
-    ],
-    "label": "Meta Properties",
-    "model": "metaproperties"
+    "placeholder": "Füge eine Beschreibung für die Seite hinzu"
   },
   {
     "type": "material-select",
-    "label": "Protocol",
+    "label": "Protokoll",
     "model": "protocol",
     "selectOptions": {
       "name": "name",
@@ -128,7 +87,7 @@
       { "name": "https://", "value": "https://" },
       { "name": "http://", "value": "http://" }
     ],
-    "hint": "The name of the scheme used to make the request."
+    "hint": "Name des Schemas welches benutzt wird um ein Request auszuführen."
   },
   {
     "type": "material-select",
@@ -141,57 +100,78 @@
     "values": [
       { "name": "www.metaproc.com", "value": "www.metaproc.com" }
     ],
-    "hint": "The host name of the server to which the request is sent."
+    "hint": "Der Servername vom Host an den das Request geschickt wird."
   },
   {
     "type": "input",
     "inputType": "text",
     "label": "Canonical Link",
-    "model": "canonicalLink",
-    "placeholder": "canonical link element"
+    "model": "Kanonischer Link",
+    "placeholder": "Link"
   },
   {
     "type": "materialswitch",
-    "label": "Exclude from Navigation",
+    "label": "Von der Navigation ausschließen",
     "model": "hideInNav",
-    "textOn": "yes",
-    "textOff": "no",
+    "textOn": "Ja",
+    "textOff": "Nein",
     "valueOn": "true",
     "valueOff": "false",
-    "hint": "This is to indicate whether the page should be exclude from navigation."
+    "hint": "Hiermit wird angegeben, ob die Seite von der Navigation ausgeschlossen werden soll."
   },
   {
     "type": "materialswitch",
-    "label": "Exclude from Sitemap",
+    "label": "Aus Seitemap ausschließen",
     "model": "excludeFromSitemap",
-    "textOn": "yes",
-    "textOff": "no",
+    "textOn": "Ja",
+    "textOff": "Nein",
     "valueOn": "true",
     "valueOff": "false",
-    "hint": "This property indicates if the Page should be hidden from the Sitemap."
+    "hint": "Diese Eigenschaft gibt an, ob die Seite in der Sitemap ausgeblendet werden soll."
   },
   {
     "type": "material-select",
-    "label": "Page change frequency",
+    "label": "Seitenwechselhäufigkeit",
     "model": "changefreq",
     "selectOptions": {
       "name": "name",
       "value": "value"
     },
     "values": [
-      { "name": "always", "value": "always" },
-      { "name": "hourly", "value": "hourly" },
-      { "name": "daily", "value": "daily" },
-      { "name": "weekly", "value": "weekly" },
-      { "name": "monthly", "value": "monthly" },
-      { "name": "yearly", "value": "yearly" },
-      { "name": "never", "value": "never" }
+      {
+        "name": "immer",
+        "value": "always"
+      },
+      {
+        "name": "stündlich",
+        "value": "hourly"
+      },
+      {
+        "name": "täglich",
+        "value": "daily"
+      },
+      {
+        "name": "wöchentlich",
+        "value": "weekly"
+      },
+      {
+        "name": "monatlich",
+        "value": "monthly"
+      },
+      {
+        "name": "jährlich",
+        "value": "yearly"
+      },
+      {
+        "name": "nie",
+        "value": "never"
+      }
     ],
-    "hint": "How frequently the page is likely to change. This value provides general information to search engines and may not correlate exactly to how often they crawl the page."
+    "hint": "Gibt an wie oft sich die Seite wahrscheinlich ändern wird. Dieser Wert bietet Suchmaschinen allgemeine Informationen und entspricht möglicherweise nicht genau der Häufigkeit, mit der sich die Seite ändern wird."
   },
   {
     "type": "material-select",
-    "label": "Page priority",
+    "label": "Seitenpriorität",
     "model": "priority",
     "selectOptions": {
       "name": "name",
@@ -210,16 +190,16 @@
       { "name": "0.9", "value": "0.9" },
       { "name": "1.0", "value": "1.0" }
     ],
-    "hint": "The priority of this URL relative to other URLs on your site. Valid values range from 0.0 to 1.0. This value does not affect how your pages are compared to pages on other sites—it only lets the search engines know which pages you deem most important for the crawlers."
+    "hint": "Die Priorität dieser URL im Verhältnis zu anderen URLs auf Ihrer Website. Gültige Werte liegen zwischen 0,0 und 1,0. Dieser Wert hat keinen Einfluss darauf, wie Ihre Seiten mit Seiten auf anderen Websites verglichen werden. Er gibt den Suchmaschinen lediglich Auskunft darüber, welche Seiten Sie für die Crawler am wichtigsten erachten."
   },
   {
     "type": "materialswitch",
-    "label": "Disallow from Web Crawlers",
+    "label": "Verbieten von Webcrawlern",
     "model": "disallowFromRobots",
     "textOn": "yes",
     "textOff": "no",
     "valueOn": "true",
     "valueOff": "false",
-    "hint": "This is to indicate whether the page should be disallowed from being scanned and processed by web crawlers and other web robots."
+    "hint": "Hiermit wird angegeben, ob die Seite nicht von Webcrawlern und anderen Webrobotern gescannt und verarbeitet werden darf."
   }
 ]}
