@@ -46,10 +46,6 @@
 
         return wordCount;
       }
-    },
-
-    mounted() {
-      console.log(this.text);
     }
   }
 </script>

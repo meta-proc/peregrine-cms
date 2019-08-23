@@ -28,8 +28,8 @@
             <trumbowyg :config="config" v-model="value"></trumbowyg>
         </div>
         <p v-else v-html="value"></p>
-        <admin-components-charactercounter v-if="showCharCount" :text="getTrumbowygText()"></admin-components-charactercounter>
-        <admin-components-wordcounter v-if="showWordCount" :text="getTrumbowygText()"></admin-components-wordcounter>
+        <p v-if="showCharCount">Zeichen: {{ countCharacters() }}</p>
+        <p v-if="showWordCount">Wörter: {{ countWords() }}</p>
     </div>
 </template>
 
@@ -69,7 +69,9 @@
                             'removeformat'
                         ]
                     }
-                }
+                },
+                characterCount: 0,
+                wordCount: 0
             }
         },
         computed: {
@@ -106,6 +108,12 @@
                 return this.schema.wordCounter && !this.schema.readonly;
             }
         },
+        mounted() {
+            this.characterCount = this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText.length;
+        },
+        updated() {
+            this.characterCount = this.$refs.trumbowyg.querySelector('.trumbowyg-editor').innerText.length;
+        },
         methods: {
             isArrayAndNotEmpty(p) {
                 return Array.isArray(p) && p.length > 0
@@ -113,13 +121,30 @@
             isObjectAndNotEmpty(p) {
                 return typeof p === 'object' && Object.entries(p).length > 0
             },
-            getTrumbowygText() {
+            countCharacters() {
                 let trumbowyg = this.$refs.trumbowyg;
                 if(trumbowyg) {
-                    return trumbowyg.querySelector('.trumbowyg-editor').innerText;
-                } else {
-                    return "";
+                    this.characterCount = trumbowyg.querySelector('.trumbowyg-editor').innerText.length;
                 }
+                return this.characterCount;
+            },
+            countWords() {
+                let wordsArray = "";
+                let wordCount = 0;
+                let trumbowyg = this.$refs.trumbowyg;
+                if(trumbowyg){
+                    wordsArray = trumbowyg.querySelector('.trumbowyg-editor').innerText.split(" ");
+                    for(let i = 0; i < wordsArray.length; i++) {
+                        let wordArray = wordsArray[i].split("\n");
+                        for(let j = 0; j < wordArray.length; j++) {
+                            if(wordArray[j] != "") {
+                                wordCount++;
+                            }
+                        }
+                    }
+                }
+
+                return wordCount;
             }
         }
     }
