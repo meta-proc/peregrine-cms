@@ -33,18 +33,21 @@
     ],
     computed: {
       counter(){
-        let wordCount = 0;
-        let wordsArray = this.text.split(" ");
-        for(let i = 0; i < wordsArray.length; i++) {
-          let wordArray = wordsArray[i].split("\n");
-          for(let j = 0; j < wordArray.length; j++) {
-            if(wordArray[j] != "") {
-              wordCount++;
+        if(this.text){
+          let wordCount = 0;
+          let wordsArray = this.text.split(" ");
+          for(let i = 0; i < wordsArray.length; i++) {
+            let wordArray = wordsArray[i].split("\n");
+            for(let j = 0; j < wordArray.length; j++) {
+              if(wordArray[j] != "") {
+                wordCount++;
+              }
             }
           }
+          return wordCount;
+        } else {
+          return 0;
         }
-
-        return wordCount;
       }
     }
   }

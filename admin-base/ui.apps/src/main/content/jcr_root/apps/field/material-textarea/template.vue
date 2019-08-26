@@ -16,8 +16,6 @@
 			</textarea>
 		</div>
 		<p v-else>{{value}}</p>
-<!--		<p v-if="showCharCount">Zeichen: {{ charCount }}</p>-->
-<!--		<p v-if="showWordCount">Wörter: {{ wordCount }}</p>-->
 		<admin-components-charactercounter v-if="showCharCount" :text="value"></admin-components-charactercounter>
 		<admin-components-wordcounter v-if="showWordCount" :text="value"></admin-components-wordcounter>
 	</div>

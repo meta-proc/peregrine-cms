@@ -33,7 +33,11 @@
         ],
         computed: {
             counter(){
-                return this.text.length;
+                if(this.text){
+                    return this.text.length;
+                } else {
+                    return 0;
+                }
             }
         }
     }
