@@ -26,43 +26,11 @@
 	export default {
 		mixins: [ VueFormGenerator.abstractField ],
 		mounted() {
-			// $(this.$refs.textarea).trigger('autoresize');
 		},
 		updated() {
-			// if( document.activeElement != this.$refs.textarea ){
-			// 	$(this.$refs.textarea).trigger('autoresize');
-			// }
 		},
     methods: {
-      preventEmpty: function(evt){
-        // console.log( "preventEmpty" );
-        // if(this.schema.preventEmpty && this.value.length === 0){
-        //   console.log("preventEmpty-true")
-        //   switch(this.schema.allowed){
-        //   case "number":
-        //     this.value = 0;
-        //     break;
-        //   case "integer":
-        //     this.value = 0;
-        //     break;
-        //   case "double":
-        //     this.value = 0;
-        //     break;
-        //   }
-        // }
-        evt = (evt) ? evt : window.event;
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        console.log( charCode );
-        if( charCode === 8 && this.value.length === 1 ){
-          console.log("prevented");
-          evt.preventDefault();
-          this.value = 1;
-        } else {
-          return true;
-        }
-      },
 		  isNumber: function(evt) {
-		    console.log( "isNumber" );
         evt = (evt) ? evt : window.event;
         var charCode = (evt.which) ? evt.which : evt.keyCode;
         if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
@@ -72,7 +40,6 @@
         }
       },
 		  isInteger: function(evt) {
-		    console.log( "isNumber" );
         evt = (evt) ? evt : window.event;
         var charCode = (evt.which) ? evt.which : evt.keyCode;
         if (charCode > 31 && (charCode < 48 || charCode > 57)) {
@@ -82,7 +49,6 @@
         }
       },
 		  allowed(){
-		    this.preventEmpty();
         switch(this.schema.allowed){
         case "number":
           return this.isNumber();
