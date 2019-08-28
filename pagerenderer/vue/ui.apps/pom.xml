@@ -107,6 +107,12 @@
                 <directory>${basedir}/node_modules/vue/dist</directory>
                 <targetPath>etc/felibs/pagerender-vue/vue</targetPath>
             </resource>
+
+            <resource>
+                <directory>${basedir}/src/main/icons</directory>
+                <targetPath>etc/felibs</targetPath>
+            </resource>
+
             <resource>
                 <directory>${basedir}/src/main/content/jcr_root</directory>
                 <excludes>
