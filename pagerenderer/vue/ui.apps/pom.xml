@@ -110,7 +110,7 @@
 
             <resource>
                 <directory>${basedir}/src/main/icons</directory>
-                <targetPath>etc/felibs</targetPath>
+                <targetPath>etc/felibs/pagerender-vue/favicon</targetPath>
             </resource>
 
             <resource>
