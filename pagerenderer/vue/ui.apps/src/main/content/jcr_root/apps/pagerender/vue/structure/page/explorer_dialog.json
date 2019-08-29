@@ -16,6 +16,20 @@
     "placeholder": "page title"
   },
   {
+    "type": "material-select",
+    "label": "Site Language",
+    "model": "siteLanguage",
+    "selectOptions": {
+      "name": "name",
+      "value": "value"
+    },
+    "values": [
+      { "name": "de", "value": "de" },
+      { "name": "en", "value": "en" }
+    ],
+    "hint": "Defined Language for current site. Only choice from template will be used"
+  },
+  {
     "type": "material-datetime",
     "inputType": "text",
     "model": "created",
