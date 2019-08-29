@@ -54,36 +54,73 @@
                         </a>
                     </li>
                 </template>
-                <li>
+                <li class="icon-list">
+                  <div class="icons-left">
+                    <a title="og-tags"
+                       class="icon-list-tab waves-effect waves-light"
+                       :class="{'active': (tab==='og-tag')}"
+                       v-on:click.stop.prevent="onTabClick('og-tag')">
+                      <i class="editor-icon material-icons">label</i>
+                    </a>
+                    <a title="page-info"
+                       class="icon-list-tab waves-effect waves-light"
+                       :class="{'active': (tab==='info')}"
+                       v-on:click.stop.prevent="onTabClick('info')">
+                      <i class="editor-icon material-icons">settings</i>
+                    </a>
+                  </div>
+                  <div class="icons-right">
                     <a  v-if="edit"
                         title="cancel edit"
-                        class="waves-effect waves-light"
+                        class="icon-list-btn waves-effect waves-light"
                         v-on:click.stop.prevent="onCancel">
-                        <i class="material-icons">info</i>
+                      <i class="editor-icon material-icons">info</i>
                     </a>
                     <a  v-else
                         title="edit page properties"
-                        class="waves-effect waves-light"
+                        class="icon-list-btn waves-effect waves-light"
                         v-on:click.stop.prevent="onEdit">
-                        <i class="material-icons">edit</i>
+                      <i class="editor-icon material-icons">edit</i>
                     </a>
+                  </div>
                 </li>
 
             </ul>
-            <vue-form-generator
-                v-if="!edit"
-                class="vfg-preview"
-                v-on:validated = "onValidated"
-                v-bind:schema  = "readOnlySchema"
-                v-bind:model   = "page"
-                v-bind:options = "options">
-            </vue-form-generator>
-            <template v-else>
+            <div v-if="!edit" class="show-overflow">
+              <div v-if="tab==='og-tag'">
                 <vue-form-generator
+                  class="vfg-preview"
+                  v-on:validated = "onValidated"
+                  v-bind:schema  = "readOnlyOgTagSchema"
+                  v-bind:model   = "page"
+                  v-bind:options = "options">
+                </vue-form-generator>
+              </div>
+              <div v-else-if="tab==='info'">
+                <vue-form-generator
+                  class="vfg-preview"
+                  v-on:validated = "onValidated"
+                  v-bind:schema  = "readOnlySchema"
+                  v-bind:model   = "page"
+                  v-bind:options = "options">
+                </vue-form-generator>
+              </div>
+            </div>
+            <template v-else>
+                <div v-if="tab==='og-tag'" class="show-overflow">
+                  <vue-form-generator
+                    v-bind:schema="ogTagSchema"
+                    v-bind:model="page"
+                    v-bind:options="options">
+                  </vue-form-generator>
+                </div>
+                <div v-else-if="tab==='info'" class="show-overflow">
+                  <vue-form-generator
                     v-bind:schema="schema"
                     v-bind:model="page"
                     v-bind:options="options">
-                </vue-form-generator>
+                  </vue-form-generator>
+                </div>
                 <div class="explorer-confirm-dialog">
                     <button
                         type="button"
@@ -142,6 +179,21 @@
                 return roSchema
 
             },
+            readOnlyOgTagSchema() {
+              if(!this.ogTagSchema) return {}
+              const roSchema = JSON.parse(JSON.stringify(this.ogTagSchema))
+              roSchema.fields.forEach( (field) => {
+                field.preview = true
+                field.readonly = true
+                if(field.fields) {
+                  field.fields.forEach( (field) => {
+                    field.readonly = true
+                  })
+                }
+              })
+              return roSchema
+
+            },
             currentObject() {
                 return $perAdminApp.getNodeFromViewOrNull("/state/tools/page")
             },
@@ -152,18 +204,27 @@
                 return this.currentObject.split('/').length > 4
             },
             schema() {
-                const view = $perAdminApp.getView()
-                if(this.page) {
-                    const component = this.page.component
-                    const schema = view.admin.componentDefinitions[component]
-                    return schema
-                }
+              const view = $perAdminApp.getView()
+              if(this.page) {
+                const component = this.page.component
+                const schema = view.admin.componentDefinitions[component].model;
+                return schema
+              }
+            },
+            ogTagSchema() {
+              const view = $perAdminApp.getView();
+              if(this.page) {
+                const component = this.page.component;
+                const ogTagSchema = view.admin.componentDefinitions[component].ogTags;
+                return ogTagSchema;
+              }
             },
 
         },
         data: function() {
             return {
                 isOpen: false,
+                tab: "info",
                 browserRoot: '/content/sites',
                 currentPath: '/content/sites',
                 selectedPath: null,
@@ -252,7 +313,55 @@
                 }
                 $perAdminApp.stateAction('savePageProperties', data)
                 $perAdminApp.getNodeFromView('/state/tools').edit = false
+            },
+            onTabClick( clickedTab ){
+                this.tab = clickedTab;
             }
         }
     }
 </script>
+
+<style scoped>
+  .icon-list {
+    width: 100%;
+  }
+
+  .icon-list-tab {
+    height: 44px;
+    margin-top: -2px;
+    padding: 6px 5px 5px 5px;
+  }
+  .icon-list-btn {
+    height: 44px;
+    width: 44px;
+    margin-top: -2px;
+    padding: 6px 5px 5px 5px;
+  }
+
+  .icons-left {
+    float: left;
+    height: 44px;
+    margin-left: 10px;
+  }
+
+  .active {
+    background-color: #37474f;
+    color: #cfd8dc;
+  }
+
+  .show-overflow {
+    overflow: auto;
+  }
+
+  .icons-right {
+    float: right;
+    height: 44px;
+    margin-right: 10px;
+  }
+  .editor-icon {
+    /*width: 44px;*/
+    height: 44px;
+    margin-right: 5px;
+    margin-left: 5px;
+  }
+</style>
