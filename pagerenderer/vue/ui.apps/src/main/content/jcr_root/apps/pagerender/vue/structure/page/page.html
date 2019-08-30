@@ -11,19 +11,10 @@
     <sly data-sly-list="${helper.model.metaproperties}"><meta property="${item.key}" content="${item.value}">
     </sly>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/etc/felibs/pagerender-vue/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/etc/felibs/pagerender-vue/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/etc/felibs/pagerender-vue/favicon/favicon-16x16.png">
-    <link rel="manifest" href="/etc/felibs/pagerender-vue/favicon/site.webmanifest">
-    <link rel="mask-icon" href="/etc/felibs/pagerender-vue/favicon/safari-pinned-tab.svg" color="#0d5786">
-    <meta name="apple-mobile-web-app-title" content="meta:proc">
-    <meta name="application-name" content="meta:proc">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="/etc/felibs/pagerender-vue/favicon/mstile-144x144.png">
-    <meta name="theme-color" content="#ffffff">
-
     <title>${resource.jcr:title}</title>
     <sly data-sly-list="${helper.model.prefetchDNS}"><link rel="dns-prefetch" href="${item}"></sly>
+
+    <sly data-sly-include="favicon.html"></sly>
 
     <link rel="manifest" href="${helper.siteRootPath}/manifest.json">
     <link rel="canonical" href="${resource.canonicalLink}">
