@@ -114,11 +114,6 @@
             </resource>
 
             <resource>
-                <directory>${basedir}/src/main/icons</directory>
-                <targetPath>etc/felibs/pagerender-vue/favicon</targetPath>
-            </resource>
-
-            <resource>
                 <directory>${basedir}/src/main/content/jcr_root</directory>
                 <excludes>
                     <!-- exclude .vlt control files in the package -->
