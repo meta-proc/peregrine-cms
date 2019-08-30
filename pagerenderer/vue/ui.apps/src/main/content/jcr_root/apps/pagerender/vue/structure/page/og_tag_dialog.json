@@ -11,7 +11,7 @@
       "inputType": "text",
       "model": "ogTitle",
       "label": "og:title",
-      "placeholder": "og.title",
+      "placeholder": "og:title",
       "visible": "model.useTitle != true"
     },
     {
@@ -25,16 +25,16 @@
       "inputType": "text",
       "model": "ogDescription",
       "label": "og:description",
-      "placeholder": "og.description",
+      "placeholder": "og:description",
       "visible": "model.useDescription != true"
     },
     {
       "type": "material-select",
       "label": "og:type",
       "model": "ogType",
-      "placeholder": "og.type",
+      "placeholder": "og:type",
       "default": "website",
-      "values" : [
+      "values": [
         {
           "name": "website",
           "value": "website"
@@ -44,16 +44,17 @@
     {
       "type": "pathbrowser",
       "browserRoot": "/content/assets",
+      "browserType": "image",
       "label": "og:image",
       "readonly": true,
-      "placeholder": "ogImage",
+      "placeholder": "og:image",
       "model": "ogImage"
     },
     {
       "type": "input",
       "inputType": "text",
       "model": "ogImageAlt",
-      "placeholder": "og.imageAlt",
+      "placeholder": "og:image:alt",
       "label": "og:image:alt"
     },
     {
@@ -67,7 +68,7 @@
       "inputType": "text",
       "model": "ogUrl",
       "label": "og:url",
-      "placeholder": "og.url",
+      "placeholder": "og:url",
       "visible": "model.useCanonicalLink != true"
     }
   ]
