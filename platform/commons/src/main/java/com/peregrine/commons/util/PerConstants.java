@@ -88,6 +88,9 @@ public class PerConstants {
     public static final String SITE = "site";
     public static final String NAME = "name";
     public static final String MODEL = "model";
+
+    public static final String OG_TAGS = "ogTags";
+
     public static final String TYPE = "type";
     public static final String VARIATION = "variation";
     public static final String VARIATION_PATH = "variationPath";
