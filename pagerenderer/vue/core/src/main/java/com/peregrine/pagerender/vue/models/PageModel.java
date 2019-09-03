@@ -67,8 +67,9 @@ public class PageModel
     public static final String DOMAINS = "domains";
     public static final String SITE_JS = "siteJS";
     public static final String TEMPLATE = "template";
+    private static final String DEFAULT_LANGUAGE = "en";
 
-    public PageModel(Resource r) {
+  public PageModel(Resource r) {
         super(r);
     }
 
@@ -180,9 +181,13 @@ public class PageModel
       Resource resource = getResource().getResourceResolver().getResource(getTemplate() + SLASH + JCR_CONTENT);
       if( resource != null ){
         ValueMap map = resource.getValueMap();
-        return (String) map.get("siteLanguage");
+        if( map.get("siteLanguage") != null ){
+          return (String) map.get("siteLanguage");
+        } else {
+          return DEFAULT_LANGUAGE;
+        }
       }
-      return "en";
+      return DEFAULT_LANGUAGE;
     }
 
     private PageModel getTamplatePageModel() {

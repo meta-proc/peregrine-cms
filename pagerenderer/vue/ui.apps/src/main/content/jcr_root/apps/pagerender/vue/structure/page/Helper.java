@@ -43,8 +43,10 @@ public class Helper implements Use {
     private String siteRootPath;
     private String siteName;
     private String siteLanguage;
+    private static final String DEFAULT_LANGUAGE = "en";
 
-    public String getSiteLanguage() {
+
+  public String getSiteLanguage() {
       return siteLanguage;
     }
 
@@ -90,8 +92,8 @@ public class Helper implements Use {
             path = path.substring("/content/templates/".length());
             lang = properties.get("siteLanguage");
         }
-        if( lang.equals("") ){
-          siteLanguage = "en";
+        if(  lang == null || lang.equals("") ){
+          siteLanguage = DEFAULT_LANGUAGE;
         } else {
           siteLanguage = lang;
         }
