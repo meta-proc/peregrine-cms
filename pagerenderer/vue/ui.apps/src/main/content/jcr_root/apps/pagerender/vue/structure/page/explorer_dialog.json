@@ -8,12 +8,27 @@
     "placeholder": "Name der Seite"
   },
   {
-    "type": "input",
-    "inputType": "text",
+    "type": "textinput",
+    "placeholder": "page title",
+    "label": "Title",
     "model": "title",
     "x-model": "jcr:title",
-    "label": "Titel",
-    "placeholder": "Titel der Seite"
+    "charCounter": "true",
+    "wordCounter": "true"
+  },
+  {
+    "type": "material-select",
+    "label": "Site Language",
+    "model": "siteLanguage",
+    "selectOptions": {
+      "name": "name",
+      "value": "value"
+    },
+    "values": [
+      { "name": "de", "value": "de" },
+      { "name": "en", "value": "en" }
+    ],
+    "hint": "Defined Language for current site. Only choice from template will be used"
   },
   {
     "type": "material-datetime",
@@ -73,7 +88,9 @@
     "model": "description",
     "label": "Beschreibung",
     "rows": 10,
-    "placeholder": "Füge eine Beschreibung für die Seite hinzu"
+    "placeholder": "enter a description for this page",
+    "charCounter": "true",
+    "wordCounter": "true"
   },
   {
     "type": "collection",

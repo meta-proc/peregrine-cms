@@ -44,7 +44,7 @@
 
     <script type="text/javascript">
         if(/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
-            document.write('<script src="https://raw.githack.com/zloirock/core-js/v2.4.1/client/shim.min.js"><\/script>');
+            document.write('<script src="/etc/felibs/pagerender-vue/conditional-js/shim.min.js"><\/script>');
     </script>
 
 </head>
@@ -78,7 +78,10 @@
         $perAdminApp.loadComponent('admin-components-spinner')
         $perAdminApp.loadComponent('admin-components-tour')
         $perAdminApp.loadComponent('admin-components-explorerpreview')
+        $perAdminApp.loadComponent('admin-components-explorerpreviewcontent')
         $perAdminApp.loadComponent('admin-components-fileupload')
+        $perAdminApp.loadComponent('admin-components-charactercounter')
+        $perAdminApp.loadComponent('admin-components-wordcounter')
 
         $perAdminApp.loadComponent('field-pathbrowser')
         $perAdminApp.loadComponent('field-texteditor')
@@ -100,6 +103,7 @@
         $perAdminApp.loadComponent('field-headline')
         $perAdminApp.loadComponent('field-controls')
         $perAdminApp.loadComponent('field-horizontal-line')
+        $perAdminApp.loadComponent('field-textinput')
 
 
         $perAdminApp.loadComponent('admin-components-iconeditpage')
