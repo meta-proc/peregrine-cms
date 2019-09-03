@@ -39,3 +39,9 @@
 		}
 	}
 </script>
+
+<style scoped>
+  .materialize-textarea {
+    min-height: 3.5rem;
+  }
+</style>
