@@ -24,6 +24,8 @@
 
     <sly data-sly-list="${helper.model.prefetchDNS}"><link rel="dns-prefetch" href="${item}"></sly>
 
+    <sly data-sly-include="favicon.html"></sly>
+
     <link rel="manifest" href="${helper.siteRootPath}/manifest.json">
     <link rel="canonical" href="${resource.canonicalLink}">
     <script>$peregrineSiteRoot = "${helper.siteRootPath @ context='unsafe'}"</script>
