@@ -72,7 +72,7 @@
         schema: function() {
             var view = $perAdminApp.getView()
             var component = view.state.editor.component
-            var schema = view.admin.componentDefinitions[component]
+            var schema = view.admin.componentDefinitions[component].model
             return schema
         },
         dataModel: function() {
