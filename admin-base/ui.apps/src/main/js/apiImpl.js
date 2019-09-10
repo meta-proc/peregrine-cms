@@ -255,12 +255,16 @@ class PerAdminImpl {
                             for(let i = 0; i < data.model.fields.length; i++) {
                                 let from = data.model.fields[i].valuesFrom
                                 if(from) {
+                                    if (typeof from == "string") {
+                                    from = {path: from}
+                                  }
+                                  for (let index in from) {
                                     data.model.fields[i].values = []
-                                    let promise = axios.get(from).then( (response) => {
+                                    let promise = axios.get(from[index]).then( (response) => {
                                         for(var key in response.data) {
                                             if(response.data[key]['jcr:title']) {
                                                 const nodeName = key
-                                                const val = from.replace('.infinity.json', '/'+nodeName)
+                                                const val = from[index].replace('.infinity.json', '/'+nodeName)
                                                 let name = response.data[key].name
                                                 if(!name) {
                                                     name = response.data[key]['jcr:title']
@@ -272,6 +276,7 @@ class PerAdminImpl {
                                         logger.error('missing node', data.model.fields[i].valuesFrom, 'for list population in dialog', error)
                                     })
                                     promises.push(promise)
+                                }
                                 }
                                 let visible = data.model.fields[i].visible
                                 if(visible) {
@@ -475,18 +480,6 @@ class PerAdminImpl {
         })
     }
 
-    deleteSite(target) {
-        let name = target.name;
-        let root = '/content/sites';
-        return new Promise( (resolve, reject) => {
-            let data = new FormData()
-            data.append('name', name);
-            updateWithForm('/admin/deleteSite.json', data)
-                .then( (data) => this.populateNodesForBrowser(root) )
-                .then( () => resolve() )
-        })
-    }
-
     renamePage(path, newName) {
         return new Promise( (resolve, reject) => {
             let data = new FormData()
@@ -559,15 +552,6 @@ class PerAdminImpl {
     }
 
     deleteFolder(path) {
-        return new Promise( (resolve, reject) => {
-            let data = new FormData()
-            updateWithForm('/admin/deleteNode.json'+path, data)
-                .then( (data) => this.populateNodesForBrowser(path) )
-                .then( () => resolve() )
-        })
-    }
-
-    deleteFile(path) {
         return new Promise( (resolve, reject) => {
             let data = new FormData()
             updateWithForm('/admin/deleteNode.json'+path, data)
