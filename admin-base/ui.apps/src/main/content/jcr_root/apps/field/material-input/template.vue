@@ -102,9 +102,8 @@ export default {
       let max = this.getMinMax('max');
       let v = Number(this.value.replace(/[^0-9]/g, ""));
       this.value = v + "";
-      if( v > max ) this.value = max;
-      if( v < min ) this.value = min;
-      console.log( "min: %s, max: %s, v: %s, value: %s", min, max, v, this.value);
+      if( (max != null) && (v > max) ) this.value = max;
+      if( (min != null) && (v < min) ) this.value = min;
     },
     allowed() {
       switch (this.schema.allowed) {
