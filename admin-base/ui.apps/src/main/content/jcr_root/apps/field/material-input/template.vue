@@ -22,7 +22,7 @@
         type="text"
       />
       <p style="color: #607d8b">
-        min: {{ getMinMax('min') }}, max: {{ getMinMax('max') }}
+        min: {{ getMinMax('min') != null ? getMinMax('min') : '---' }}, max: {{ getMinMax('max') != null ? getMinMax('max') : '---' }}
       </p>
     </div>
     <p v-else>
@@ -42,18 +42,26 @@ export default {
     getMinMax(s){
       switch(s){
       case "min":
-        if( this.schema.min ) return this.schema.min;
+        if( this.schema.min ){
+          return parseInt(this.schema.min, 10);
+        }
         if( this.schema.interval ){
           let interval = this.parseInterval(this.schema.interval);
+          console.log("interval - min")
           return interval.min;
         }
+        return null;
         break;
       case "max":
-        if( this.schema.max ) return this.schema.max;
+        if( this.schema.max ){
+          return parseInt(this.schema.max, 10);
+        }
         if( this.schema.interval ){
           let interval = this.parseInterval(this.schema.interval);
+          console.log("interval - max")
           return interval.max;
         }
+        return null;
         break;
       default:
         return 0;
@@ -92,15 +100,17 @@ export default {
     minMax(){
       let min = this.getMinMax('min');
       let max = this.getMinMax('max');
-      if( this.value > max ) this.value = max;
-      if( this.value < min ) this.value = min;
+      let v = Number(this.value.replace(/[^0-9]/g, ""));
+      this.value = v + "";
+      if( (max != null) && (v > max) ) this.value = max;
+      if( (min != null) && (v < min) ) this.value = min;
     },
     allowed() {
       switch (this.schema.allowed) {
       case 'number':
         return this.isNumber();
       case 'integer':
-        return this.isInteger();
+        return this.isInteger(window.event);
       case 'double':
         return this.isNumber();
       default:
