@@ -12,9 +12,9 @@
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
   with the License.  You may obtain a copy of the License at
-
+  
   http://www.apache.org/licenses/LICENSE-2.0
-
+  
   Unless required by applicable law or agreed to in writing,
   software distributed under the License is distributed on an
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,7 +30,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <title>${resource.jcr:title}</title>
-
+    
     <sly data-sly-include="styles.html"></sly>
 
     <sly data-sly-list="${helper.model.siteCSS}">
@@ -43,8 +43,13 @@
     <link rel="stylesheet" href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" type="text/css">
 
     <script type="text/javascript">
-        if(/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
+        if(/MSIE \d|Trident.*rv:/.test(navigator.userAgent)) {
             document.write('<script src="/etc/felibs/pagerender-vue/conditional-js/shim.min.js"><\/script>');
+        }
+
+        if('ResizeObserver' in window === false) {
+            document.write('<script src="/etc/felibs/admin/polyfills/ResizeObserver.global.js"><\/script>');
+        }
     </script>
 
 </head>
