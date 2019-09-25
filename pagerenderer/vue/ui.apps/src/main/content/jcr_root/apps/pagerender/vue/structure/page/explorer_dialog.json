@@ -8,12 +8,27 @@
     "placeholder": "page name"
   },
   {
-    "type": "input",
-    "inputType": "text",
+    "type": "textinput",
+    "placeholder": "page title",
+    "label": "Title",
     "model": "title",
     "x-model": "jcr:title",
-    "label": "Title",
-    "placeholder": "page title"
+    "charCounter": "true",
+    "wordCounter": "true"
+  },
+  {
+    "type": "material-select",
+    "label": "Site Language",
+    "model": "siteLanguage",
+    "selectOptions": {
+      "name": "name",
+      "value": "value"
+    },
+    "values": [
+      { "name": "de", "value": "de" },
+      { "name": "en", "value": "en" }
+    ],
+    "hint": "Defined Language for current site. Only choice from template will be used"
   },
   {
     "type": "material-datetime",
@@ -61,7 +76,11 @@
       "closeOnSelect": false,
       "taggable": true
     },
-    "valuesFrom": "/content/objects/tags.infinity.json"
+    "valuesFrom": [
+      "/content/objects/tags.infinity.json",
+      "/content/objects/democontent.infinity.json",
+      "/content/objects/metaprocdeutsch.infinity.json"
+    ]
   },
   {
     "type": "material-textarea",
@@ -69,7 +88,9 @@
     "model": "description",
     "label": "Description",
     "rows": 10,
-    "placeholder": "enter a description for this page"
+    "placeholder": "enter a description for this page",
+    "charCounter": "true",
+    "wordCounter": "true"
   },
   {
     "type": "collection",
@@ -175,13 +196,34 @@
       "value": "value"
     },
     "values": [
-      { "name": "always", "value": "always" },
-      { "name": "hourly", "value": "hourly" },
-      { "name": "daily", "value": "daily" },
-      { "name": "weekly", "value": "weekly" },
-      { "name": "monthly", "value": "monthly" },
-      { "name": "yearly", "value": "yearly" },
-      { "name": "never", "value": "never" }
+      {
+        "name": "always",
+        "value": "always"
+      },
+      {
+        "name": "hourly",
+        "value": "hourly"
+      },
+      {
+        "name": "daily",
+        "value": "daily"
+      },
+      {
+        "name": "weekly",
+        "value": "weekly"
+      },
+      {
+        "name": "monthly",
+        "value": "monthly"
+      },
+      {
+        "name": "yearly",
+        "value": "yearly"
+      },
+      {
+        "name": "never",
+        "value": "never"
+      }
     ],
     "hint": "How frequently the page is likely to change. This value provides general information to search engines and may not correlate exactly to how often they crawl the page."
   },

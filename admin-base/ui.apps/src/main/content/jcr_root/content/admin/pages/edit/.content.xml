@@ -59,7 +59,12 @@
                       title="laptop"
                       stateFrom="/state/tools/workspace/view"
                       command="editPreview"
-                      icon="laptop_mac"/>
+                      icon="laptop_mac">
+                      <experiences jcr:primaryType="nt:unstructured">
+                        <de jcr:primaryType="nt:unstructured" experiences="[lang:de]"
+                          title="Laptop"/>
+                      </experiences>
+                    </laptop>
                     <tablet-landscape jcr:primaryType="nt:unstructured"
                       sling:resourceType="admin/components/action"
                       target="tablet-landscape"
@@ -67,7 +72,12 @@
                       title="tablet-landscape"
                       stateFrom="/state/tools/workspace/view"
                       command="editPreview"
-                      icon="tablet"/>
+                      icon="tablet">
+                      <experiences jcr:primaryType="nt:unstructured">
+                        <de jcr:primaryType="nt:unstructured" experiences="[lang:de]"
+                          title="Tablet Querformat"/>
+                      </experiences>
+                    </tablet-landscape>
                     <tablet jcr:primaryType="nt:unstructured"
                       sling:resourceType="admin/components/action" target="tablet" type="icon" title="tablet"
                       stateFrom="/state/tools/workspace/view"
@@ -83,7 +93,12 @@
                       title="mobile-landscape"
                       stateFrom="/state/tools/workspace/view"
                       command="editPreview"
-                      icon="stay_current_landscape"/>
+                      icon="stay_current_landscape">
+                      <experiences jcr:primaryType="nt:unstructured">
+                        <de jcr:primaryType="nt:unstructured" experiences="[lang:de]"
+                          title="Mobil Querformat"/>
+                      </experiences>
+                    </mobile-landscape>
                     <mobile jcr:primaryType="nt:unstructured"
                       sling:resourceType="admin/components/action" target="mobile" type="icon" title="mobile"
                       stateFrom="/state/tools/workspace/view"
@@ -98,7 +113,12 @@
                     <ignore-containers jcr:primaryType="nt:unstructured"
                       sling:resourceType="admin/components/action" target="ignore-containers" type="icon" title="ignore-containers"
                       stateFrom="/state/tools/workspace/ignoreContainers"
-                      command="editPreview" icon="layers_clear"/>
+                      command="editPreview" icon="layers_clear">
+                      <experiences jcr:primaryType="nt:unstructured">
+                        <de jcr:primaryType="nt:unstructured" experiences="[lang:de]"
+                          title="Container ausblenden"/>
+                      </experiences>
+                    </ignore-containers>
                     <preview jcr:primaryType="nt:unstructured"
                       sling:resourceType="admin/components/action" target="preview" type="icon" title="preview"
                       stateFrom="/state/tools/workspace/preview"

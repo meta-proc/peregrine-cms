@@ -1,7 +1,7 @@
 <template>
   <div class="drpdwn" v-bind:data-per-path="model.path">
     <button class="drpbtn">
-      <a title="screen-dropdown" class="btn-floating waves-effect waves-light">
+      <a v-bind:title="$i18n('screen dropdown')"  class="btn-floating waves-effect waves-light">
         <i class="material-icons">{{icon}}</i>
       </a>
     </button>
