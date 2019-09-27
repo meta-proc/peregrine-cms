@@ -38,7 +38,7 @@ public abstract class AbstractUserAndPermissionsService {
 
     /** @return Sling Repository to login as admin and to create the System User **/
     public abstract SlingRepository getSlingRepository();
-    /** @return Resource Resolver Factory to obtain service resource resolver to test permisions **/
+    /** @return Resource Resolver Factory to obtain service resource resolver to test permissions **/
     public abstract ResourceResolverFactory getResourceResolverFactory();
 
     protected void handleUserAndPermissions(String userName, String subServiceName) throws Exception {
@@ -49,13 +49,13 @@ public abstract class AbstractUserAndPermissionsService {
             try {
                 session = getSlingRepository().login(new SimpleCredentials(DEFAULT_USER_NAME, DEFAULT_USER_NAME.toCharArray()));
             } catch(LoginException e) {
-                log.debug("Failed to login as default 'admin'");
+                log.debug("Failed to login as default '{}'", DEFAULT_USER_NAME);
             }
             // If we got a session as default admin then we create the System User and its permissions
             if(session != null) {
                 try {
-                    JackrabbitSession jackrabitSession = (JackrabbitSession) session;
-                    UserManager userManager = jackrabitSession.getUserManager();
+                    JackrabbitSession jackrabbitSession = (JackrabbitSession) session;
+                    UserManager userManager = jackrabbitSession.getUserManager();
                     defaultAgentUser = createOrGetServiceUser(userManager, userName);
                     session.save();
                 } catch(RepositoryException e) {

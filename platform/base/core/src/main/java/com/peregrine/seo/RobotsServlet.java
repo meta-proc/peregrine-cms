@@ -69,7 +69,8 @@ public final class RobotsServlet extends SlingAllMethodsServlet {
         .stream(r -> true)
         .filter(resourceFilter.parse(PerConstants.SITEMAP_RESOURCE_PREDICATE))
         .forEach(res -> {
-          String sitemapUrl = externalizer.buildExternalizedLink(resolver, String.format("%s.xml", res.getPath()));
+          String sitemapUrl =
+              externalizer.publishLink(resolver, String.format("%s.xml", res.getPath()));
           writer.print("Sitemap: " + sitemapUrl);
           writer.print("\n");
         });
@@ -80,7 +81,7 @@ public final class RobotsServlet extends SlingAllMethodsServlet {
   private void print(PerPage page, PrintWriter writer, ResourceResolver resolver) {
     if (page.getContentProperty(PerConstants.DISALLOW_FROM_ROBOTS, false)) {
       String exclusionPage = externalizer
-          .externalizeUrl(String.format("%s.html", page.getPath()), resolver, null);
+          .externalizeUrl(null, resolver, String.format("%s.html", page.getPath()));
       writer.print("Disallow: " + exclusionPage);
       writer.print("\n");
     }

@@ -1,5 +1,7 @@
 {
-    "jcr:primaryType": "sling:OsgiConfig",
-    "provider.roots": [ "/libs/sling/distribution/services/agents" ],
-    "kind" : "agent"
+  "jcr:primaryType": "sling:OsgiConfig",
+  "provider.roots": [
+    "/libs/sling/distribution/services/agents"
+  ],
+  "kind": "agent"
 }

@@ -49,7 +49,7 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
  * Redirects Request to 'Session Info'
  *
  * The API Definition can be found in the Swagger Editor configuration:
- *    ui.apps/src/main/content/jcr_root/api/definintions/admin.yaml
+ *    ui.apps/src/main/content/jcr_root/api/definitions/admin.yaml
  */
 @Component(
     service = Servlet.class,
