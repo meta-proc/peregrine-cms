@@ -25,7 +25,7 @@
 // var axios = require('axios')
 
 import {LoggerFactory} from './logger'
-import {stripNulls} from './utils'
+import {get, stripNulls} from './utils'
 
 let logger = LoggerFactory.logger('apiImpl').setLevelDebug()
 
@@ -145,6 +145,18 @@ function populateView(path, name, data) {
         resolve()
     })
 
+}
+
+function updateExplorerDialog() {
+    const view = callbacks.getView()
+    const page = get(view, '/state/tools/page', '')
+    const template = get(view, '/state/tools/template', '')
+    if (page) {
+        $perAdminApp.stateAction('showPageInfo', {selected: page})
+    }
+    if (template) {
+        $perAdminApp.stateAction('showPageInfo', {selected: template})
+    }
 }
 
 
@@ -284,6 +296,15 @@ class PerAdminImpl {
                                         return exprEval.Parser.evaluate( visible, this );
                                     }
                                 }
+                                const field = data.model.fields[i];
+                                if (field) {
+                                    if (field.label) {
+                                        data.model.fields[i].label = Vue.prototype.$i18n(field.label);
+                                    }
+                                    if (field.placeholder) {
+                                        data.model.fields[i].placeholder = Vue.prototype.$i18n(field.placeholder);
+                                    }
+                                }
                             }
                         }
                         if (data.ogTags) {
@@ -371,6 +392,7 @@ class PerAdminImpl {
     populateI18N(language) {
         return new Promise( (resolve, reject) => {
             axios.get('/i18n/admin/'+language+'.infinity.json').then( (response) => {
+                updateExplorerDialog();
                 populateView('/admin/i18n', language, response.data).then( () => {
                     resolve()
                 })
