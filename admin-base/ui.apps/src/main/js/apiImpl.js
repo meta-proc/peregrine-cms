@@ -304,6 +304,9 @@ class PerAdminImpl {
                                     if (field.placeholder) {
                                         data.model.fields[i].placeholder = Vue.prototype.$i18n(field.placeholder);
                                     }
+                                    if (field.hint) {
+                                        data.model.fields[i].placeholder = Vue.prototype.$i18n(field.hint);
+                                    }
                                 }
                             }
                         }
