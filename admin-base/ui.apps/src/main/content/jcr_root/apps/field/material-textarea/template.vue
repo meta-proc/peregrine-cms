@@ -3,7 +3,7 @@
 		<div v-if="!schema.preview" class="input-field">
 			<textarea
 					ref="textarea"
-					class="form-control materialize-textarea"
+					class="form-control material-textarea"
 					v-model="value"
 					v-bind:style="{minHeight: `${1.1 * schema.rows + 2.2}em`, maxHeight: `${1.1 * schema.rows + 2.2}em`}"
 					:id="getFieldID(schema)"
@@ -39,3 +39,13 @@
 		}
 	}
 </script>
+
+<style scoped>
+	.material-textarea{
+		background-color: #fff;
+		border: 1px solid #cfd8dc;
+		box-sizing: border-box;
+		overflow-y: scroll;
+		resize: none;
+	}
+</style>
