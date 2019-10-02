@@ -1,8 +1,0 @@
-{
-  "jcr:primaryType": "sling:OsgiConfig",
-  "user.default": "",
-  "user.mapping": [
-    "org.apache.sling.distribution.core:distributionService=distribution-agent-user",
-    "com.peregrine-cms.replication.core:peregrine-distribution-sub-service=distribution-agent-user"
-  ]
-}

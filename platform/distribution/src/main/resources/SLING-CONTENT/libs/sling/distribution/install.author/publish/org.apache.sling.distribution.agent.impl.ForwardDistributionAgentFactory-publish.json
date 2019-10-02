@@ -3,6 +3,6 @@
   "name": "publish",
   "serviceName": "distributionService",
   "packageImporter.endpoints": [
-    "http://localhost:${publish.http.port}/libs/sling/distribution/services/importers/default"
+    "http://localhost:8182/libs/sling/distribution/services/importers/default"
   ]
 }

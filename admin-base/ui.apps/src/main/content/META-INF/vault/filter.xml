@@ -46,7 +46,6 @@
     <filter root="/perapi/swaggereditor"/>
     <filter root="/perapi/definitions"/>
     <filter root="/content/admin"/>
-    <filter root="/content/sites/docs"/>
     <filter root="/etc/felibs/admin"/>
     <filter root="/content/objects/tags">
         <exclude pattern="/content/objects/tags/.*"/>

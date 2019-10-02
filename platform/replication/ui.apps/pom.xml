@@ -47,11 +47,11 @@
             <artifactId>replication.core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>distribution</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>${project.groupId}</groupId>-->
+<!--            <artifactId>distribution</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -80,11 +80,11 @@
                                     <artifactId>replication.core,</artifactId>
                                     <generateFilter>true</generateFilter>
                                 </embedded>
-                                <embedded>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>distribution</artifactId>
-                                    <generateFilter>true</generateFilter>
-                                </embedded>
+<!--                                <embedded>-->
+<!--                                    <groupId>${project.groupId}</groupId>-->
+<!--                                    <artifactId>distribution</artifactId>-->
+<!--                                    <generateFilter>true</generateFilter>-->
+<!--                                </embedded>-->
                             </embeddeds>
                             <dependencies>
                                 <dependency>
