@@ -535,6 +535,7 @@
                         this.previewType = 'current'
                         this.setCurrentPath(item.path)
                         if(this.tab === 'cards' && this.list.length > 0) this.updateIsotopeLayout('masonry')
+                        this.selectItem(item)
                     })
             },
             selectItem(item) {
