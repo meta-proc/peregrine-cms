@@ -16,6 +16,8 @@ import javax.jcr.security.Privilege;
 
 import java.security.Principal;
 
+import static javax.jcr.security.Privilege.JCR_ALL;
+
 /**
  * Creates the System User for the Sling Distribution
  * and sets the necessary permissions if it could
@@ -23,7 +25,9 @@ import java.security.Principal;
  * permissions
  */
 @Component(immediate = true)
-public class CreateDistributionUsersAndPermissions extends AbstractUserAndPermissionsService {
+public class CreateDistributionUsersAndPermissions
+    extends AbstractUserAndPermissionsService
+{
 
     public static final String DISTRIBUTION_AGENT_USER = "distribution-agent-user";
     public static final String DISTRIBUTION_TEST_SUB_SERVICE = "test-distribution";
@@ -38,7 +42,6 @@ public class CreateDistributionUsersAndPermissions extends AbstractUserAndPermis
 
     @Reference
     SlingRepository slingRepository;
-
     @Reference
     ResourceResolverFactory resourceResolverFactory;
 

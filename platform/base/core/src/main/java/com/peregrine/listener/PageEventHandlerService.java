@@ -54,8 +54,7 @@ public class PageEventHandlerService implements ResourceChangeListener {
       for (ResourceChange change : changes) {
         log.trace("Resource Change: '{}'", change);
 
-        try (ResourceResolver resolver = PerUtil
-            .loginService(factory, PerConstants.RESOURCE_CHANGE_LISTENER)) {
+        try (ResourceResolver resolver = PerUtil.loginService(factory, PerConstants.RESOURCE_CHANGE_LISTENER)) {
           Resource resource = PerUtil.getResource(resolver, change.getPath());
           String primaryType = PerUtil.getPrimaryType(resource);
 
@@ -69,10 +68,8 @@ public class PageEventHandlerService implements ResourceChangeListener {
 
             case CHANGED:
               log.debug("Change Type CHANGED:'{}'", change);
-              if (PerConstants.PAGE_PRIMARY_TYPE.equals(primaryType)
-                  || PerConstants.PAGE_CONTENT_TYPE.equals(primaryType)) {
-                handleProperties(resource, PerConstants.PAGE_PRIMARY_TYPE.equals(primaryType),
-                    ChangeType.CHANGED);
+              if (PerConstants.PAGE_PRIMARY_TYPE.equals(primaryType) || PerConstants.PAGE_CONTENT_TYPE.equals(primaryType)) {
+                handleProperties(resource, PerConstants.PAGE_PRIMARY_TYPE.equals(primaryType), ChangeType.CHANGED);
               }
               break;
 
@@ -124,9 +121,7 @@ public class PageEventHandlerService implements ResourceChangeListener {
       Resource reverse = goToJcrContent ? resource : resource.getParent();
 
       String exUrl = externalizer.publishLink(reverse.getResourceResolver(), reverse.getPath());
-
-      Consumer<? super Pair<String, ?>> canonical =
-          dict -> props.put(dict.getKey(), exUrl + ".html");
+      Consumer<? super Pair<String, ?>> canonical = dict -> props.put(dict.getKey(), exUrl + ".html");
 
       PerConstants.PAGE_PROPERTIES.forEach(pair -> {
         if (!props.containsKey(pair.getLeft()) || props.get(pair.getKey()).toString().isEmpty()) {
@@ -135,8 +130,7 @@ public class PageEventHandlerService implements ResourceChangeListener {
             canonical.accept(pair);
           }
         }
-        if (pair.getLeft().equals(PerConstants.CANONICAL_LINK_ELEMENT)
-            && changeType.equals(ChangeType.ADDED)) {
+        if (pair.getLeft().equals(PerConstants.CANONICAL_LINK_ELEMENT) && changeType.equals(ChangeType.ADDED)) {
           canonical.accept(pair);
         }
       });
