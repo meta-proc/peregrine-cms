@@ -70,6 +70,7 @@ public abstract class AbstractUserAndPermissionsService {
                 } catch(RepositoryException e){
                     log.error("Failed to create Permissions on User: '" + userName + "'", e);
                 }
+                testPermissions(session, userName);
             } else {
                 // If we could not login as default admin then we just check the user and permissions
                 // Try to find the Service Resource Resolver and check if the permissions are in place
@@ -148,12 +149,12 @@ public abstract class AbstractUserAndPermissionsService {
             for(AccessControlEntry entry : accessControlEntries) {
                 JackrabbitAccessControlEntry jackrabbitAccessControlEntry = (JackrabbitAccessControlEntry) entry;
                 String principalName = entry.getPrincipal().getName();
-                log.trace("Got Access Control Entry Principal Name: '{}', allowed: '{}'", principalName, jackrabbitAccessControlEntry.isAllow());
+                log.error("Got Access Control Entry Principal Name: '{}', allowed: '{}'", principalName, jackrabbitAccessControlEntry.isAllow());
                 if(principalName.equalsIgnoreCase(userName)) {
                     Privilege[] privileges = entry.getPrivileges();
                     for(Privilege privilege : privileges) {
                         String privilegeName = privilege.getName();
-                        log.trace("Got Access Control Priviledge Name: '{}'", privilegeName);
+                        log.error("Got Access Control Privilege Name: '{}'", privilegeName);
                         if(privilegeName.equals(permission)) {
                             if(jackrabbitAccessControlEntry.isAllow()) {
                                 found = true;
@@ -167,7 +168,7 @@ public abstract class AbstractUserAndPermissionsService {
                 log.error("Permission: '{}' was not found for User: '{}' and Path: '{}'", permission, userName, path);
             }
         } catch(RepositoryException e) {
-            log.error("Failed to Check Permissions for User: '{}' and Paath: '{}'", userName, path);
+            log.error("Failed to Check Permissions for User: '{}' and Path: '{}'", userName, path);
             log.error("Failed to Check Permissions", e);
         }
     }

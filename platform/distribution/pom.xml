@@ -100,7 +100,6 @@
         </plugins>
     </build>
 
-    <!-- TODO: These are the dependency taken from Apache Sling Distribution Sample -> adjust them as needed -->
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -121,29 +120,22 @@
         <dependency>
             <groupId>javax.jcr</groupId>
             <artifactId>jcr</artifactId>
-            <!--<version>2.0</version>-->
-            <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
             <artifactId>jackrabbit-api</artifactId>
-            <!--<version>2.9.0</version>-->
-            <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.jcr.api</artifactId>
-            <!--<version>2.2.0</version>-->
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <!--<version>1.6.2</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
             <artifactId>jackrabbit-jcr-commons</artifactId>
-            <!--<version>2.9.0</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>
@@ -179,24 +171,6 @@
                                 <goals>
                                     <goal>install</goal>
                                 </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>installAEM</id>
-            <!--AS NOTE: No installation as distribution is not available in AEM -->
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.sling</groupId>
-                        <artifactId>maven-sling-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>install-bundle</id>
-                                <phase>none</phase>
                             </execution>
                         </executions>
                     </plugin>
