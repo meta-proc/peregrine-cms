@@ -1,5 +1,5 @@
 <template>
-		<datetime v-model="sanitizedValue" type="datetime" placeholder="Select datetime"></datetime>
+		<datetime v-model="sanitizedValue" type="datetime" :placeholder="$i18n('Select datetime')"></datetime>
 </template>
 
 <script>	

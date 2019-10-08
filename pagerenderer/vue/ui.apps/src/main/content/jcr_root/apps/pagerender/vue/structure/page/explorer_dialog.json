@@ -52,7 +52,7 @@
     "model": "lastModified",
     "label": "Last Modified",
     "readonly": true,
-    "placeholder": "lastModified"
+    "placeholder": "Last Modified"
   },
   {
     "type": "input",
@@ -60,7 +60,7 @@
     "model": "lastModifiedBy",
     "label": "Last Modified By",
     "readonly": true,
-    "placeholder": "lastModifiedBy"
+    "placeholder": "Last Modified By"
   },
   {
     "type": "material-multiselect",
@@ -74,7 +74,8 @@
       "searchable": true,
       "clearOnSelect": true,
       "closeOnSelect": false,
-      "taggable": true
+      "taggable": true,
+      "placeholder": "Select option"
     },
     "valuesFrom": [
       "/content/objects/tags.infinity.json",
