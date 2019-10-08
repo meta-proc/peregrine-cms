@@ -47,3 +47,9 @@ export const IgnoreContainers = {
   ON_HOLD: 'on-hold',
   DISABLED: ''
 }
+
+export const Field = {
+  SWITCH: 'materialswitch',
+  SELECT: 'material-select',
+  MULTI_SELECT: 'material-multiselect'
+}
