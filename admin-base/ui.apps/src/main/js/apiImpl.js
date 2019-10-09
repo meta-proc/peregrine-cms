@@ -25,7 +25,8 @@
 // var axios = require('axios')
 
 import {LoggerFactory} from './logger'
-import {stripNulls} from './utils'
+import {get, stripNulls} from './utils'
+import {Field} from './constants';
 
 let logger = LoggerFactory.logger('apiImpl').setLevelDebug()
 
@@ -145,6 +146,68 @@ function populateView(path, name, data) {
         resolve()
     })
 
+}
+
+function updateExplorerDialog() {
+    const view = callbacks.getView()
+    const page = get(view, '/state/tools/page', '')
+    const template = get(view, '/state/tools/template', '')
+    if (page) {
+        $perAdminApp.stateAction('showPageInfo', {selected: page})
+    }
+    if (template) {
+        $perAdminApp.stateAction('showPageInfo', {selected: template})
+    }
+}
+
+function translateFields(fields) {
+    const $i18n = Vue.prototype.$i18n
+    if (!fields || fields.length <= 0) {
+        return
+    }
+    for (let i = 0; i < fields.length; i++) {
+        const field = fields[i]
+        if (field) {
+            if (field.label) {
+                const label = field.label.split(':').join('..')
+                fields[i].label = $i18n(label)
+            }
+            if (field.placeholder) {
+                const placeholder = field.placeholder.split(':').join('..')
+                fields[i].placeholder = $i18n(placeholder)
+            }
+            if (field.hint) {
+                let split = field.hint.split('. ')
+                if (split.length <= 1) {
+                    fields[i].hint = $i18n(field.hint)
+                } else {
+                    for (let j = 0; j < split.length; j++) {
+                        let item = split[j]
+                        if (item.length > 0) {
+                            split[j] = $i18n(item)
+                        }
+                    }
+                    fields[i].hint = split.join('. ')
+                }
+            }
+            if (field.type === Field.SWITCH) {
+                fields[i].textOn = $i18n(field.textOn)
+                fields[i].textOff = $i18n(field.textOff)
+            } else if (field.type === Field.SELECT) {
+                const values = fields[i].values;
+                for (let j = 0; j < values.length; j++) {
+                    const name = values[j].name
+                    const t = $i18n(name)
+                    fields[i].values[j].name = t.startsWith('T[')? name : t
+                }
+            } else if (field.type === Field.MULTI_SELECT) {
+                if (field.selectOptions.placeholder) {
+                    const placeholder = field.selectOptions.placeholder
+                    field.selectOptions.placeholder = $i18n(placeholder)
+                }
+            }
+        }
+    }
 }
 
 
@@ -276,7 +339,7 @@ class PerAdminImpl {
                                         logger.error('missing node', data.model.fields[i].valuesFrom, 'for list population in dialog', error)
                                     })
                                     promises.push(promise)
-                                }
+                                  }
                                 }
                                 let visible = data.model.fields[i].visible
                                 if(visible) {
@@ -285,6 +348,7 @@ class PerAdminImpl {
                                     }
                                 }
                             }
+                            translateFields(data.model.fields);
                         }
                         if (data.ogTags) {
                             for(let i = 0; i < data.ogTags.fields.length; i++) {
@@ -315,6 +379,7 @@ class PerAdminImpl {
                                     }
                                 }
                             }
+                            translateFields(data.ogTags.fields);
                         }
                     }
                     Promise.all(promises).then( () => {
@@ -371,6 +436,7 @@ class PerAdminImpl {
     populateI18N(language) {
         return new Promise( (resolve, reject) => {
             axios.get('/i18n/admin/'+language+'.infinity.json').then( (response) => {
+                updateExplorerDialog();
                 populateView('/admin/i18n', language, response.data).then( () => {
                     resolve()
                 })

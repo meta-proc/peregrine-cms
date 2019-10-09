@@ -24,6 +24,16 @@
  */
 
 import AdminEventBus from './adminEventBus';
+import {LoggerFactory} from './logger'
+import i18n from './i18n'
+import experiences from './experiences'
+import PeregrineApi from './api'
+import PerAdminImpl from './apiImpl'
+import {get, makePathInfo, pagePathToDataPath, set} from './utils'
+
+import StateActions from './stateActions'
+
+import {SUFFIX_PARAM_SEPARATOR} from "./constants"
 
 const consoleERROR = console.error
 
@@ -38,19 +48,7 @@ console.error= function() {
     consoleERROR.apply(this, arguments)
 }
 
-import { LoggerFactory } from './logger'
-import i18n from './i18n'
-import experiences from './experiences'
 let logger = LoggerFactory.logger('perAdminApp').setLevelDebug()
-
-import PeregrineApi from './api'
-import PerAdminImpl from './apiImpl'
-import {makePathInfo, pagePathToDataPath, set, get} from './utils'
-
-import StateActions from './stateActions'
-
-import { SUFFIX_PARAM_SEPARATOR } from "./constants"
-
 
 /**
  * registers a pop state listener for the adminui to track back/forward button and loads

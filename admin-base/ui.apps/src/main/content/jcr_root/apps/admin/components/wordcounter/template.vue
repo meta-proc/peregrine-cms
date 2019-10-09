@@ -23,7 +23,7 @@
   #L%
   -->
 <template>
-  <p>Wörter: {{counter}}</p>
+  <p>{{ $i18n('Words') }}: {{counter}}</p>
 </template>
 
 <script>
