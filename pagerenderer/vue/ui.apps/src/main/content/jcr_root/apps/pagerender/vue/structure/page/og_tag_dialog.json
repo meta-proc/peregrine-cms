@@ -2,7 +2,7 @@
   "fields": [
     {
       "type": "material-checkbox",
-      "label": "Title für og:title übernehmen?",
+      "label": "Adopt title for og:title?",
       "default": true,
       "model": "useTitle"
     },
@@ -16,7 +16,7 @@
     },
     {
       "type": "material-checkbox",
-      "label": "Description für og:description übernehmen?",
+      "label": "Adopt description for og:description?",
       "default": true,
       "model": "useDescription"
     },
@@ -59,7 +59,7 @@
     },
     {
       "type": "material-checkbox",
-      "label": "Canonical Link für og:url übernehmen?",
+      "label": "Adopt canonical link for og:url?",
       "default": true,
       "model": "useCanonicalLink"
     },
