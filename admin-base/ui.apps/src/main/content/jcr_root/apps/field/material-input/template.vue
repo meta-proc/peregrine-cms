@@ -47,7 +47,6 @@ export default {
         }
         if( this.schema.interval ){
           let interval = this.parseInterval(this.schema.interval);
-          console.log("interval - min")
           return interval.min;
         }
         return null;
