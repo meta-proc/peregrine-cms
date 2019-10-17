@@ -53,3 +53,13 @@ export const Field = {
   SELECT: 'material-select',
   MULTI_SELECT: 'material-multiselect'
 }
+
+export const Icon = {
+  LABEL: 'label',
+  SETTINGS: 'settings',
+  RENAME: 'rename',
+  COMPARE_ARROWS: 'compare_arrows',
+  DELETE: 'delete',
+  INFO: 'info',
+  EDIT: 'edit'
+}
