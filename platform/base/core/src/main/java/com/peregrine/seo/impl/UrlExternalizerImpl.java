@@ -1,11 +1,11 @@
 package com.peregrine.seo.impl;
 
-import com.peregrine.commons.util.PerConstants;
 import com.peregrine.seo.UrlExternalizer;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -35,24 +35,31 @@ import org.slf4j.LoggerFactory;
 public class UrlExternalizerImpl implements UrlExternalizer {
 
   @ObjectClassDefinition(
-      name = "UrlExternalizer",
-      description = "UrlExternalizer to externalize URLs."
-  )
+      name = "Link Externalizer",
+      description = "Creates absolute URLs.")
   @interface Configuration {
 
     @AttributeDefinition(
         name = "domains",
         description = "List of domain mappings.",
-        required = true
-    )
-    String[] domains() default {"local http://localhost:8181", "author http://localhost:8181", "publish http://localhost:8182"};
+        required = true)
+    String[] domains() default {
+        "local http://localhost:8080",
+        "author http://localhost:8080",
+        "publish http://localhost:8180"
+    };
   }
 
   private static final Logger log = LoggerFactory.getLogger(UrlExternalizerImpl.class);
 
-  private static final String DEFAULT_LOCAL_DOMAIN = "local http://localhost:8181";
-  private static final String DEFAULT_AUTHOR_DOMAIN = "author http://localhost:8181";
-  private static final String DEFAULT_PUBLISH_DOMAIN = "publish http://localhost:8182";
+  private static final Pattern EXTERNALIZED_PATTERN = Pattern.compile("^([^/]+:|//|#).*$");
+  private static final String MANGLED_NAMESPACE_PREFIX = "/_";
+  private static final String MANGLED_NAMESPACE_SUFFIX = "_";
+  private static final Pattern NAMESPACE_PATTERN = Pattern.compile("/([^:/]+):");
+
+  private static final String DEFAULT_LOCAL_DOMAIN = "local http://localhost:8080";
+  private static final String DEFAULT_AUTHOR_DOMAIN = "author http://localhost:8080";
+  private static final String DEFAULT_PUBLISH_DOMAIN = "publish http://localhost:8180";
 
   private static final String[] DEFAULT_DOMAINS = new String[]{
       DEFAULT_LOCAL_DOMAIN,
@@ -66,89 +73,118 @@ public class UrlExternalizerImpl implements UrlExternalizer {
   private SlingSettingsService slingSettingsService;
 
   @Override
-  public String externalizeUrl(String path, ResourceResolver resolver, SlingHttpServletRequest request) {
+  public String authorLink(ResourceResolver resolver, String path) {
+    return this.externalLink(resolver, "author", (String) null, path);
+  }
+
+  @Override
+  public String authorLink(ResourceResolver resolver, String scheme, String path) {
+    return this.externalLink(resolver, "author", scheme, path);
+  }
+
+  @Override
+  public String externalizeUrl(
+      SlingHttpServletRequest request, ResourceResolver resolver, String path) {
     String actualPath = path;
-    String urlRemainder = null;
-    int urlRemainderPos = StringUtils.indexOfAny(actualPath, '?', '#');
-    if (urlRemainderPos >= 0) {
-      urlRemainder = actualPath.substring(urlRemainderPos);
-      actualPath = actualPath.substring(0, urlRemainderPos);
+
+    if (Objects.nonNull(path) && Objects.nonNull(resolver)) {
+      String urlRemainder = null;
+      int urlRemainderPos = StringUtils.indexOfAny(actualPath, '?', '#');
+      if (urlRemainderPos >= 0) {
+        urlRemainder = actualPath.substring(urlRemainderPos);
+        actualPath = actualPath.substring(0, urlRemainderPos);
+      }
+
+      actualPath = Objects.nonNull(request)
+          ? resolver.map(request, actualPath)
+          : resolver.map(actualPath);
+      try {
+        actualPath = new URI(actualPath).getPath();
+        actualPath = StringUtils.replace(actualPath, "%2F", "/");
+      } catch (URISyntaxException ex) {
+        throw new RuntimeException("Sling map method returned invalid URI: " + actualPath, ex);
+      }
+      actualPath = actualPath + (Objects.nonNull(urlRemainder) ? urlRemainder : "");
     }
-    actualPath = Objects.nonNull(request) ? resolver.map(request, actualPath) : resolver.map(actualPath);
-    try {
-      actualPath = new URI(actualPath).getRawPath();
+
+    return actualPath;
+  }
+
+  @Override
+  public String externalizeUrlWithoutMapping(
+      SlingHttpServletRequest request, String path) {
+    String actualPath = path;
+
+    if (Objects.nonNull(path)) {
+      String urlRemainder = null;
+      int urlRemainderPos = StringUtils.indexOfAny(actualPath, '?', '#');
+      if (urlRemainderPos >= 0) {
+        urlRemainder = actualPath.substring(urlRemainderPos);
+        actualPath = actualPath.substring(0, urlRemainderPos);
+      }
+
+      actualPath = mangleNamespaces(actualPath);
+      actualPath = Objects.nonNull(request)
+          ? StringUtils.defaultString(request.getContextPath()) + actualPath
+          : actualPath;
+
+      try {
+        actualPath = URLEncoder.encode(actualPath, "UTF-8");
+      } catch (UnsupportedEncodingException var2) {
+        throw new RuntimeException(var2);
+      }
+      actualPath = StringUtils.replace(actualPath, "+", "%20");
       actualPath = StringUtils.replace(actualPath, "%2F", "/");
-    } catch (URISyntaxException ex) {
-      throw new RuntimeException("Sling map method returned invalid URI: " + actualPath, ex);
+      actualPath = actualPath + (Objects.nonNull(urlRemainder) ? urlRemainder : "");
     }
-    return Objects.isNull(actualPath) ? null : actualPath + (urlRemainder != null ? urlRemainder : "");
+
+    return actualPath;
   }
 
   @Override
-  public String externalizeUrlWithoutMapping(String path, SlingHttpServletRequest request) {
-    String actualPath = path;
-    String urlRemainder = null;
-    int urlRemainderPos = StringUtils.indexOfAny(actualPath, '?', '#');
-    if (urlRemainderPos >= 0) {
-      urlRemainder = actualPath.substring(urlRemainderPos);
-      actualPath = actualPath.substring(0, urlRemainderPos);
-    }
-    actualPath = mangleNamespaces(actualPath);
-    if (request != null) {
-      actualPath = StringUtils.defaultString(request.getContextPath()) + actualPath;
-    }
-    try {
-      actualPath = URLEncoder.encode(actualPath, "UTF-8");
-    } catch (UnsupportedEncodingException var2) {
-      throw new RuntimeException(var2);
-    }
-    actualPath = StringUtils.replace(actualPath, "+", "%20");
-    actualPath = StringUtils.replace(actualPath, "%2F", "/");
-    return actualPath + (urlRemainder != null ? urlRemainder : "");
+  public String externalLink(ResourceResolver resolver, String domain, String path) {
+    return this.externalLink(resolver, domain, null, path);
   }
 
   @Override
-  public String buildExternalizedLink(ResourceResolver resolver, String path) {
-    String domain = null;
-    if (slingSettingsService != null) {
-      if (slingSettingsService.getRunModes().contains(PerConstants.PUBLISH_RUN_MODE)) {
-        domain = PerConstants.PUBLISH_RUN_MODE;
-      } else if (slingSettingsService.getRunModes().contains(PerConstants.AUTHOR_RUN_MODE)) {
-        domain = PerConstants.AUTHOR_RUN_MODE;
+  public String externalLink(ResourceResolver resolver, String domain, String scheme, String path) {
+    if (Objects.isNull(domain)) {
+      throw new IllegalArgumentException("Argument 'domain' can not be null!");
+    } else {
+      URI domainURI = this.domains.get(domain);
+      if (Objects.isNull(domainURI)) {
+        throw new IllegalArgumentException("No configuration for domain '" + domain + "' exists.");
       } else {
-        domain = PerConstants.STANDALONE;
+        try (Formatter url = new Formatter()) {
+          scheme = Objects.nonNull(scheme) ? scheme
+              : (Objects.isNull(domainURI.getScheme()) ? "http" : domainURI.getScheme());
+
+          url.format(scheme + "://");
+          URI mapped = URI.create(this.externalizeUrl(null, resolver, path));
+          if (Objects.nonNull(mapped.getRawAuthority())) {
+            url.format(mapped.getRawAuthority());
+          } else {
+            String host = domainURI.getHost();
+            int port = domainURI.getPort();
+            if (port > 0 && (!"http".equals(scheme) || port != 80)
+                && (!"https".equals(scheme) || port != 443)) {
+              url.format(host + ":" + port);
+            } else {
+              url.format(host);
+            }
+          }
+
+          url.format(Objects.nonNull(domainURI.getRawPath()) ? domainURI.getRawPath() : "");
+          url.format(mapped.getRawPath());
+          url.format(Objects.nonNull(mapped.getRawQuery()) ? "?" + mapped.getRawQuery() : "");
+          url.format(Objects.nonNull(mapped.getRawFragment()) ? "#" + mapped.getRawFragment() : "");
+
+          log.debug("Externalizing link for '{}': '{}' -> '{}'.", domain, path, url);
+          return url.toString();
+        }
       }
     }
-    URI domainURI = (URI) this.domains.get(domain);
-    Objects.requireNonNull(domainURI, "No configuration for domain '" + domain + "' exists.");
-
-    StringBuilder url = new StringBuilder();
-
-    String scheme = Objects.isNull(domainURI.getScheme()) ? "http" : domainURI.getScheme();
-    url.append(scheme).append("://");
-    String domainAuthority = domainURI.getPort() > 0
-            && (!"http".equals(scheme) || domainURI.getPort() != 80)
-            && (!"https".equals(scheme) || domainURI.getPort() != 443)
-        ? domainURI.getHost() + ":" + domainURI.getPort() : domainURI.getHost();
-    URI slingMapped = URI.create(this.externalizeUrl(path, resolver, null));
-    String authority =
-        Objects.isNull(slingMapped.getAuthority()) ? domainAuthority : slingMapped.getAuthority();
-    url.append(authority);
-    if (Objects.nonNull(domainURI.getRawPath())) {
-      url.append(domainURI.getRawPath());
-    }
-    url.append(slingMapped.getRawPath());
-    if (Objects.nonNull(slingMapped.getRawQuery())) {
-      url.append("?").append(slingMapped.getRawQuery());
-    }
-    if (Objects.nonNull(slingMapped.getRawFragment())) {
-      url.append("#").append(slingMapped.getRawFragment());
-    }
-    log.debug("externalizing link for '{}': {} -> {}", domain, path, url);
-    return url.toString();
   }
-
-  private static final Pattern EXTERNALIZED_PATTERN = Pattern.compile("^([^/]+:|//|#).*$");
 
   @Override
   public boolean isExternalized(String url) {
@@ -158,11 +194,6 @@ public class UrlExternalizerImpl implements UrlExternalizer {
     }
     return EXTERNALIZED_PATTERN.matcher(url).matches();
   }
-
-  private static final String MANGLED_NAMESPACE_PREFIX = "/_";
-  private static final String MANGLED_NAMESPACE_SUFFIX = "_";
-  private static final char NAMESPACE_SEPARATOR = ':';
-  private static final Pattern NAMESPACE_PATTERN = Pattern.compile("/([^:/]+):");
 
   @Override
   public String mangleNamespaces(String path) {
@@ -181,6 +212,16 @@ public class UrlExternalizerImpl implements UrlExternalizer {
     }
   }
 
+  @Override
+  public String publishLink(ResourceResolver resolver, String path) {
+    return this.externalLink(resolver, "publish", null, path);
+  }
+
+  @Override
+  public String publishLink(ResourceResolver resolver, String scheme, String path) {
+    return this.externalLink(resolver, "publish", scheme, path);
+  }
+
   @Activate
   @SuppressWarnings("unused")
   void activate(Configuration configuration) {
@@ -193,22 +234,20 @@ public class UrlExternalizerImpl implements UrlExternalizer {
     setup(configuration);
   }
 
-  private void setup(Configuration configuration) {
-    configuration.domains();
-    String[] domainConfigs = configuration.domains() != null ? configuration.domains() : DEFAULT_DOMAINS;
-    for (int i = 0; i < domainConfigs.length; ++i) {
-      String conf = domainConfigs[i];
-      conf = conf.trim();
-      if (conf.indexOf(32) > 0) {
-        String name = conf.substring(0, conf.indexOf(32));
+  private void setup(Configuration config) {
+    String[] domainCfgs = config.domains() != null ? config.domains() : DEFAULT_DOMAINS;
+    for (int i = 0; i < domainCfgs.length; ++i) {
+      String cfg = domainCfgs[i];
+      cfg = cfg.trim();
+      int splitIndex = cfg.indexOf(32);
+      if (splitIndex > 0) {
+        String name = cfg.substring(0, splitIndex);
         try {
-          String domain = conf.substring(conf.indexOf(32) + 1);
-          if (!domain.contains("://")) {
-            domain = "http://" + domain;
-          }
+          String domain = cfg.substring(splitIndex + 1);
+          domain = !domain.contains("://") ? ("http://" + domain) : domain;
           domains.put(name, URI.create(domain));
         } catch (Exception e) {
-          log.error(e.getLocalizedMessage());
+          log.error("Invalid URI: '{}' configuration.", cfg);
         }
       }
     }

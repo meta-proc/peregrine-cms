@@ -121,10 +121,6 @@ public class PerConstants {
     public static final String TO_SITE_NAME = "toSite";
     public static final String DEPENDENCIES = "dependencies";
 
-    public static final String STANDALONE = "local";
-    public static final String AUTHOR_RUN_MODE = "author";
-    public static final String PUBLISH_RUN_MODE = "publish";
-
     public static final String PROTOCOL = "protocol";
     public static final String HOSTNAME = "hostname";
     public static final String CANONICAL_LINK_ELEMENT = "canonicalLink";
