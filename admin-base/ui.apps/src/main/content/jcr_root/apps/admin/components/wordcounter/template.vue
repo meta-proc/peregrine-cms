@@ -53,7 +53,8 @@
   }
 </script>
 
-<style>
-
+<style scoped>
+  .vfg-preview p {
+    display: none;
+  }
 </style>
-
