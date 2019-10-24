@@ -349,6 +349,9 @@ export default {
             let view = $perAdminApp.getView();
             if(targetEl) {
                 var path = targetEl.getAttribute('data-per-path')
+               if (targetEl.getAttribute('data-per-target-path')) {
+                    path = targetEl.getAttribute('data-per-target-path');
+                }
                 var node = $perAdminApp.findNodeFromPath($perAdminApp.getView().pageView.page, path)
                 if (this.isContainer(targetEl)) {
                     if (this.isIgnoreContainersEnabled) return;
