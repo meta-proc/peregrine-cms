@@ -391,8 +391,7 @@ class PerAdminImpl {
                             }
                             translateFields(data.ogTags.fields);
                         }
-                    }
-                    Promise.all(promises).then( () => {
+                        Promise.all(promises).then( () => {
                             populateView('/admin/componentDefinitions', data.name, data)
                             resolve(name)
                         }
