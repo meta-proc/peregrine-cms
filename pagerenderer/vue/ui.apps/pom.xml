@@ -199,6 +199,9 @@
                         </goals>
                         <phase>site</phase>
                         <configuration>
+                            <environmentVariables>
+                                <NODE_PATH>./node_modules</NODE_PATH>
+                            </environmentVariables>
                             <arguments>run site</arguments>
                         </configuration>
                     </execution>
