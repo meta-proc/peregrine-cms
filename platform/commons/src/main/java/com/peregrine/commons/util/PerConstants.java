@@ -53,7 +53,7 @@ public class PerConstants {
     public static final String CHILD_COUNT = "childCount";
 
     public static final String DISTRIBUTION_SUB_SERVICE = "peregrine-distribution-sub-service";
-    public static final String RESOURCE_CHANGE_LISTENER = "metaproc-resource-change-listener";
+    public static final String PAGE_EVENT_HANDLER_SUB_SERVICE = "page-event-handler-sub-service";
 
     public static final String ECMA_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX";
     public static final Locale ECMA_DATE_FORMAT_LOCALE = Locale.US;
@@ -68,7 +68,6 @@ public class PerConstants {
     public static final String PNG_MIME_TYPE = "image/png";
     public static final String JPEG_MIME_TYPE = "image/jpeg";
     public static final String WEBP_MIME_TYPE = "image/webp";
-    //AS Does that exist?
     public static final String JPG_MIME_TYPE = "image/jpg";
     public static final String TEXT_MIME_TYPE = "plain/text";
 

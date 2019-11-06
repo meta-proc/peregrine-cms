@@ -88,18 +88,56 @@ import {
   mdbToastNotification,
   mdbMasonry,
   mdbMasonryItem,
-
+  // removeIf(free)
+  mdbAutocomplete,
+  mdbAvatar,
+  mdbBtnFixed,
+  mdbBtnFixedItem,
+  mdbChip,
+  mdbChipInput,
+  mdbCsvDownloader,
+  mdbDatePicker,
+  mdbFileInput,
+  mdbFlippingCard,
+  mdbLightbox,
+  mdbNotification,
+  mdbRangeInput,
+  mdbSpinner,
+  mdbScrollspyBox,
+  mdbScrollspyList,
+  mdbScrollspyListItem,
+  mdbScrollspyText,
+  mdbSwitch,
+  mdbTableEditable,
+  mdbTestimonial,
+  mdbTestimonialNavigation,
+  mdbTimePicker,
+  mdbSelect,
+  mdbSelectDropdown,
+  mdbSelectInput,
+  mdbSelectOption,
+  mdbSideNav,
+  mdbSideNavNav,
+  mdbSideNavCat,
+  mdbSideNavItem,
+  mdbSimpleChart,
+  mdbStep,
+  mdbStepper,
+  mdbStreak,
+  mdbSubMenu,
+  mdbParallax,
+  mdbMultiCarousel,
+  mdbPreloadingScript,
   waves,
   mdbClassMixin,
-  animateOnScroll
+  animateOnScroll,
+  Sticky,
+  Smooth,
+  Notify
 } from 'mdbvue';
-//>-CUSTOM-COMPONENTS-IMPORT-<//
 
-const mdbvue = {
+const mdbvPro = {
   load: function (Vue) {
-
-    //>-CUSTOM-COMPONENTS-<//
-
     Vue.component('mdb-accordion', mdbAccordion);
     Vue.component('mdb-accordion-pane', mdbAccordionPane);
     Vue.component('mdb-alert', mdbAlert);
@@ -172,8 +210,8 @@ const mdbvue = {
     Vue.component('mdb-tbl-head', mdbTblHead);
     Vue.component('mdb-tooltip', mdbTooltip);
     Vue.component('mdb-view', mdbView);
-    Vue.mixin(waves);
-    Vue.mixin(mdbClassMixin);
+    Vue.mixin('waves', waves);
+    Vue.mixin('mdbClassMixin', mdbClassMixin);
     Vue.directive('animateOnScroll', animateOnScroll);
     Vue.component('mdb-form-in-line', mdbFormInline);
     Vue.component('mdb-modal', mdbModal);
@@ -192,6 +230,52 @@ const mdbvue = {
     Vue.component('mdb-toast-notification', mdbToastNotification);
     Vue.component('mdb-masonry', mdbMasonry);
     Vue.component('mdb-masonry-item', mdbMasonryItem);
+    // PRO
+    Vue.component('mdb-autocomplete', mdbAutocomplete);
+    Vue.component('mdb-avatar', mdbAvatar);
+    Vue.component('mdb-btn-fixed', mdbBtnFixed);
+    Vue.component('mdb-btn-fixed-item', mdbBtnFixedItem);
+    Vue.component('mdb-chip', mdbChip);
+    Vue.component('mdb-chip-input', mdbChipInput);
+    Vue.component('mdb-csv-downloader', mdbCsvDownloader);
+    //Vue.component('mdb-datatable', mdbDatatable);
+    //Vue.component('mdb-dropdown', mdbDropdown);
+    Vue.component('mdb-file-input', mdbFileInput);
+    Vue.component('mdb-flipping-card', mdbFlippingCard);
+    Vue.component('mdb-lightbox', mdbLightbox);
+    Vue.component('mdb-simple-chart', mdbSimpleChart);
+    // Vue.use( Notify);
+    Vue.use(Notify);
+    Vue.component('mdb-notification', mdbNotification);
+    Vue.component('mdb-spinner', mdbSpinner);
+    Vue.component('mdb-range-input', mdbRangeInput);
+    Vue.component('mdb-scrollspy-box', mdbScrollspyBox);
+    Vue.component('mdb-scrollspy-list', mdbScrollspyList);
+    Vue.component('mdb-scrollspy-list-item', mdbScrollspyListItem);
+    Vue.component('mdb-scrollspy-text', mdbScrollspyText);
+    Vue.component('mdb-table-editable', mdbTableEditable);
+    Vue.component('mdb-side-nav', mdbSideNav);
+    Vue.component('mdb-side-nav-nav', mdbSideNavNav);
+    Vue.component('mdb-side-nav-cat', mdbSideNavCat);
+    Vue.component('mdb-side-nav-item', mdbSideNavItem);
+    Vue.component('mdb-sub-menu', mdbSubMenu);
+    Vue.component('mdb-select', mdbSelect);
+    Vue.component('mdb-select-input', mdbSelectInput);
+    Vue.component('mdb-select-dropdown', mdbSelectDropdown);
+    Vue.component('mdb-select-option', mdbSelectOption);
+    Vue.component('mdb-switch', mdbSwitch);
+    Vue.component('mdb-date-picker', mdbDatePicker);
+    Vue.component('mdb-time-picker', mdbTimePicker);
+    Vue.component('mdb-step', mdbStep);
+    Vue.component('mdb-stepper', mdbStepper);
+    Vue.directive('sticky', Sticky);
+    Vue.directive('smooth', Smooth);
+    Vue.component('mdb-testimonial', mdbTestimonial);
+    Vue.component('mdb-testimonial-navigation', mdbTestimonialNavigation);
+    Vue.component('mdb-streak', mdbStreak);
+    Vue.component('mdb-parallax', mdbParallax);
+    Vue.component('mdb-multi-carousel', mdbMultiCarousel);
+    Vue.component('mdb-preloading-script', mdbPreloadingScript);
 
     Vue.component('accordion', mdbAccordion);
     Vue.component('accordion-pane', mdbAccordionPane);
@@ -282,7 +366,49 @@ const mdbvue = {
     Vue.component('toast-notification', mdbToastNotification);
     Vue.component('masonry', mdbMasonry);
     Vue.component('masonry-item', mdbMasonryItem);
+// PRO
+    Vue.component('autocomplete', mdbAutocomplete);
+    Vue.component('avatar', mdbAvatar);
+    Vue.component('btn-fixed', mdbBtnFixed);
+    Vue.component('btn-fixed-item', mdbBtnFixedItem);
+    Vue.component('chip', mdbChip);
+    Vue.component('chip-input', mdbChipInput);
+    Vue.component('csv-downloader', mdbCsvDownloader);
+//Vue.component('datatable', mdbDatatable);
+//Vue.component('dropdown', mdbDropdown);
+    Vue.component('file-input', mdbFileInput);
+    Vue.component('flipping-card', mdbFlippingCard);
+    Vue.component('lightbox', mdbLightbox);
+    Vue.component('mini-chart', mdbSimpleChart);
+    Vue.component('notification', mdbNotification);
+    Vue.component('perloader', mdbSpinner);
+    Vue.component('range-input', mdbRangeInput);
+    Vue.component('scroll-spy-box', mdbScrollspyBox);
+    Vue.component('scroll-spy-list', mdbScrollspyList);
+    Vue.component('scroll-spy-list-item', mdbScrollspyListItem);
+    Vue.component('scroll-spy-text', mdbScrollspyText);
+    Vue.component('table-editable', mdbTableEditable);
+    Vue.component('side-nave', mdbSideNav);
+    Vue.component('side-nav-nav');
+    Vue.component('side-nav-cat', mdbSideNavCat);
+    Vue.component('side-nav-item', mdbSideNavItem);
+    Vue.component('sub-menu', mdbSubMenu);
+    //Vue.component('select', mdbSelect);
+    Vue.component('select-input', mdbSelectInput);
+    Vue.component('select-options', mdbSelectDropdown);
+    Vue.component('select-option', mdbSelectOption);
+    Vue.component('switch', mdbSwitch);
+    Vue.component('date-picker', mdbDatePicker);
+    Vue.component('time-picker', mdbTimePicker);
+    Vue.component('step', mdbStep);
+    Vue.component('stepper', mdbStepper);
+    Vue.component('testimonial', mdbTestimonial);
+    Vue.component('testimonial-navigation', mdbTestimonialNavigation);
+    Vue.component('streak', mdbStreak);
+    Vue.component('parallax', mdbParallax);
+    Vue.component('multi-carousel', mdbMultiCarousel);
+    Vue.component('preloading-script', mdbPreloadingScript);
   }
 };
 
-export default mdbvue;
+export default mdbvPro;
