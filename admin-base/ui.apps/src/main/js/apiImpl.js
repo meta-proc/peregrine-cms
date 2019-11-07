@@ -166,31 +166,31 @@ function translateFields(fields) {
         return
     }
     for (let i = 0; i < fields.length; i++) {
-        let field = fields[i]
+        const field = fields[i]
         if (field) {
             if (field.label) {
-                field = $i18n(field.label)
+                fields[i].label = $i18n(field.label)
             }
             if (field.placeholder) {
-                field = $i18n(field.placeholder)
+                fields[i].placeholder = $i18n(field.placeholder)
             }
             if (field.hint) {
-                field.hint = $i18n(field.hint)
+                fields[i].hint = $i18n(field.hint)
             }
             if (field.type === Field.SWITCH) {
-                field.textOn = $i18n(field.textOn)
-                field.textOff = $i18n(field.textOff)
+                fields[i].textOn = $i18n(field.textOn)
+                fields[i].textOff = $i18n(field.textOff)
             } else if (field.type === Field.SELECT) {
                 const values = fields[i].values;
                 for (let j = 0; j < values.length; j++) {
-                    let name = values[j].name
+                    const name = values[j].name
                     const t = $i18n(name)
-                    name = t.startsWith('T[')? name : t
+                    fields[i].values[j].name = t.startsWith('T[')? name : t
                 }
             } else if (field.type === Field.MULTI_SELECT) {
                 if (field.selectOptions.placeholder) {
-                    let placeholder = field.selectOptions.placeholder
-                    placeholder = $i18n(placeholder)
+                    const placeholder = field.selectOptions.placeholder
+                    fields[i].selectOptions.placeholder = $i18n(placeholder)
                 }
             }
         }
