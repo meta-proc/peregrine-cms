@@ -59,7 +59,7 @@
     },
     {
       "type": "material-checkbox",
-      "label": "Adopt canonical link for og:url?",
+      "label": "ogTagsUseCanonicalLinkLabel",
       "default": true,
       "model": "useCanonicalLink"
     },
