@@ -89,7 +89,7 @@
     "model": "description",
     "label": "Description",
     "rows": 10,
-    "placeholder": "enter a description for this page",
+    "placeholder": "descriptionPlaceholder",
     "charCounter": "true",
     "wordCounter": "true"
   },
@@ -164,13 +164,13 @@
   {
     "type": "input",
     "inputType": "text",
-    "label": "Canonical Link",
+    "label": "canonicalLinkLabel",
     "model": "canonicalLink",
-    "placeholder": "canonical link element"
+    "placeholder": "canonicalLinkLabel"
   },
   {
     "type": "materialswitch",
-    "label": "Exclude from Navigation",
+    "label": "hideInNavLabel",
     "model": "hideInNav",
     "textOn": "yes",
     "textOff": "no",
@@ -190,7 +190,7 @@
   },
   {
     "type": "material-select",
-    "label": "Page change frequency",
+    "label": "changefreqLabel",
     "model": "changefreq",
     "selectOptions": {
       "name": "name",
@@ -253,7 +253,7 @@
   },
   {
     "type": "materialswitch",
-    "label": "Disallow from Web Crawlers",
+    "label": "disallowFromRobotsLabel",
     "model": "disallowFromRobots",
     "textOn": "yes",
     "textOff": "no",
