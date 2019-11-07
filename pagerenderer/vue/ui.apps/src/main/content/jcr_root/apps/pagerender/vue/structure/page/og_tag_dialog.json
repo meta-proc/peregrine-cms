@@ -2,7 +2,7 @@
   "fields": [
     {
       "type": "material-checkbox",
-      "label": "Adopt title for og:title?",
+      "label": "ogTagsUseTitleLabel",
       "default": true,
       "model": "useTitle"
     },
