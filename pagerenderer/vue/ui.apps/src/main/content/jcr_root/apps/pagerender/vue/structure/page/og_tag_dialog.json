@@ -10,8 +10,8 @@
       "type": "input",
       "inputType": "text",
       "model": "ogTitle",
-      "label": "og:title",
-      "placeholder": "og:title",
+      "label": "ogTitle",
+      "placeholder": "ogTitle",
       "visible": "model.useTitle != true"
     },
     {
@@ -24,13 +24,13 @@
       "type": "input",
       "inputType": "text",
       "model": "ogDescription",
-      "label": "og:description",
-      "placeholder": "og:description",
+      "label": "ogDescription",
+      "placeholder": "ogDescription",
       "visible": "model.useDescription != true"
     },
     {
       "type": "material-select",
-      "label": "og:type",
+      "label": "ogType",
       "model": "ogType",
       "placeholder": "og:type",
       "default": "website",
@@ -45,17 +45,17 @@
       "type": "pathbrowser",
       "browserRoot": "/content/assets",
       "browserType": "image",
-      "label": "og:image",
+      "label": "ogImage",
       "readonly": true,
-      "placeholder": "og:image",
+      "placeholder": "ogImage",
       "model": "ogImage"
     },
     {
       "type": "input",
       "inputType": "text",
       "model": "ogImageAlt",
-      "placeholder": "og:image:alt",
-      "label": "og:image:alt"
+      "placeholder": "ogImageAlt",
+      "label": "ogImageAlt"
     },
     {
       "type": "material-checkbox",
@@ -67,8 +67,8 @@
       "type": "input",
       "inputType": "text",
       "model": "ogUrl",
-      "label": "og:url",
-      "placeholder": "og:url",
+      "label": "ogUrl",
+      "placeholder": "ogUrl",
       "visible": "model.useCanonicalLink != true"
     }
   ]
