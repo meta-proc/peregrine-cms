@@ -318,38 +318,43 @@ class PerAdminImpl {
                             let from = data.model.fields[i].valuesFrom
                             if(from) {
                                 data.model.fields[i].values = []
-                                let promise = axios.get(from).then( (response) => {
-                                    const toProcess = []
-                                    for(let key in response.data) {
-                                        toProcess.push({ key, data : response.data[key] })
-                                    }
+                                if (typeof from === 'string') {
+                                    from = [ from ];
+                                }
+                                for (let j = 0; j < from.length; j++) {
+                                    let promise = axios.get(from[j]).then( (response) => {
+                                        const toProcess = []
+                                        for(let key in response.data) {
+                                            toProcess.push({ key, data : response.data[key] })
+                                        }
 
-                                    let next = toProcess.shift()
-                                    while(next) {
-                                        if(next.data['jcr:title']) {
-                                            const nodeName = next.key
-                                            const val = next.data.path ? next.data.path + '/' + nodeName : from.replace('.infinity.json', '/'+nodeName)
-                                            let name = next.data.name
-                                            if(!name) {
-                                                name = next.data['jcr:title']
-                                            }
-                                            if(next.parent) {
-                                                name = next.parent + '-' + name;
-                                            }
-                                            data.model.fields[i].values.push({ value: val, name: name })
-                                            for(let k in next.data) {
-                                                if(next.data[k] instanceof Object && next.data[k]['sling:resourceType'] === 'admin/objects/tag') {
-                                                    toProcess.push( { key: k, parent: name, data: next.data[k]})
+                                        let next = toProcess.shift()
+                                        while(next) {
+                                            if(next.data['jcr:title']) {
+                                                const nodeName = next.key
+                                                const val = next.data.path ? next.data.path + '/' + nodeName : from[j].replace('.infinity.json', '/'+nodeName)
+                                                let name = next.data.name
+                                                if(!name) {
+                                                    name = next.data['jcr:title']
+                                                }
+                                                if(next.parent) {
+                                                    name = next.parent + '-' + name;
+                                                }
+                                                data.model.fields[i].values.push({ value: val, name: name })
+                                                for(let k in next.data) {
+                                                    if(next.data[k] instanceof Object && next.data[k]['sling:resourceType'] === 'admin/objects/tag') {
+                                                        toProcess.push( { key: k, parent: name, data: next.data[k]})
+                                                    }
                                                 }
                                             }
+                                            next = toProcess.shift()
                                         }
-                                        next = toProcess.shift()
-                                    }
 
-                                }).catch( (error) => {
-                                    logger.error('missing node', data.model.fields[i].valuesFrom, 'for list population in dialog', error)
-                                })
-                                promises.push(promise)
+                                    }).catch( (error) => {
+                                        logger.error('missing node', data.model.fields[i].valuesFrom, 'for list population in dialog', error)
+                                    })
+                                    promises.push(promise)
+                                }
                             }
                             let visible = data.model.fields[i].visible
                             if(visible) {
