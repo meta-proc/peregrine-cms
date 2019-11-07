@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+  jcr:primaryType="nt:unstructured"
+  text="Die Priorität dieses URLs im Verhältnis zu den anderen URLs auf der Webseite. Zulässige Werte sind 0.0 bis 1.0. Dieser Wert hat keinen Einfluss darauf wie diese Seiten mit den Seiten von anderen Webseiten verglichen wird - Es diktiert der Suchmaschine lediglich welche Seiten auf dieser Webseite am wichtigsten für den Crawler sind."
+/>

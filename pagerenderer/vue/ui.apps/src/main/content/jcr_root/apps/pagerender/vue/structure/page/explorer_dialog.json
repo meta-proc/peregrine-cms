@@ -159,7 +159,7 @@
     "values": [
       { "name": "www.metaproc.com", "value": "www.metaproc.com" }
     ],
-    "hint": "The host name of the server to which the request is sent."
+    "hint": "hostnameHint"
   },
   {
     "type": "input",
@@ -176,7 +176,7 @@
     "textOff": "no",
     "valueOn": "true",
     "valueOff": "false",
-    "hint": "This is to indicate whether the page should be exclude from navigation."
+    "hint": "hideInNavHint"
   },
   {
     "type": "materialswitch",
@@ -186,7 +186,7 @@
     "textOff": "no",
     "valueOn": "true",
     "valueOff": "false",
-    "hint": "This property indicates if the Page should be hidden from the Sitemap."
+    "hint": "excludeFromSitemapHint"
   },
   {
     "type": "material-select",
@@ -226,7 +226,7 @@
         "value": "never"
       }
     ],
-    "hint": "How frequently the page is likely to change. This value provides general information to search engines and may not correlate exactly to how often they crawl the page."
+    "hint": "changefreqHint"
   },
   {
     "type": "material-select",
@@ -249,7 +249,7 @@
       { "name": "0.9", "value": "0.9" },
       { "name": "1.0", "value": "1.0" }
     ],
-    "hint": "The priority of this URL relative to other URLs on your site. Valid values range from 0.0 to 1.0. This value does not affect how your pages are compared to pages on other sites—it only lets the search engines know which pages you deem most important for the crawlers."
+    "hint": "priorityHint"
   },
   {
     "type": "materialswitch",
@@ -259,6 +259,6 @@
     "textOff": "no",
     "valueOn": "true",
     "valueOff": "false",
-    "hint": "This is to indicate whether the page should be disallowed from being scanned and processed by web crawlers and other web robots."
+    "hint": "disallowFromRobotsHint"
   }
 ]}
