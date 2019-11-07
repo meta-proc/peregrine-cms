@@ -166,44 +166,31 @@ function translateFields(fields) {
         return
     }
     for (let i = 0; i < fields.length; i++) {
-        const field = fields[i]
+        let field = fields[i]
         if (field) {
             if (field.label) {
-                const label = field.label.split(':').join('..')
-                fields[i].label = $i18n(label)
+                field = $i18n(field.label)
             }
             if (field.placeholder) {
-                const placeholder = field.placeholder.split(':').join('..')
-                fields[i].placeholder = $i18n(placeholder)
+                field = $i18n(field.placeholder)
             }
             if (field.hint) {
-                let split = field.hint.split('. ')
-                if (split.length <= 1) {
-                    fields[i].hint = $i18n(field.hint)
-                } else {
-                    for (let j = 0; j < split.length; j++) {
-                        let item = split[j]
-                        if (item.length > 0) {
-                            split[j] = $i18n(item)
-                        }
-                    }
-                    fields[i].hint = split.join('. ')
-                }
+                field.hint = $i18n(field.hint)
             }
             if (field.type === Field.SWITCH) {
-                fields[i].textOn = $i18n(field.textOn)
-                fields[i].textOff = $i18n(field.textOff)
+                field.textOn = $i18n(field.textOn)
+                field.textOff = $i18n(field.textOff)
             } else if (field.type === Field.SELECT) {
                 const values = fields[i].values;
                 for (let j = 0; j < values.length; j++) {
-                    const name = values[j].name
+                    let name = values[j].name
                     const t = $i18n(name)
-                    fields[i].values[j].name = t.startsWith('T[')? name : t
+                    name = t.startsWith('T[')? name : t
                 }
             } else if (field.type === Field.MULTI_SELECT) {
                 if (field.selectOptions.placeholder) {
-                    const placeholder = field.selectOptions.placeholder
-                    field.selectOptions.placeholder = $i18n(placeholder)
+                    let placeholder = field.selectOptions.placeholder
+                    placeholder = $i18n(placeholder)
                 }
             }
         }
