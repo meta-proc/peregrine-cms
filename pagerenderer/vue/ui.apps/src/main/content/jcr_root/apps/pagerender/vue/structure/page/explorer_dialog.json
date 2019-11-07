@@ -28,7 +28,7 @@
       { "name": "de", "value": "de" },
       { "name": "en", "value": "en" }
     ],
-    "hint": "Defined Language for current site. Only choice from template will be used"
+    "hint": "siteLanguageHint"
   },
   {
     "type": "material-datetime",
