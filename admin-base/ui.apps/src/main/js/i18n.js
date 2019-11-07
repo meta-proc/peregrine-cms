@@ -3,7 +3,7 @@ let lang = 'en'
 function keyToLang(original) {
     try {
         const resources = $perAdminApp.getView().admin.i18n[lang]
-        const translation = resources[key]
+        const translation = resources[original]
         if(translation) {
             return translation.text
         }
