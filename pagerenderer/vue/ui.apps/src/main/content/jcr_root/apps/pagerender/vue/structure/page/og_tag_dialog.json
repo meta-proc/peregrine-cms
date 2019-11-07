@@ -16,7 +16,7 @@
     },
     {
       "type": "material-checkbox",
-      "label": "Adopt description for og:description?",
+      "label": "ogTagsUseDescriptionLabel",
       "default": true,
       "model": "useDescription"
     },
