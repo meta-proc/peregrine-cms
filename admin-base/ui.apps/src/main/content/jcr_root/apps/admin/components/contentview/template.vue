@@ -357,7 +357,7 @@ export default {
                     if (this.isIgnoreContainersEnabled) return;
                 }
                 if(node.fromTemplate) {
-                    $perAdminApp.notifyUser(this.$i18n('template component'), this.$i18n('This component is part of the template')+ ". " + this.$i18n('Please modify the template in order to change it'), {
+                    $perAdminApp.notifyUser(this.$i18n('templateComponent'), this.$i18n('fromTemplateNotifyMsg'), {
                         complete: this.removeEditOverlay
                     })
                 } else {
