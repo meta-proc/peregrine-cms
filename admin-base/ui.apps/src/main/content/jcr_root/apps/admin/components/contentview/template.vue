@@ -423,10 +423,11 @@ export default {
 
                 if(isDropTarget) {
                     var dropLocation = targetEl.getAttribute('data-per-location')
-                    if(targetBox.bottom - pos.y < 10 && dropLocation === 'after' && !isRoot) {
+                    let intoOnly = !!targetEl.getAttribute('data-per-into-only')
+                    if(targetBox.bottom - pos.y < 10 && dropLocation === 'after' && !isRoot && !intoOnly) {
                         this.dropPosition = 'after'
                         this.setEditableStyle(targetBox, 'drop-bottom')
-                    } else if(pos.y - targetBox.top < 10 && dropLocation === 'before' && !isRoot) {
+                    } else if(pos.y - targetBox.top < 10 && dropLocation === 'before' && !isRoot && !intoOnly) {
                         this.dropPosition = 'before'
                         this.setEditableStyle(targetBox, 'drop-top')
                     } else if(dropLocation) {
