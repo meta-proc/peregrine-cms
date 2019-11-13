@@ -4,7 +4,7 @@
 
 <script>
   export default {
-
+    mixins: [VueFormGenerator.abstractField]
   }
 </script>
 
