@@ -47,16 +47,24 @@
             </li>
             <li v-if="isAsset && showNavigateToParent" class="row-head">
               <span>Name</span>
-              <span class="name-sort-actions">
-                <i class="material-icons tiny-icon">arrow_downward</i>
-                <i class="material-icons tiny-icon">arrow_upward</i>
+              <span class="name-sort-actions no-select">
+                <i class="material-icons tiny-icon no-select"
+                   :class="{'active-icon': sort === Sort.ASCENDING}"
+                   @click="toggleSort(Sort.ASCENDING)">
+                  arrow_downward
+                </i>
+                <i class="material-icons tiny-icon no-select"
+                   :class="{'active-icon': sort === Sort.DESCENDING}"
+                   @click="toggleSort(Sort.DESCENDING)">
+                  arrow_upward
+                </i>
               </span>
             </li>
             <li
                 v-for="(child,i) in children"
                 v-bind:key="i"
                 v-bind:class="`collection-item ${isSelected(child) ? 'explorer-item-selected' : ''}`"
-                draggable="true"
+                v-bind:draggable="!sort"
                 v-on:dragstart="onDragRowStart(child,$event)"
                 v-on:drag="onDragRow"
                 v-on:dragend="onDragRowEnd(child,$event)"
@@ -65,7 +73,7 @@
                 v-on:dragleave.stop.prevent="onDragLeaveRow"
                 v-on:drop.prevent="onDropRow(child, $event)">
 
-              <admin-components-draghandle/>
+              <admin-components-draghandle :class="{'disabled': sort}"/>
 
               <admin-components-action v-if="editable(child)"
                                        v-bind:model="{
@@ -202,14 +210,22 @@
 </template>
 
 <script>
+  const Sort = {
+    NONE: null,
+    ASCENDING: 'asc',
+    DESCENDING: 'desc'
+  };
+
   export default {
     props: ['model'],
     data() {
       return {
+        Sort: Sort,
         isDraggingFile: false,
         isDraggingUiEl: false,
         isFileUploadVisible: false,
-        uploadProgress: 0
+        uploadProgress: 0,
+        sort: null
       }
     },
     computed: {
@@ -226,9 +242,21 @@
         return $perAdminApp.findNodeFromPath(this.$root.$data.admin.nodes, node)
       },
       children: function () {
-        if (this.pt.children) {
-          return this.pt.children.filter(child => this.checkIfAllowed(child.resourceType))
+        let children = this.pt.children;
+        if (children) {
+          children = this.pt.children.filter(child => this.checkIfAllowed(child.resourceType))
+          if (this.sort !== Sort.NONE) {
+            children = children.sort((a, b) => {
+              a = a.name.toUpperCase();
+              b = b.name.toUpperCase();
+              return (a < b) ? -1 : (a > b) ? 1 : 0;
+            });
+            if (this.sort === Sort.DESCENDING) {
+              children = children.reverse();
+            }
+          }
         }
+        return children;
       },
       parentPath: function () {
         var segments = this.$data.path.value.toString().split('/')
@@ -297,6 +325,7 @@
       },
       /* row drag events */
       onDragRowStart(item, ev) {
+        if (this.sort) return;
         ev.srcElement.classList.add("dragging");
         ev.dataTransfer.setData('text', item.path)
         if (this.isDraggingFile) {
@@ -602,10 +631,15 @@
       },
       editFile: function (me, target) {
         window.open(`/bin/cpm/edit/code.html${target}`, 'composum')
+      },
+      toggleSort(sort) {
+        if (sort === this.sort) {
+          this.sort = Sort.NONE;
+        } else {
+          this.sort = sort;
+        }
       }
-
     }
-
   }
 </script>
 
@@ -624,32 +658,49 @@
   .item-activated-modified {
     color: purple;
   }
+
+  .draggable.disabled i.material-icons{
+    color: transparent;
+  }
 </style>
 
 <style scoped>
   .row-head {
-    background-color: #607d8be3;
-    color: #ffffff;
+    background-color: #eceff1;
+    border-bottom: 1px solid #cfd8dc;
+    color: #263238;
     text-align: left;
     padding: 5px 0 5px 57px;
   }
 
   .name-sort-actions {
     cursor: pointer;
+  }
+
+  .tiny-icon {
     font-size: 14px;
     color: #b4b4b4;
-
   }
 
   .tiny-icon:hover {
-    color: #cdcdcd;
+    color: #949494;
   }
 
   .active-icon {
-    color: #ffffff;
+    color: #000000;
   }
 
   .tiny-icon.active-icon:hover {
-    color: #ffffff;
+    color: #263238;
+  }
+
+  .no-select {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Opera and Firefox */
   }
 </style>
