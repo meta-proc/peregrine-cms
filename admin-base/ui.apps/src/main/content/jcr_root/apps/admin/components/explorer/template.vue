@@ -45,6 +45,13 @@
                         }"><i class="material-icons">folder_open</i> ..
               </admin-components-action>
             </li>
+            <li v-if="isAsset && showNavigateToParent" class="row-head">
+              <span>Name</span>
+              <span class="name-sort-actions">
+                <i class="material-icons tiny-icon">arrow_downward</i>
+                <i class="material-icons tiny-icon">arrow_upward</i>
+              </span>
+            </li>
             <li
                 v-for="(child,i) in children"
                 v-bind:key="i"
@@ -617,5 +624,32 @@
   .item-activated-modified {
     color: purple;
   }
+</style>
 
+<style scoped>
+  .row-head {
+    background-color: #607d8be3;
+    color: #ffffff;
+    text-align: left;
+    padding: 5px 0 5px 57px;
+  }
+
+  .name-sort-actions {
+    cursor: pointer;
+    font-size: 14px;
+    color: #b4b4b4;
+
+  }
+
+  .tiny-icon:hover {
+    color: #cdcdcd;
+  }
+
+  .active-icon {
+    color: #ffffff;
+  }
+
+  .tiny-icon.active-icon:hover {
+    color: #ffffff;
+  }
 </style>
