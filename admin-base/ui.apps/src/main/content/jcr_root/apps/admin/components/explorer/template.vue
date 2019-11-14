@@ -238,6 +238,9 @@
       },
       hasEdit: function () {
         return this.model.children && this.model.children[0]
+      },
+      isAsset() {
+        return this.isAssets(this.path);
       }
     },
     methods: {
@@ -360,7 +363,7 @@
       },
 
       onDragEnterExplorer(ev) {
-        if (!this.isAssets(this.path)) {
+        if (!this.isAsset) {
           return
         }
         if (this.isDraggingUiEl) {
@@ -380,7 +383,7 @@
       },
 
       onDropExplorer(ev) {
-        if (!this.isAssets(this.path)) {
+        if (!this.isAsset) {
           return
         }
         if (this.isDraggingUiEl) {
