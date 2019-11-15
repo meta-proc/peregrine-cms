@@ -225,7 +225,7 @@
         isDraggingUiEl: false,
         isFileUploadVisible: false,
         uploadProgress: 0,
-        sort: null
+        sort: Sort.NONE
       }
     },
     computed: {
@@ -242,15 +242,31 @@
         return $perAdminApp.findNodeFromPath(this.$root.$data.admin.nodes, node)
       },
       children: function () {
+        const vue = this;
         let children = this.pt.children;
         if (children) {
-          children = this.pt.children.filter(child => this.checkIfAllowed(child.resourceType))
+          children = this.pt.children.filter(child => this.checkIfAllowed(child.resourceType));
           if (this.sort !== Sort.NONE) {
-            children = children.sort((a, b) => {
+            let folders = [];
+            let assets = [];
+            children.forEach((child) => {
+              if (vue.isFolder(child.resourceType)) {
+                folders.push(child);
+              } else {
+                assets.push(child);
+              }
+            });
+            folders = folders.sort((a, b) => {
               a = a.name.toUpperCase();
               b = b.name.toUpperCase();
               return (a < b) ? -1 : (a > b) ? 1 : 0;
             });
+            assets = assets.sort((a, b) => {
+              a = a.name.toUpperCase();
+              b = b.name.toUpperCase();
+              return (a < b) ? -1 : (a > b) ? 1 : 0;
+            });
+            children = folders.concat(assets);
             if (this.sort === Sort.DESCENDING) {
               children = children.reverse();
             }
@@ -295,6 +311,7 @@
         var dataFrom = !me ? this.model.dataFrom : me.model.dataFrom
         var path = $perAdminApp.getNodeFrom($perAdminApp.getView(), dataFrom)
         var pathSegments = path.split('/')
+        this.sort = Sort.NONE;
         pathSegments.pop()
         path = pathSegments.join('/')
         $perAdminApp.action(!me ? this : me, 'selectPath',
@@ -325,7 +342,9 @@
       },
       /* row drag events */
       onDragRowStart(item, ev) {
-        if (this.sort) return;
+        if (this.sort) {
+          return;
+        }
         ev.srcElement.classList.add("dragging");
         ev.dataTransfer.setData('text', item.path)
         if (this.isDraggingFile) {
@@ -519,6 +538,7 @@
       },
       selectPath: function (me, target) {
         let resourceType = target.resourceType
+        me.sort = Sort.NONE;
         if (resourceType) {
 //                    if(resourceType === 'per:Object') {
 //                        me.selectedObject = target.path
@@ -638,6 +658,9 @@
         } else {
           this.sort = sort;
         }
+      },
+      isFolder(nodeType) {
+        return ['sling:Folder', 'sling:OrderedFolder'].indexOf(nodeType) > -1;
       }
     }
   }
@@ -659,7 +682,7 @@
     color: purple;
   }
 
-  .draggable.disabled i.material-icons{
+  .draggable.disabled i.material-icons {
     color: transparent;
   }
 </style>
@@ -700,7 +723,8 @@
     -khtml-user-select: none; /* Konqueror HTML */
     -moz-user-select: none; /* Old versions of Firefox */
     -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Opera and Firefox */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                     supported by Chrome, Opera and Firefox */
   }
 </style>
