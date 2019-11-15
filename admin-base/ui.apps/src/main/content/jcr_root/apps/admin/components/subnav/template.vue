@@ -34,7 +34,7 @@
                   command: 'selectPath',
                   download: getDownloadPath(),
                   target: getPath() + '/jcr:content.xml',
-                  tooltipTitle: 'Export Module',
+                  tooltipTitle: $i18n('exportModule'),
                   title: 'Export',
                   type: 'download'
                 }"

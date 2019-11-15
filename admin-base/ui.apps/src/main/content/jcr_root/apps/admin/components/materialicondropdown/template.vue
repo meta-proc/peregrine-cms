@@ -1,60 +1,74 @@
 <template>
-  <span class="wrap material-icon-drop-down">
-    <vue-multiselect
-        v-model="value"
-        :options="model.children"
-        track-by="target"
-        :allow-empty="false"
-        :show-labels="false"
-        :clear-on-select="false"
-    >
-      <template slot="singleLabel" slot-scope="props">
-          <a title="screen-dropdown" class="btn-floating waves-effect waves-light">
-            <i class="material-icons">{{props.option.icon}}</i>
-          </a>
+  <div class="drpdwn" v-bind:data-per-path="model.path">
+    <button class="drpbtn">
+      <a v-bind:title="$i18n('screenDropdown')"  class="btn-floating waves-effect waves-light">
+        <i class="material-icons">{{icon}}</i>
+      </a>
+    </button>
+    <div class="drpdwn-content" >
+      <template v-for="child in model.children">
+        <component v-bind:is="child.component" v-bind:model="child"></component>
       </template>
-      <template slot="option" slot-scope="props" @click.native="selectOption(props.option)">
-        <component
-            v-bind:is="props.option.component"
-            v-bind:model="props.option">
-        </component>
-      </template>
-    </vue-multiselect>
-  </span>
+    </div>
+  </div>
 </template>
 <script>
   export default {
     props: ['model'],
-    data() {
-      return {
-        value: this.model.children[0]
-      }
-    },
-    methods: {
-      selectOption(option) {
-        console.log('new OPTION', option);
-        this.value = option;
+    computed:{
+      icon: function(){
+        let currentState = $perAdminApp.getNodeFromViewOrNull("/state/tools/workspace/view")
+        let foundicon = this.model.icon;
+
+        this.model.children.forEach( function(child){
+          if (child.target === currentState){
+            foundicon = child.icon;
+          }
+        });
+        return foundicon;
       }
     }
   }
 
 </script>
 
-<style>
-  .material-icon-drop-down .multiselect .multiselect__select {
+<style scoped>
+  /* The dropdown container */
+  .drpdwn {
+    display: inline-block;
+    vertical-align: middle;
+    height: 40px;
+  }
+
+  /* Dropdown button */
+  .drpbtn {
+    border: none;
+    outline: none;
+    background-color: inherit;
+    margin: 0; /* Important for vertical align on mobile phones */
+    height: inherit;
+  }
+
+  /* Dropdown content (hidden by default) */
+  .drpdwn-content {
     display: none;
+    position: absolute;
+    max-width: 54px;
+    padding-top: 1px;
   }
 
-  .material-icon-drop-down .multiselect .multiselect__tags {
-     min-height: unset;
-     display: unset;
-     padding: unset;
-     border: unset;
-     background: unset;
+  /* Add shadow to dropdown content items*/
+  .drpdwn-content span {
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   }
 
-  .material-icon-drop-down .multiselect .multiselect__tags a.btn-floating .material-icons {
+  /* Set line-height for icons inside the navigation bar */
+  .material-icons {
     line-height: 40px;
-    height: 100%;
+  }
+
+  /* Show the dropdown menu on hover */
+  .drpdwn:hover .drpdwn-content {
+    display: block;
   }
 </style>

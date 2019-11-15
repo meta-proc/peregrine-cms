@@ -9,8 +9,11 @@
   },
   "main": "index.js",
   "scripts": {
+    "load-mdbv-pro": "sh src/main/sh/load-mdbv-pro.sh",
+    "unload-mdbv-pro": "sh src/main/sh/unload-mdbv-pro.sh",
+    "replace-mdbv-indexjs": "sh src/main/sh/replace-mdbv-indexjs.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node ./node_modules/rollup/dist/bin/rollup -c --silent && node ../../../buildscripts/buildvue.js pagerender-vue && node src/main/buildjs/mdtopage.js",
+    "build": "node ./node_modules/rollup/bin/rollup -c --silent && node ../../../buildscripts/buildvue.js pagerender-vue && node src/main/buildjs/mdtopage.js",
     "site": "node ./node_modules/jsdoc/jsdoc.js -c jsdoc.config.json -P package.json"
   },
   "author": "",
@@ -27,7 +30,7 @@
     "mdbvue": "^5.5.0",
     "popper.js": "^1.15.0",
     "request": "^2.88.0",
-    "rollup": "^1.16.6",
+    "rollup": "~1.16.6",
     "rollup-plugin-buble": "^0.19.8",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-css-only": "^1.0.0",

@@ -53,22 +53,21 @@ public class PerConstants {
     public static final String CHILD_COUNT = "childCount";
 
     public static final String DISTRIBUTION_SUB_SERVICE = "peregrine-distribution-sub-service";
-    public static final String RESOURCE_CHANGE_LISTENER = "metaproc-resource-change-listener";
+    public static final String PAGE_EVENT_HANDLER_SUB_SERVICE = "page-event-handler-sub-service";
 
-    public static final String ECMA_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
+    public static final String ECMA_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX";
     public static final Locale ECMA_DATE_FORMAT_LOCALE = Locale.US;
 
     public static final String SLASH = "/";
     public static final String DASH = "-";
 
-    public static final String JSON_MIME_TYPE = "application/json";
+    public static final String JSON_MIME_TYPE = "application/json;charset=utf-8";
     public static final String HTML_MIME_TYPE = "text/html";
     public static final String DATA_JSON_EXTENSION = ".data.json";
 
     public static final String PNG_MIME_TYPE = "image/png";
     public static final String JPEG_MIME_TYPE = "image/jpeg";
     public static final String WEBP_MIME_TYPE = "image/webp";
-    //AS Does that exist?
     public static final String JPG_MIME_TYPE = "image/jpg";
     public static final String TEXT_MIME_TYPE = "plain/text";
 
@@ -78,6 +77,7 @@ public class PerConstants {
     public static final String OBJECTS_ROOT = "/content/objects";
     public static final String SITES_ROOT = "/content/sites";
     public static final String TEMPLATES_ROOT = "/content/templates";
+    public static final String PACKAGES_PATH = "/etc/packages";
 
     public static final String COMPONENTS = "components";
     public static final String TEMPLATES = "templates";
@@ -88,6 +88,9 @@ public class PerConstants {
     public static final String SITE = "site";
     public static final String NAME = "name";
     public static final String MODEL = "model";
+
+    public static final String OG_TAGS = "ogTags";
+
     public static final String TYPE = "type";
     public static final String VARIATION = "variation";
     public static final String VARIATION_PATH = "variationPath";
@@ -101,6 +104,9 @@ public class PerConstants {
     public static final String PARENT_PATH = "parentPath";
     public static final String CONTENT = "content";
     public static final String TITLE = "title";
+    public static final String TAGS = "tags";
+    public static final String METAPROPERTIES = "metaproperties";
+    public static final String UPDATED = "updated";
 
     public static final String PAGE = "page";
     public static final String DROP = "drop";
@@ -113,10 +119,6 @@ public class PerConstants {
     public static final String FROM_SITE_NAME = "fromSite";
     public static final String TO_SITE_NAME = "toSite";
     public static final String DEPENDENCIES = "dependencies";
-
-    public static final String STANDALONE = "local";
-    public static final String AUTHOR_RUN_MODE = "author";
-    public static final String PUBLISH_RUN_MODE = "publish";
 
     public static final String PROTOCOL = "protocol";
     public static final String HOSTNAME = "hostname";

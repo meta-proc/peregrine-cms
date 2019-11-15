@@ -1,0 +1,74 @@
+{
+  "fields": [
+    {
+      "type": "material-checkbox",
+      "label": "ogTagsUseTitleLabel",
+      "default": true,
+      "model": "useTitle"
+    },
+    {
+      "type": "input",
+      "inputType": "text",
+      "model": "ogTitle",
+      "label": "ogTitle",
+      "placeholder": "ogTitle",
+      "visible": "model.useTitle != true"
+    },
+    {
+      "type": "material-checkbox",
+      "label": "ogTagsUseDescriptionLabel",
+      "default": true,
+      "model": "useDescription"
+    },
+    {
+      "type": "input",
+      "inputType": "text",
+      "model": "ogDescription",
+      "label": "ogDescription",
+      "placeholder": "ogDescription",
+      "visible": "model.useDescription != true"
+    },
+    {
+      "type": "material-select",
+      "label": "ogType",
+      "model": "ogType",
+      "placeholder": "og:type",
+      "default": "website",
+      "values": [
+        {
+          "name": "website",
+          "value": "website"
+        }
+      ]
+    },
+    {
+      "type": "pathbrowser",
+      "browserRoot": "/content/assets",
+      "browserType": "image",
+      "label": "ogImage",
+      "placeholder": "ogImage",
+      "model": "ogImage"
+    },
+    {
+      "type": "input",
+      "inputType": "text",
+      "model": "ogImageAlt",
+      "placeholder": "ogImageAlt",
+      "label": "ogImageAlt"
+    },
+    {
+      "type": "material-checkbox",
+      "label": "ogTagsUseCanonicalLinkLabel",
+      "default": true,
+      "model": "useCanonicalLink"
+    },
+    {
+      "type": "input",
+      "inputType": "text",
+      "model": "ogUrl",
+      "label": "ogUrl",
+      "placeholder": "ogUrl",
+      "visible": "model.useCanonicalLink != true"
+    }
+  ]
+}

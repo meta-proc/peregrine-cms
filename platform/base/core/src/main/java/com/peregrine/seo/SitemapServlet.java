@@ -92,7 +92,7 @@ public final class SitemapServlet extends SlingAllMethodsServlet {
     }
     stream.writeStartElement(NS, "url");
 
-    String loc = externalizer.buildExternalizedLink(resolver, String.format("%s.html", page.getPath()));
+    String loc = externalizer.publishLink(resolver, String.format("%s.html", page.getPath()));
     writeElement(stream, "loc", loc);
 
     Calendar lastModified;

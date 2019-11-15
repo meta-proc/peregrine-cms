@@ -107,6 +107,12 @@
                 <directory>${basedir}/node_modules/vue/dist</directory>
                 <targetPath>etc/felibs/pagerender-vue/vue</targetPath>
             </resource>
+
+            <resource>
+                <directory>${basedir}/src/main/js/external</directory>
+                <targetPath>etc/felibs/pagerender-vue/conditional-js</targetPath>
+            </resource>
+
             <resource>
                 <directory>${basedir}/src/main/content/jcr_root</directory>
                 <excludes>
@@ -144,6 +150,16 @@
                     </execution>
 
                     <execution>
+                        <id>npm run load-mdbv-pro</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <!-- Optional config which provides for running any npm command -->
+                        <configuration>
+                            <arguments>run load-mdbv-pro</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
@@ -151,6 +167,16 @@
                         <!-- Optional config which provides for running any npm command -->
                         <configuration>
                             <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run replace-mdbv-indexjs</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <!-- Optional config which provides for running any npm command -->
+                        <configuration>
+                            <arguments>run replace-mdbv-indexjs</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -177,6 +203,16 @@
                                 <NODE_PATH>./node_modules</NODE_PATH>
                             </environmentVariables>
                             <arguments>run site</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run unload-mdbv-pro</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <!-- Optional config which provides for running any npm command -->
+                        <configuration>
+                            <arguments>run unload-mdbv-pro</arguments>
                         </configuration>
                     </execution>
                 </executions>

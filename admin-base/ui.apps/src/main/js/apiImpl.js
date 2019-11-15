@@ -24,10 +24,11 @@
  */
 // var axios = require('axios')
 
-import { LoggerFactory } from './logger'
-let logger = LoggerFactory.logger('apiImpl').setLevelDebug()
+import {LoggerFactory} from './logger'
+import {get, stripNulls} from './utils'
+import {Field} from './constants';
 
-import { stripNulls} from './utils'
+let logger = LoggerFactory.logger('apiImpl').setLevelDebug()
 
 const API_BASE = '/perapi'
 const postConfig = {
@@ -147,6 +148,55 @@ function populateView(path, name, data) {
 
 }
 
+function updateExplorerDialog() {
+    const view = callbacks.getView()
+    const page = get(view, '/state/tools/page', '')
+    const template = get(view, '/state/tools/template', '')
+    if (page) {
+        $perAdminApp.stateAction('showPageInfo', {selected: page})
+    }
+    if (template) {
+        $perAdminApp.stateAction('showPageInfo', {selected: template})
+    }
+}
+
+function translateFields(fields) {
+    const $i18n = Vue.prototype.$i18n
+    if (!fields || fields.length <= 0) {
+        return
+    }
+    for (let i = 0; i < fields.length; i++) {
+        const field = fields[i]
+        if (field) {
+            if (field.label) {
+                fields[i].label = $i18n(field.label)
+            }
+            if (field.placeholder) {
+                fields[i].placeholder = $i18n(field.placeholder)
+            }
+            if (field.hint) {
+                fields[i].hint = $i18n(field.hint)
+            }
+            if (field.type === Field.SWITCH) {
+                fields[i].textOn = $i18n(field.textOn)
+                fields[i].textOff = $i18n(field.textOff)
+            } else if (field.type === Field.SELECT) {
+                const values = fields[i].values;
+                for (let j = 0; j < values.length; j++) {
+                    const name = values[j].name
+                    const t = $i18n(name)
+                    fields[i].values[j].name = t.startsWith('T[')? name : t
+                }
+            } else if (field.type === Field.MULTI_SELECT) {
+                if (field.selectOptions.placeholder) {
+                    const placeholder = field.selectOptions.placeholder
+                    fields[i].selectOptions.placeholder = $i18n(placeholder)
+                }
+            }
+        }
+    }
+}
+
 
 class PerAdminImpl {
 
@@ -247,41 +297,94 @@ class PerAdminImpl {
                     let component = callbacks.getComponentByName(name)
                     if(component && component.methods && component.methods.augmentEditorSchema) {
                         data.model = component.methods.augmentEditorSchema(data.model)
+                        data.ogTags = component.methods.augmentEditorSchema(data.ogTags);
                     }
-
                     let promises = []
                     if(data && data.model) {
                         for(let i = 0; i < data.model.fields.length; i++) {
                             let from = data.model.fields[i].valuesFrom
                             if(from) {
                                 data.model.fields[i].values = []
-                                let promise = axios.get(from).then( (response) => {
-                                    for(var key in response.data) {
-                                        if(response.data[key]['jcr:title']) {
-                                            const nodeName = key
-                                            const val = from.replace('.infinity.json', '/'+nodeName)
-                                            let name = response.data[key].name
-                                            if(!name) {
-                                                name = response.data[key]['jcr:title']
-                                            }
-                                            data.model.fields[i].values.push({ value: val, name: name })
+                                if (typeof from === 'string') {
+                                    from = [ from ];
+                                }
+                                for (let j = 0; j < from.length; j++) {
+                                    let promise = axios.get(from[j]).then( (response) => {
+                                        const toProcess = []
+                                        for(let key in response.data) {
+                                            toProcess.push({ key, data : response.data[key] })
                                         }
-                                    }
-                                }).catch( (error) => {
-                                    logger.error('missing node', data.model.fields[i].valuesFrom, 'for list population in dialog', error)
-                                })
-                                promises.push(promise)
+
+                                        let next = toProcess.shift()
+                                        while(next) {
+                                            if(next.data['jcr:title']) {
+                                                const nodeName = next.key
+                                                const val = next.data.path ? next.data.path + '/' + nodeName : from[j].replace('.infinity.json', '/'+nodeName)
+                                                let name = next.data.name
+                                                if(!name) {
+                                                    name = next.data['jcr:title']
+                                                }
+                                                if(next.parent) {
+                                                    name = next.parent + '-' + name;
+                                                }
+                                                data.model.fields[i].values.push({ value: val, name: name })
+                                                for(let k in next.data) {
+                                                    if(next.data[k] instanceof Object && next.data[k]['sling:resourceType'] === 'admin/objects/tag') {
+                                                        toProcess.push( { key: k, parent: name, data: next.data[k]})
+                                                    }
+                                                }
+                                            }
+                                            next = toProcess.shift()
+                                        }
+
+                                    }).catch( (error) => {
+                                        logger.error('missing node', data.model.fields[i].valuesFrom, 'for list population in dialog', error)
+                                    })
+                                    promises.push(promise)
+                                }
                             }
                             let visible = data.model.fields[i].visible
                             if(visible) {
-                                data.model.fields[i].visible = function(model) { 
+                                data.model.fields[i].visible = function(model) {
                                     return exprEval.Parser.evaluate( visible, this );
-                                } 
+                                }
                             }
                         }
-                    }
-                    Promise.all(promises).then( () => {
-                            populateView('/admin/componentDefinitions', data.name, data.model)
+                            translateFields(data.model.fields);
+                        }
+                        if (data.ogTags) {
+                            for(let i = 0; i < data.ogTags.fields.length; i++) {
+                                let from = data.ogTags.fields[i].valuesFrom
+                                if(from) {
+                                  data.ogTags.fields[i].values = []
+                                  let promise = axios.get(from).then( (response) => {
+                                      for(var key in response.data) {
+                                          if(response.data[key]['jcr:title']) {
+                                              const nodeName = key
+                                              const val = from.replace('.infinity.json', '/'+nodeName)
+                                              let name = response.data[key].name
+                                              if(!name) {
+                                                  name = response.data[key]['jcr:title']
+                                              }
+                                              data.ogTags.fields[i].values.push({ value: val, name: name })
+                                          }
+                                      }
+                                  }).catch( (error) => {
+                                    logger.error('missing node', data.ogTags.fields[i].valuesFrom, 'for list population in dialog', error)
+                                  })
+                                  promises.push(promise)
+                                }
+                                let visible = data.ogTags.fields[i].visible
+                                if(visible) {
+                                    data.ogTags.fields[i].visible = function(ogTags) {
+                                        return exprEval.Parser.evaluate( visible, this );
+                                    }
+                                }
+                            }
+                            translateFields(data.ogTags.fields);
+                        }
+                        Promise.all(promises).then( () => {
+                            populateView('/admin/componentDefinitions', data.name, data)
                             resolve(name)
                         }
                     )
@@ -334,6 +437,7 @@ class PerAdminImpl {
     populateI18N(language) {
         return new Promise( (resolve, reject) => {
             axios.get('/i18n/admin/'+language+'.infinity.json').then( (response) => {
+                updateExplorerDialog();
                 populateView('/admin/i18n', language, response.data).then( () => {
                     resolve()
                 })
@@ -341,22 +445,24 @@ class PerAdminImpl {
         })
     }
 
-    createSite(fromName, toName) {
+    createSite(fromName, toName, title) {
         return new Promise( (resolve, reject) => {
             let data = new FormData()
             data.append('fromSite', fromName)
             data.append('toSite', toName)
+            data.append('title', title)
             updateWithForm('/admin/createSite.json', data)
                 .then( (data) => this.populateNodesForBrowser(callbacks.getView().state.tools.pages) )
                 .then( () => resolve() )
         })
     }
 
-    createPage(parentPath, name, templatePath) {
+    createPage(parentPath, name, templatePath, title) {
         return new Promise( (resolve, reject) => {
             let data = new FormData()
             data.append('name', name)
             data.append('templatePath', templatePath)
+            data.append('title', title)
             updateWithForm('/admin/createPage.json'+parentPath, data)
                 .then( (data) => this.populateNodesForBrowser(parentPath) )
                 .then( () => resolve() )
@@ -396,7 +502,7 @@ class PerAdminImpl {
         return new Promise( (resolve, reject) => {
             let data = new FormData()
             data.append('to', newName)
-            updateWithForm('/admin/rename.json'+path, data)
+            updateWithForm('/admin/asset/rename.json'+path, data)
                 .then( (data) => this.populateNodesForBrowser(path) )
                 .then( () => resolve() )
         })
@@ -428,7 +534,7 @@ class PerAdminImpl {
         return new Promise( (resolve, reject) => {
             let data = new FormData()
             data.append('to', newName)
-            updateWithForm('/admin/rename.json'+path, data)
+            updateWithForm('/admin/object/rename.json'+path, data)
                 .then( (data) => this.populateNodesForBrowser(path) )
                 .then( () => resolve() )
         })
@@ -443,11 +549,23 @@ class PerAdminImpl {
         })
     }
 
+    deleteSite(target) {
+        let name = target.name;
+        let root = '/content/sites';
+        return new Promise( (resolve, reject) => {
+            let data = new FormData()
+            data.append('name', name);
+            updateWithForm('/admin/deleteSite.json', data)
+                .then( (data) => this.populateNodesForBrowser(root) )
+                .then( () => resolve() )
+        })
+    }
+
     renamePage(path, newName) {
         return new Promise( (resolve, reject) => {
             let data = new FormData()
             data.append('to', newName)
-            updateWithForm('/admin/rename.json'+path, data)
+            updateWithForm('/admin/page/rename.json'+path, data)
                 .then( (data) => this.populateNodesForBrowser(path) )
                 .then( () => resolve() )
         })
@@ -473,11 +591,12 @@ class PerAdminImpl {
         })
     }
 
-    createTemplate(parentPath, name, component) {
+    createTemplate(parentPath, name, component, title) {
         return new Promise( (resolve, reject) => {
             let data = new FormData()
             data.append('name', name)
             data.append('component', component)
+            data.append('title', title)
             updateWithForm('/admin/createTemplate.json'+parentPath, data)
                 .then( (data) => this.populateNodesForBrowser(parentPath) )
                 .then( () => resolve() )
@@ -495,6 +614,15 @@ class PerAdminImpl {
     }
 
     deleteFolder(path) {
+        return new Promise( (resolve, reject) => {
+            let data = new FormData()
+            updateWithForm('/admin/deleteNode.json'+path, data)
+                .then( (data) => this.populateNodesForBrowser(path) )
+                .then( () => resolve() )
+        })
+    }
+
+    deleteFile(path) {
         return new Promise( (resolve, reject) => {
             let data = new FormData()
             updateWithForm('/admin/deleteNode.json'+path, data)
@@ -608,13 +736,15 @@ class PerAdminImpl {
             // convert to a new object
             let nodeData = JSON.parse(JSON.stringify(node))
             stripNulls(nodeData)
-            delete nodeData['jcr:created']
-            delete nodeData['jcr:createdBy']
-            delete nodeData['jcr:lastModified']
-            delete nodeData['jcr:lastModifiedBy']
+            delete nodeData['name']
+            delete nodeData['path']
+            delete nodeData['created']
+            delete nodeData['createdBy']
+            delete nodeData['lastModified']
+            delete nodeData['lastModifiedBy']
             formData.append('content', json(nodeData))
 
-            updateWithForm('/admin/updateResource.json'+ node.path, formData)
+            updateWithForm('/admin/updateResource.json'+ node.path+'/jcr:content', formData)
                 .then( () => resolve() )
         })
     }

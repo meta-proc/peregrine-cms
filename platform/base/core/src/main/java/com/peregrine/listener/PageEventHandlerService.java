@@ -54,27 +54,27 @@ public class PageEventHandlerService implements ResourceChangeListener {
       for (ResourceChange change : changes) {
         log.trace("Resource Change: '{}'", change);
 
-        try (ResourceResolver resolver = PerUtil.loginService(factory, PerConstants.RESOURCE_CHANGE_LISTENER)) {
+        try (ResourceResolver resolver = PerUtil.loginService(factory, PerConstants.PAGE_EVENT_HANDLER_SUB_SERVICE)) {
           Resource resource = PerUtil.getResource(resolver, change.getPath());
           String primaryType = PerUtil.getPrimaryType(resource);
 
           switch (change.getType()) {
             case ADDED:
-              log.debug("Change Type ADDED: {}", change);
+              log.debug("Change Type ADDED: '{}'", change);
               if (PerConstants.PAGE_PRIMARY_TYPE.equals(primaryType)) {
                 handlePages(resource);
               }
               break;
 
             case CHANGED:
-              log.debug("Change Type CHANGED: {}", change);
+              log.debug("Change Type CHANGED:'{}'", change);
               if (PerConstants.PAGE_PRIMARY_TYPE.equals(primaryType) || PerConstants.PAGE_CONTENT_TYPE.equals(primaryType)) {
                 handleProperties(resource, PerConstants.PAGE_PRIMARY_TYPE.equals(primaryType), ChangeType.CHANGED);
               }
               break;
 
             case REMOVED:
-              log.debug("Change Type REMOVED: {}", change);
+              log.debug("Change Type REMOVED: '{}'", change);
               break;
 
             default:
@@ -109,10 +109,10 @@ public class PageEventHandlerService implements ResourceChangeListener {
   /**
    * Handler for ChangeType.CHANGED {@link org.apache.sling.api.resource.observation.ResourceChange.ChangeType}
    *
-   * @param resource Resource to look for the properties (Either per:Page or per:PageContent)
+   * @param resource       Resource to look for the properties (Either per:Page or per:PageContent)
    * @param goToJcrContent If true then if the given resource is not the JCR Content it will look
-   * that one up
-   * @param changeType The type of the change
+   *                       that one up
+   * @param changeType     The type of the change
    */
   private void handleProperties(Resource resource, boolean goToJcrContent, ChangeType changeType) {
     try {
@@ -120,7 +120,7 @@ public class PageEventHandlerService implements ResourceChangeListener {
       Resource res = goToJcrContent ? resource.getChild(PerConstants.JCR_CONTENT) : resource;
       Resource reverse = goToJcrContent ? resource : resource.getParent();
 
-      String exUrl = externalizer.buildExternalizedLink(reverse.getResourceResolver(), reverse.getPath());
+      String exUrl = externalizer.publishLink(reverse.getResourceResolver(), reverse.getPath());
       Consumer<? super Pair<String, ?>> canonical = dict -> props.put(dict.getKey(), exUrl + ".html");
 
       PerConstants.PAGE_PROPERTIES.forEach(pair -> {
@@ -138,7 +138,7 @@ public class PageEventHandlerService implements ResourceChangeListener {
       res.getResourceResolver().commit();
 
     } catch (PersistenceException e) {
-      log.error("Error: '{}', At Resource Path: '{}', Property Name: '{}' --->>> Cause: '{}'",
+      log.error("Error: '{}', At Resource Path: '{}', Property Name: '{}', Cause: '{}'",
           e.getMessage(), e.getResourcePath(), e.getPropertyName(), e.getCause());
     }
   }

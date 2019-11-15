@@ -8,12 +8,27 @@
     "placeholder": "page name"
   },
   {
-    "type": "input",
-    "inputType": "text",
+    "type": "textinput",
+    "placeholder": "page title",
+    "label": "Title",
     "model": "title",
     "x-model": "jcr:title",
-    "label": "Title",
-    "placeholder": "page title"
+    "charCounter": "true",
+    "wordCounter": "true"
+  },
+  {
+    "type": "material-select",
+    "label": "siteLanguage",
+    "model": "siteLanguage",
+    "selectOptions": {
+      "name": "name",
+      "value": "value"
+    },
+    "values": [
+      { "name": "de", "value": "de" },
+      { "name": "en", "value": "en" }
+    ],
+    "hint": "siteLanguageHint"
   },
   {
     "type": "material-datetime",
@@ -37,7 +52,7 @@
     "model": "lastModified",
     "label": "Last Modified",
     "readonly": true,
-    "placeholder": "lastModified"
+    "placeholder": "Last Modified"
   },
   {
     "type": "input",
@@ -45,7 +60,7 @@
     "model": "lastModifiedBy",
     "label": "Last Modified By",
     "readonly": true,
-    "placeholder": "lastModifiedBy"
+    "placeholder": "Last Modified By"
   },
   {
     "type": "material-multiselect",
@@ -59,9 +74,14 @@
       "searchable": true,
       "clearOnSelect": true,
       "closeOnSelect": false,
-      "taggable": true
+      "taggable": true,
+      "placeholder": "Select option"
     },
-    "valuesFrom": "/content/objects/tags.infinity.json"
+    "valuesFrom": [
+      "/content/objects/tags.infinity.json",
+      "/content/objects/democontent.infinity.json",
+      "/content/objects/metaproc.infinity.json"
+    ]
   },
   {
     "type": "material-textarea",
@@ -69,7 +89,50 @@
     "model": "description",
     "label": "Description",
     "rows": 10,
-    "placeholder": "enter a description for this page"
+    "placeholder": "descriptionPlaceholder",
+    "charCounter": "true",
+    "wordCounter": "true"
+  },
+  {
+    "type": "collection",
+    "multifield": true,
+    "fieldLabel": [
+      "property",
+      "value"
+    ],
+    "fields": [
+      {
+        "type": "material-select",
+        "label": "Type",
+        "model": "metatype",
+        "selectOptions": {
+          "name": "name",
+          "value": "value"
+        },
+        "values": [
+          {"name": "property", "value": "property" },
+          {"name": "name", "value": "name" }
+        ],
+        "required": true,
+        "validator": "required"
+      },
+      {
+        "type": "input",
+        "inputType": "text",
+        "placeholder": "og:title",
+        "label": "meta property",
+        "model": "key"
+      },
+      {
+        "type": "input",
+        "inputType": "text",
+        "placeholder": "title",
+        "label": "meta content",
+        "model": "value"
+      }
+    ],
+    "label": "Meta Properties",
+    "model": "metaproperties"
   },
   {
     "type": "material-select",
@@ -83,7 +146,7 @@
       { "name": "https://", "value": "https://" },
       { "name": "http://", "value": "http://" }
     ],
-    "hint": "The name of the scheme used to make the request."
+    "hint": "protocolHint"
   },
   {
     "type": "material-select",
@@ -96,24 +159,24 @@
     "values": [
       { "name": "www.metaproc.com", "value": "www.metaproc.com" }
     ],
-    "hint": "The host name of the server to which the request is sent."
+    "hint": "hostnameHint"
   },
   {
     "type": "input",
     "inputType": "text",
-    "label": "Canonical Link",
+    "label": "canonicalLinkLabel",
     "model": "canonicalLink",
-    "placeholder": "canonical link element"
+    "placeholder": "canonicalLinkLabel"
   },
   {
     "type": "materialswitch",
-    "label": "Exclude from Navigation",
+    "label": "hideInNavLabel",
     "model": "hideInNav",
     "textOn": "yes",
     "textOff": "no",
     "valueOn": "true",
     "valueOff": "false",
-    "hint": "This is to indicate whether the page should be exclude from navigation."
+    "hint": "hideInNavHint"
   },
   {
     "type": "materialswitch",
@@ -123,26 +186,47 @@
     "textOff": "no",
     "valueOn": "true",
     "valueOff": "false",
-    "hint": "This property indicates if the Page should be hidden from the Sitemap."
+    "hint": "excludeFromSitemapHint"
   },
   {
     "type": "material-select",
-    "label": "Page change frequency",
+    "label": "changefreqLabel",
     "model": "changefreq",
     "selectOptions": {
       "name": "name",
       "value": "value"
     },
     "values": [
-      { "name": "always", "value": "always" },
-      { "name": "hourly", "value": "hourly" },
-      { "name": "daily", "value": "daily" },
-      { "name": "weekly", "value": "weekly" },
-      { "name": "monthly", "value": "monthly" },
-      { "name": "yearly", "value": "yearly" },
-      { "name": "never", "value": "never" }
+      {
+        "name": "always",
+        "value": "always"
+      },
+      {
+        "name": "hourly",
+        "value": "hourly"
+      },
+      {
+        "name": "daily",
+        "value": "daily"
+      },
+      {
+        "name": "weekly",
+        "value": "weekly"
+      },
+      {
+        "name": "monthly",
+        "value": "monthly"
+      },
+      {
+        "name": "yearly",
+        "value": "yearly"
+      },
+      {
+        "name": "never",
+        "value": "never"
+      }
     ],
-    "hint": "How frequently the page is likely to change. This value provides general information to search engines and may not correlate exactly to how often they crawl the page."
+    "hint": "changefreqHint"
   },
   {
     "type": "material-select",
@@ -165,16 +249,16 @@
       { "name": "0.9", "value": "0.9" },
       { "name": "1.0", "value": "1.0" }
     ],
-    "hint": "The priority of this URL relative to other URLs on your site. Valid values range from 0.0 to 1.0. This value does not affect how your pages are compared to pages on other sites—it only lets the search engines know which pages you deem most important for the crawlers."
+    "hint": "priorityHint"
   },
   {
     "type": "materialswitch",
-    "label": "Disallow from Web Crawlers",
+    "label": "disallowFromRobotsLabel",
     "model": "disallowFromRobots",
     "textOn": "yes",
     "textOff": "no",
     "valueOn": "true",
     "valueOff": "false",
-    "hint": "This is to indicate whether the page should be disallowed from being scanned and processed by web crawlers and other web robots."
+    "hint": "disallowFromRobotsHint"
   }
 ]}
