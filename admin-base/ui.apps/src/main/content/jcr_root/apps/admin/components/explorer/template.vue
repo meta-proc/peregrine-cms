@@ -538,7 +538,6 @@
       },
       selectPath: function (me, target) {
         let resourceType = target.resourceType
-        me.sort = Sort.NONE;
         if (resourceType) {
 //                    if(resourceType === 'per:Object') {
 //                        me.selectedObject = target.path
@@ -550,6 +549,8 @@
             return
           } else if (resourceType === 'nt:file') {
             return
+          } else {
+            me.sort = Sort.NONE;
           }
         }
         if ($perAdminApp.getNodeFromView('/state/tools/object/show')) {
