@@ -294,6 +294,20 @@
         return this.isAssets(this.path);
       }
     },
+    watch: {
+      showNavigateToParent(neo, old) {
+        if (!neo && old) {
+          this.sort = Sort.NONE;
+        } else if (neo && !old){
+          this.sort = Sort.ASCENDING;
+        }
+      }
+    },
+    mounted() {
+      if (this.showNavigateToParent) {
+        this.sort = Sort.ASCENDING;
+      }
+    },
     methods: {
       isAssets(path) {
         return path.startsWith('/content/assets')
@@ -311,11 +325,10 @@
         var dataFrom = !me ? this.model.dataFrom : me.model.dataFrom
         var path = $perAdminApp.getNodeFrom($perAdminApp.getView(), dataFrom)
         var pathSegments = path.split('/')
-        this.sort = Sort.NONE;
         pathSegments.pop()
         path = pathSegments.join('/')
         $perAdminApp.action(!me ? this : me, 'selectPath',
-            {path: path, resourceType: 'sling:OrderedFolder'})
+            {path: path, resourceType: 'sling:OrderedFolder'});
       },
       selectItem(item) {
         $perAdminApp.action(this, 'selectPath', item)
@@ -549,8 +562,6 @@
             return
           } else if (resourceType === 'nt:file') {
             return
-          } else {
-            me.sort = Sort.NONE;
           }
         }
         if ($perAdminApp.getNodeFromView('/state/tools/object/show')) {
