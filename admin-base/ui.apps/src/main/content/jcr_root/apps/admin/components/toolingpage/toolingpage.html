@@ -74,6 +74,8 @@
     if(newImpl) {
         // define a couple of extra vue components that are used by components
         // but not in the tree of auto loaded components
+        $perAdminApp.loadComponent('admin-components-subnav')
+        $perAdminApp.loadComponent('admin-components-explorer')
         $perAdminApp.loadComponent('admin-components-iconaction')
         $perAdminApp.loadComponent('admin-components-action')
         $perAdminApp.loadComponent('admin-components-notifyuser')
@@ -121,6 +123,7 @@
         $perAdminApp.loadComponent('admin-components-draghandle')
         $perAdminApp.loadComponent('admin-components-iconbrowser')
 
+        $perAdminApp.loadComponent('pagerender-vue-structure-container')
         $perAdminApp.loadComponent('pagerender-vue-components-placeholder')
 
         // init peregrine admin app
