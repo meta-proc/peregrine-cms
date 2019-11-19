@@ -1,6 +1,6 @@
 cp package.json package.json.original
 
-MDBVUE_PRO_VERSION=5.8.3
+MDBVUE_PRO_VERSION=6.0.0
 MDBVUEURI="git+https:\/\/oauth2:${MDBVUE_TOKEN}@git.mdbootstrap.com\/mdb\/vue\/vu-pro.git#${MDBVUE_PRO_VERSION}"
 MDBVUE_VERSION_ORIGINAL=$(grep "mdbvue" "package.json" | sed -e 's/^[ \t]*//' )
 
