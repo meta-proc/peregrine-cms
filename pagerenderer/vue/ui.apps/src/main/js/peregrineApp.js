@@ -25,6 +25,7 @@
 import { LoggerFactory } from './logger.js'
 import experiences from './experiences.js'
 import helper from './helper.js'
+import mdbv from '../../../target/classes/etc/felibs/pagerender-vue/mdbvue/lib/index.js';
 
 let log = LoggerFactory.logger('peregrineApp').setDebugLevel()
 import state from './state.js'
@@ -125,6 +126,7 @@ function initPeregrineApp() {
 
     Vue.use( EventBus );
 
+    Vue.use(mdbv);
 
     perVueApp = new Vue({
         el: '#peregrine-app',
