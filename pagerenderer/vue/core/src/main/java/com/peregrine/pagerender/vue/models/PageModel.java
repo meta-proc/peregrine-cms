@@ -45,6 +45,8 @@ import static com.peregrine.commons.util.PerConstants.JCR_TITLE;
 import static com.peregrine.commons.util.PerConstants.JSON;
 import static com.peregrine.commons.util.PerConstants.PAGE_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerConstants.SLASH;
+import static com.peregrine.commons.util.PerUtil.DOMAINS;
+import static com.peregrine.commons.util.PerUtil.TEMPLATE;
 import static com.peregrine.pagerender.vue.models.PageRenderVueConstants.PR_VUE_COMPONENT_PAGE_TYPE;
 
 import java.util.ArrayList;
@@ -54,288 +56,338 @@ import java.util.List;
  * Created by rr on 12/2/2016.
  */
 @Model(adaptables = Resource.class,
-       resourceType = {PR_VUE_COMPONENT_PAGE_TYPE},
-       defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL,
-       adapters = IComponent.class)
+    resourceType = {PR_VUE_COMPONENT_PAGE_TYPE},
+    defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL,
+    adapters = IComponent.class)
 @Exporter(name = JACKSON,
-          extensions = JSON)
+    extensions = JSON)
 public class PageModel
     extends Container {
 
-    public static final String SITE_CSS = "siteCSS";
-    public static final String PREFETCH_DNS = "prefetchDNS";
-    public static final String DOMAINS = "domains";
-    public static final String SITE_JS = "siteJS";
-    public static final String TEMPLATE = "template";
+  public static final String SITE_CSS = "siteCSS";
+  public static final String PREFETCH_DNS = "prefetchDNS";
+  public static final String SITE_JS = "siteJS";
 
-    public PageModel(Resource r) {
-        super(r);
-    }
+  @Inject
+  private ModelFactory modelFactory;
 
-    public Resource getParentContent(Resource res) {
-        Resource page = res.getParent();
-        if(page != null) {
-            Resource parentPage = page.getParent();
-            if(parentPage != null) {
-                if(PAGE_PRIMARY_TYPE.equals(parentPage.getResourceType())) {
-                    Resource child = parentPage.getChild(JCR_CONTENT);
-                    return child;
-                }
-            }
-        }
-        return null;
-    }
+  @Inject
+  @Optional
+  private String[] prefetchDNS;
 
-    @Inject private ModelFactory modelFactory;
+  @Inject
+  @Optional
+  private String[] siteCSS;
 
-    @Inject
-    @Optional
-    private String[] prefetchDNS;
+  @Inject
+  @Optional
+  private String[] siteJS;
 
-    @Inject
-    @Optional
-    private String[] siteCSS;
+  @Inject
+  @Optional
+  private String[] domains;
 
-    @Inject
-    @Optional
-    private String[] siteJS;
+  @Inject
+  @Named(TEMPLATE)
+  @Optional
+  private String template;
 
-    @Inject
-    @Optional
-    private String[] domains;
+  @Inject
+  @Named(JCR_TITLE)
+  @Optional
+  private String title;
 
-    @Inject
-    @Named(TEMPLATE)
-    @Optional
-    private String template;
+  @Inject
+  private String dataFrom;
 
-    @Inject
-    @Named(JCR_TITLE)
-    @Optional
-    private String title;
+  @Inject
+  private String dataDefault;
 
-    @Inject private String dataFrom;
+  @Inject
+  private String[] loaders;
 
-    @Inject private String dataDefault;
+  @Inject
+  private String[] suffixToParameter;
 
-    @Inject private String[] loaders;
+  @Inject
+  private String description;
 
-    @Inject private String[] suffixToParameter;
+  public PageModel(final Resource resource) {
+    super(resource);
+  }
 
-    @Inject private String description;
+  public Resource getParentContent(final Resource resource) {
+    return java.util.Optional.ofNullable(resource)
+        .map(Resource::getParent)
+        .map(Resource::getParent)
+        .filter(r -> PAGE_PRIMARY_TYPE.equals(r.getResourceType()))
+        .map(r -> r.getChild(JCR_CONTENT))
+        .orElse(null);
+  }
 
-    public String getSiteRoot() {
-        String path = getPagePath();
-        String[] segments = path.split(SLASH);
-        return String.join(SLASH, segments[0], segments[1], segments[2], segments[3]);
-    }
+  public String getSiteRoot() {
+    String path = getPagePath();
+    String[] segments = path.split(SLASH);
+    return String.join(SLASH, segments[0], segments[1], segments[2], segments[3]);
+  }
 
-    public String getPagePath() {
-        return getResource().getParent().getPath();
-    }
+  public String getPagePath() {
+    return java.util.Optional.ofNullable(getResource())
+        .map(Resource::getParent)
+        .map(Resource::getPath)
+        .orElse(null);
+  }
 
-    public String[] getPrefetchDNS() {
-        if(prefetchDNS == null) {
-            String[] value = (String[]) getInheritedProperty(PREFETCH_DNS);
-            if(value != null && value.length != 0) return value;
-            if(getTemplate() != null) {
-                PageModel templatePageModel = getTamplatePageModel();
-                if(templatePageModel != null) {
-                    return templatePageModel.getPrefetchDNS();
-                }
-            }
-        }
-        return prefetchDNS;
-    }
-
-    public String[] getSiteCSS() {
-        if(siteCSS == null) {
-            String[] value = (String[]) getInheritedProperty(SITE_CSS);
-            if(value != null && value.length != 0) return value;
-            if(getTemplate() != null) {
-                PageModel templatePageModel = getTamplatePageModel();
-                if(templatePageModel != null) {
-                    return templatePageModel.getSiteCSS();
-                }
-            }
-        }
-        return siteCSS;
-    }
-
-    public String[] getDomains() {
-        if(domains == null) {
-            String[] value = (String[]) getInheritedProperty(DOMAINS);
-            if(value != null && value.length != 0) return value;
-            if(getTemplate() != null) {
-                PageModel templatePageModel = getTamplatePageModel();
-                if(templatePageModel != null) {
-                    return templatePageModel.getDomains();
-                }
-            }
-        }
-        return domains;
-    }
-
-    public String getTemplateSiteLanguage(){
-      Resource resource = getResource().getResourceResolver().getResource(getTemplate() + SLASH + JCR_CONTENT);
-      if( resource != null ){
-        ValueMap map = resource.getValueMap();
-        return (String) map.get("siteLanguage");
+  public String[] getPrefetchDNS() {
+    if (prefetchDNS == null) {
+      String[] value = (String[]) getInheritedProperty(PREFETCH_DNS);
+      if (value != null && value.length != 0) {
+        return value;
       }
-      return "en";
-    }
-
-    private PageModel getTamplatePageModel() {
-        String template = getTemplate();
-        if(template == null) return null;
-        Resource templateResource = getResource().getResourceResolver().getResource(getTemplate() + SLASH + JCR_CONTENT);
-        return (PageModel) modelFactory.getModelFromResource(templateResource);
-    }
-
-    private Object getInheritedProperty(String propertyName) {
-        Resource parentContent = getParentContent(getResource());
-        while(parentContent != null) {
-            ValueMap props = ResourceUtil.getValueMap(parentContent);
-            Object value = props.get(propertyName);
-            if(value != null) {
-                return value;
-            }
-            parentContent = getParentContent(parentContent);
+      if (getTemplate() != null) {
+        PageModel templatePageModel = getTemplatePageModel();
+        if (templatePageModel != null) {
+          return templatePageModel.getPrefetchDNS();
         }
-        return null;
+      }
     }
+    return prefetchDNS;
+  }
 
-    public String[] getSiteJS() {
-        if(siteJS == null) {
-            String[] value = (String[]) getInheritedProperty(SITE_JS);
-            if(value != null && value.length != 0) return value;
-            PageModel templatePageModel = getTamplatePageModel();
-            if(templatePageModel != null) {
-                return templatePageModel.getSiteJS();
-            }
+  public String[] getSiteCSS() {
+    if (siteCSS == null) {
+      String[] value = (String[]) getInheritedProperty(SITE_CSS);
+      if (value != null && value.length != 0) {
+        return value;
+      }
+      if (getTemplate() != null) {
+        PageModel templatePageModel = getTemplatePageModel();
+        if (templatePageModel != null) {
+          return templatePageModel.getSiteCSS();
         }
-        return siteJS;
+      }
     }
+    return siteCSS;
+  }
 
-    public String getTemplate() {
-        if(template == null) {
-            String value = (String) getInheritedProperty(TEMPLATE);
-            if(value != null) {
-                this.template = template;
-                return value;
-            }
+  public String[] getDomains() {
+    if (domains == null) {
+      String[] value = (String[]) getInheritedProperty(DOMAINS);
+      if (value != null && value.length != 0) {
+        return value;
+      }
+      if (getTemplate() != null) {
+        PageModel templatePageModel = getTemplatePageModel();
+        if (templatePageModel != null) {
+          return templatePageModel.getDomains();
         }
-        return template;
+      }
     }
+    return domains;
+  }
 
-    public String getTitle() {
-        return title;
+  public String getTemplateSiteLanguage() {
+    Resource resource = getResource().getResourceResolver()
+        .getResource(getTemplate() + SLASH + JCR_CONTENT);
+    if (resource != null) {
+      ValueMap map = resource.getValueMap();
+      return (String) map.get("siteLanguage");
     }
+    return "en";
+  }
 
-    public String getDataFrom() {
-        return dataFrom;
-    }
-
-    public String getDataDefault() {
-        return dataDefault;
-    }
-
-    public String[] getLoaders() {
-        return loaders;
-    }
-
-    public String[] getSuffixToParameter() {
-        return suffixToParameter;
-    }
-
-    public List<Tag> getTags() {
-        Resource tags = getResource().getChild("tags");
-        List<Tag> answer = new ArrayList<Tag>();
-        if(tags != null) {
-            for(Resource tag: tags.getChildren()) {
-                answer.add(new Tag(tag));
-            }
-        }
-        return answer;
-    }
-
-    public List<String> getRenderedTags() {
-        Resource tags = getResource().getChild("tags");
-        List<String> answer = new ArrayList<String>();
-        if(tags != null) {
-            for(Resource tag: tags.getChildren()) {
-                answer.add(new Tag(tag).getName());
-            }
-        }
-        return answer;
-    }
-
-    public List<MetaProperty> getMetaproperties() {
-        Resource metaproperties = getResource().getChild(PerConstants.METAPROPERTIES);
-        List<MetaProperty> answer = new ArrayList<>();
-        if(metaproperties != null) {
-            for(Resource metaproperty : metaproperties.getChildren()) {
-                MetaProperty metaProperty = new MetaProperty(metaproperty);
-                if( metaProperty.isProperty()) answer.add(metaProperty);
-            }
-        }
-        return answer;
-    }
-
-    public List<MetaProperty> getMetanames() {
-        Resource metaproperties = getResource().getChild(PerConstants.METAPROPERTIES);
-        List<MetaProperty> answer = new ArrayList<>();
-        if(metaproperties != null) {
-            for(Resource metaproperty : metaproperties.getChildren()) {
-                MetaProperty metaProperty = new MetaProperty(metaproperty);
-                if( metaProperty.isName()) answer.add(metaProperty);
-            }
-        }
-        return answer;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    class Tag {
-        private String path;
-        private String name;
-        private String value;
-
-        public Tag(Resource r) {
-            this.path = r.getPath();
-            this.path = path.substring(path.indexOf("/jcr:content"));
-            this.name = r.getName();
-            this.value = r.getValueMap().get("value", String.class);
+  private PageModel getTamplatePageModel() {
+    private PageModel getTemplatePageModel() {
+        final String path = getTemplate();
+        if (path == null) {
+            return null;
         }
 
-        public String getName() { return name; }
-        public String getValue() { return value; }
-        public String getPath() { return path; }
-        @Override
-        public String toString() { return name; }
+        return java.util.Optional.ofNullable(getResource())
+                .map(Resource::getResourceResolver)
+                .map(rr -> rr.getResource(path + SLASH + JCR_CONTENT))
+                .map(r -> (PageModel) modelFactory.getModelFromResource(r))
+                .orElse(null);
+  }
+
+  private Object getInheritedProperty(String propertyName) {
+    Resource parentContent = getParentContent(getResource());
+    while (parentContent != null) {
+      ValueMap props = ResourceUtil.getValueMap(parentContent);
+      Object value = props.get(propertyName);
+      if (value != null) {
+        return value;
+      }
+      parentContent = getParentContent(parentContent);
+    }
+    return null;
+  }
+
+  public String[] getSiteJS() {
+    if (siteJS == null) {
+      String[] value = (String[]) getInheritedProperty(SITE_JS);
+      if (value != null && value.length != 0) {
+        return value;
+      }
+      PageModel templatePageModel = getTemplatePageModel();
+      if (templatePageModel != null) {
+        return templatePageModel.getSiteJS();
+      }
+    }
+    return siteJS;
+  }
+
+  public String getTemplate() {
+    if (template == null) {
+      return (String) getInheritedProperty(TEMPLATE);
     }
 
-    public class MetaProperty {
-        public String path;
-        public String metatype;
-        public String key;
-        public String value;
+    return template;
+  }
 
-        public MetaProperty(Resource r) {
-            this.path = r.getPath();
-            this.path = path.substring(path.indexOf("/jcr:content"));
-            this.metatype = r.getValueMap().get("metatype", String.class);
-            this.key = r.getValueMap().get("key", String.class);
-            this.value = r.getValueMap().get("value", String.class);
+  public String getTitle() {
+    return title;
+  }
+
+  public String getDataFrom() {
+    return dataFrom;
+  }
+
+  public String getDataDefault() {
+    return dataDefault;
+  }
+
+  public String[] getLoaders() {
+    return loaders;
+  }
+
+  public String[] getSuffixToParameter() {
+    return suffixToParameter;
+  }
+
+  public List<Tag> getTags() {
+    Resource tags = getResource().getChild("tags");
+    List<Tag> answer = new ArrayList<>();
+    if (tags != null) {
+      for (Resource tag : tags.getChildren()) {
+        answer.add(new Tag(tag));
+      }
+    }
+    return answer;
+  }
+
+  public List<String> getRenderedTags() {
+    Resource tags = getResource().getChild("tags");
+    List<String> answer = new ArrayList<>();
+    if (tags != null) {
+      for (Resource tag : tags.getChildren()) {
+        answer.add(new Tag(tag).getName());
+      }
+    }
+    return answer;
+  }
+
+  public List<MetaProperty> getMetaproperties() {
+    Resource metaproperties = getResource().getChild(PerConstants.METAPROPERTIES);
+    List<MetaProperty> answer = new ArrayList<>();
+    if (metaproperties != null) {
+      for (Resource metaproperty : metaproperties.getChildren()) {
+        MetaProperty metaProperty = new MetaProperty(metaproperty);
+        if (metaProperty.isProperty()) {
+          answer.add(metaProperty);
         }
-
-        public String getPath() { return path; }
-        public String getMetaType() { return metatype; }
-        public String getKey() { return key; }
-        public String getValue() { return value; }
-        public Boolean isProperty() { return "property".equalsIgnoreCase(metatype); }
-        public Boolean isName() { return "name".equalsIgnoreCase(metatype); }
+      }
     }
+    return answer;
+  }
+
+  public List<MetaProperty> getMetanames() {
+    Resource metaproperties = getResource().getChild(PerConstants.METAPROPERTIES);
+    List<MetaProperty> answer = new ArrayList<>();
+    if (metaproperties != null) {
+      for (Resource metaproperty : metaproperties.getChildren()) {
+        MetaProperty metaProperty = new MetaProperty(metaproperty);
+        if (metaProperty.isName()) {
+          answer.add(metaProperty);
+        }
+      }
+    }
+    return answer;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  class Tag {
+
+    private String path;
+    private String name;
+    private String value;
+
+    public Tag(Resource r) {
+      this.path = r.getPath();
+      this.path = path.substring(path.indexOf("/jcr:content"));
+      this.name = r.getName();
+      this.value = r.getValueMap().get("value", String.class);
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public String getPath() {
+      return path;
+    }
+
+    @Override
+    public String toString() {
+      return name;
+    }
+  }
+
+  public class MetaProperty {
+
+    private String path;
+    private String metaType;
+    private String key;
+    private String value;
+
+    public MetaProperty(Resource r) {
+      this.path = r.getPath();
+      this.path = path.substring(path.indexOf("/jcr:content"));
+      final ValueMap valueMap = r.getValueMap();
+      this.metaType = valueMap.get("metatype", String.class);
+      this.key = valueMap.get("key", String.class);
+      this.value = valueMap.get("value", String.class);
+    }
+
+    public String getPath() {
+      return path;
+    }
+
+    public String getMetaType() {
+      return metaType;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public boolean isProperty() {
+      return "property".equalsIgnoreCase(metaType);
+    }
+
+    public boolean isName() {
+      return "name".equalsIgnoreCase(metaType);
+    }
+  }
 }

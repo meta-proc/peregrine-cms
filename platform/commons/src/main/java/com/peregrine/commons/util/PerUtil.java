@@ -13,9 +13,9 @@ package com.peregrine.commons.util;
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -39,20 +39,6 @@ import static org.apache.commons.lang3.StringUtils.substringAfter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CaseFormat;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.ModifiableValueMap;
@@ -64,23 +50,50 @@ import org.apache.sling.api.resource.ValueMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.peregrine.commons.util.PerConstants.DASH;
+import static com.peregrine.commons.util.PerConstants.JCR_MIME_TYPE;
+import static com.peregrine.commons.util.PerConstants.JCR_PRIMARY_TYPE;
+import static com.peregrine.commons.util.PerConstants.PER_REPLICATED;
+import static com.peregrine.commons.util.PerConstants.SLASH;
+import static com.peregrine.commons.util.PerConstants.SLING_RESOURCE_TYPE;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.substringAfter;
+
 /**
  * Created by Andreas Schaefer on 5/26/17.
  */
-public class PerUtil {
+public final class PerUtil {
 
     public static final String RENDITIONS = "renditions";
     public static final String METADATA = "metadata";
     public static final String TEMPLATE = "template";
+    public static final String DOMAINS = "domains";
 
     public static final String PER_VENDOR = "headwire.com, Inc";
     public static final String PER_PREFIX = "Peregrine: ";
-    public static final String EQUALS = "=";
+    public static final String EQUAL = "=";
     public static final String GET = "GET";
     public static final String POST = "POST";
 
     public static final String ENTRY_NOT_KEY_VALUE_PAIR = "Entry: '%s' could not be split into a key value pair, entries: '%s'";
-
     public static final String RESOURCE_RESOLVER_FACTORY_CANNOT_BE_NULL = "Resource Resolver Factory cannot be null";
     public static final String SERVICE_NAME_CANNOT_BE_EMPTY = "Service Name cannot be empty";
 
@@ -88,9 +101,8 @@ public class PerUtil {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    /** @return True if the given text is either null or empty **/
-    public static boolean isEmpty(String text) {
-        return text == null || text.isEmpty();
+    private PerUtil() {
+        throw new UnsupportedOperationException();
     }
 
     /** @return True if the given text is both not null and not empty **/
@@ -227,6 +239,27 @@ public class PerUtil {
         return answer;
     }
 
+    private static Map<String, String> splitValueIntoParameterMap(
+            final List<String> values,
+            final String parameterSeparator) {
+        final Map<String, String> parameters = new LinkedHashMap<>();
+        for (final String aValue: values) {
+            final List<String> parameterList = split(aValue, parameterSeparator);
+            if (parameterList.size() != 2) {
+                throw new IllegalArgumentException(String.format(ENTRY_NOT_KEY_VALUE_PAIR, aValue, values));
+            }
+
+            parameters.put(parameterList.get(0), parameterList.get(1));
+        }
+
+        return parameters;
+    }
+
+    public static String relativePath(final String root, final String child) {
+        final String substring = substringAfter(child, root + SLASH);
+        return EMPTY.equals(substring) ? null : substring;
+    }
+
     /**
      * Provides the relative path of a resource to a given root
      * @param root Root Resource
@@ -234,14 +267,8 @@ public class PerUtil {
      * @return Path from the Root to the Child if Child is a sub node of the
      *         root otherwise null
      */
-    public static String relativePath(Resource root, Resource child) {
-        String answer = null;
-        String rootPath = root.getPath();
-        String childPath = child.getPath();
-        if(childPath.startsWith(rootPath) && childPath.length() > rootPath.length() + 1) {
-            answer = childPath.substring(rootPath.length() + 1);
-        }
-        return answer;
+    public static String relativePath(final Resource root, final Resource child) {
+        return relativePath(root.getPath(), child.getPath());
     }
 
     /**
@@ -320,8 +347,8 @@ public class PerUtil {
      * @param resource Resource to be checked
      * @return The given resource if it is not null and does exist (is not a Non Existing Resource ref) otherwise null
      */
-    public static Resource checkResource(Resource resource) {
-        if(resource != null) {
+    public static Resource checkResource(final Resource resource) {
+        if (resource != null) {
             return ResourceUtil.isNonExistingResource(resource) ? null : resource;
         } else {
             return null;
@@ -336,7 +363,7 @@ public class PerUtil {
      * @return The Value Map of the JCR Content node if found otherwise the resource's value map. If
      *         resource is null then it will return null
      */
-    public static ValueMap getProperties(Resource resource) {
+    public static ValueMap getProperties(final Resource resource) {
         return getProperties(resource, true);
     }
 
@@ -359,7 +386,7 @@ public class PerUtil {
         }
 
         return resource.getChild(PerConstants.JCR_CONTENT);
-        }
+    }
 
     public static Resource getJcrContentOrSelf(final Resource resource) {
         return Optional.ofNullable(getJcrContent(resource))
@@ -408,12 +435,13 @@ public class PerUtil {
         final List<Resource> answer = new ArrayList<>();
         Resource parent = child.getParent();
         while(true) {
-            if(parent == null) {
+            if (parent == null) {
                 // No parent matches 'source' so we ignore it
                 answer.clear();
                 return answer;
             }
-            if(parent.getPath().equals(root.getPath())) {
+
+            if (parent.getPath().equals(root.getPath())) {
                 // Hit the source -> done with loop
                 return answer;
             }
@@ -443,15 +471,15 @@ public class PerUtil {
             return;
         }
 
-            if(resourceChecker.doAdd(startingResource)) {
-                if(!containsResource(response, startingResource)) {
-                    response.add(startingResource);
-                }
-                // If this is JCR Content we need to add all children
-            if (PerConstants.JCR_CONTENT.equals(startingResource.getName())) {
-                    childResourceChecker = new AddAllResourceChecker();
-                }
+        if (resourceChecker.doAdd(startingResource)) {
+            if (!containsResource(response, startingResource)) {
+                response.add(startingResource);
             }
+            // If this is JCR Content we need to add all children
+            if (PerConstants.JCR_CONTENT.equals(startingResource.getName())) {
+                childResourceChecker = new AddAllResourceChecker();
+            }
+        }
 
         if (!resourceChecker.doAddChildren(startingResource)) {
             return;
@@ -459,57 +487,25 @@ public class PerUtil {
 
         for (final Resource child : startingResource.getChildren()) {
             if (deep || PerConstants.JCR_CONTENT.equals(child.getName())) {
-                        listMissingResources(child, response, childResourceChecker, true);
-                    }
-                }
+                listMissingResources(child, response, childResourceChecker, true);
             }
+        }
+    }
 
     public static boolean containsResource(final List<Resource> resources, final Resource check) {
         if (check == null) {
             return true;
-    }
+        }
 
         final String path = check.getPath();
         for (final Resource item : resources) {
-                if(path.equals(item.getPath())) {
+            if (path.equals(item.getPath())) {
                 return true;
             }
         }
 
         return false;
     }
-
-    //AS TODO: This seems to be a duplicate of the method above?
-//    public static void listMatchingResources(Resource startingResource, List<Resource> response, ResourceChecker resourceChecker, boolean deep) {
-//        ResourceChecker childResourceChecker = resourceChecker;
-//        if(startingResource != null && resourceChecker != null && response != null) {
-//            if(resourceChecker.doAdd(startingResource)) {
-//                response.add(startingResource);
-//                // If this is JCR Content we need to add all children
-//                if(startingResource.getName().equals(PerConstants.JCR_CONTENT)) {
-//                    childResourceChecker = new AddAllResourceChecker();
-//                }
-//            }
-//            if(resourceChecker.doAddChildren(startingResource)) {
-//                for(Resource child : startingResource.getChildren()) {
-//                    if(child.getName().equals(PerConstants.JCR_CONTENT)) {
-//                        listMatchingResources(child, response, childResourceChecker, true);
-//                    } else if(deep) {
-//                        listMatchingResources(child, response, childResourceChecker, true);
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    public static boolean containsResource(List<Resource> resourceList, Resource resource) {
-//        for(Resource item: resourceList) {
-//            if(item.getPath().equals(resource.getPath())) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     /**
      * Lists all the missing parents compared to the parents on the source
@@ -528,14 +524,14 @@ public class PerUtil {
             return;
         }
 
-            // Now we go through all parents, check if the matching parent exists on the target
-            // side and if not there add it to the list
+        // Now we go through all parents, check if the matching parent exists on the target
+        // side and if not there add it to the list
         for (final Resource sourceParent : listParents(source, startingResource)) {
             if (resourceChecker.doAdd(sourceParent) && !containsResource(response, sourceParent)) {
-                        response.add(sourceParent);
-                    }
-                }
+                response.add(sourceParent);
             }
+        }
+    }
 
     /**
      * Tries to obtain the Service Resource Resolver
@@ -880,12 +876,12 @@ public class PerUtil {
                     .map(target::getChild)
                     .orElse(null);
             LOG.trace("Do Add. Resource: '{}', relative path: '{}', target resource: '{}'", resource.getPath(), relativePath, targetResource);
-            if(targetResource == null) {
+            if (targetResource == null) {
                 return true;
             }
 
-                //AS TODO This does not work as is. We need to compare the source's last modified timestamp against the target's
-                //AS TODO replicated timestamp
+            // AS TODO This does not work as is. We need to compare the source's last modified timestamp against the target's
+            // AS TODO replicated timestamp
             final Calendar sourceLastModified = resource.getValueMap().get(PER_REPLICATED, Calendar.class);
             final Calendar targetLastModified = targetResource.getValueMap().get(PER_REPLICATED, Calendar.class);
 
@@ -934,6 +930,6 @@ public class PerUtil {
             return true;
         }
         @Override
-        public boolean doAddChildren(Resource resource) { return true; }
+        public boolean doAddChildren(final Resource resource) { return true; }
     }
 }

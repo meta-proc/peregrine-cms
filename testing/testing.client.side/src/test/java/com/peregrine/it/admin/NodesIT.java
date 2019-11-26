@@ -20,12 +20,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static com.peregrine.commons.util.PerConstants.JCR_CONTENT;
+import static com.peregrine.commons.util.PerConstants.JCR_LAST_MODIFIED_BY;
+import static com.peregrine.commons.util.PerConstants.JCR_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerConstants.JCR_TITLE;
+import static com.peregrine.commons.util.PerConstants.PAGE_CONTENT_TYPE;
+import static com.peregrine.commons.util.PerConstants.PAGE_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerConstants.SLING_RESOURCE_TYPE;
 import static com.peregrine.commons.util.PerUtil.TEMPLATE;
 import static com.peregrine.it.basic.BasicTestHelpers.checkFolderExists;
 import static com.peregrine.it.basic.BasicTestHelpers.checkResourceByJson;
-import static com.peregrine.it.basic.BasicTestHelpers.convertToMap;
+import static com.peregrine.it.basic.BasicTestHelpers.convertResponseToMap;
 import static com.peregrine.it.basic.BasicTestHelpers.createFolderStructure;
 import static com.peregrine.it.basic.BasicTestHelpers.createTimestampAndWait;
 import static com.peregrine.it.basic.BasicTestHelpers.getDateDifferenceInMillis;
@@ -36,11 +41,6 @@ import static com.peregrine.it.util.TestHarness.createTemplate;
 import static com.peregrine.it.util.TestHarness.deleteFolder;
 import static com.peregrine.it.util.TestHarness.executeReplication;
 import static com.peregrine.it.util.TestHarness.getNodes;
-import static com.peregrine.commons.util.PerConstants.JCR_CONTENT;
-import static com.peregrine.commons.util.PerConstants.JCR_LAST_MODIFIED_BY;
-import static com.peregrine.commons.util.PerConstants.JCR_PRIMARY_TYPE;
-import static com.peregrine.commons.util.PerConstants.PAGE_CONTENT_TYPE;
-import static com.peregrine.commons.util.PerConstants.PAGE_PRIMARY_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -109,7 +109,7 @@ public class NodesIT
         json.close();
         checkResourceByJson(client, pageFolder + "/" + pageName, 2, writer.toString(), true);
         SlingHttpResponse response = getNodes(client, pageFolder + "/" + pageName, 200);
-        Map data = convertToMap(response);
+        Map data = convertResponseToMap(response);
         logger.info("Nodes.json response: '{}'", data);
         // Look for the node and then check the page data
         Map<String, Object> page = traverse((Map<String, Object>) data, pageFolder + "/" + pageName);
@@ -178,7 +178,8 @@ public class NodesIT
 
         Calendar before = createTimestampAndWait();
         // Replicate the Page and check its new content
-        executeReplication(client, rootFolderPath + "/" + pageName, "local", 200);
+        SlingHttpResponse checkResponse = executeReplication(client, rootFolderPath + "/" + pageName, "local", 200);
+        logger.info("Execute Replication Response: '{}'", convertResponseToMap(checkResponse));
 
         // Check page and template
         jf = new JsonFactory();
@@ -211,7 +212,7 @@ public class NodesIT
         //END Now we start testing Nodes
 
         SlingHttpResponse response = getNodes(client, rootFolderPath + "/" + pageName, 200);
-        Map data = convertToMap(response);
+        Map data = convertResponseToMap(response);
         logger.info("Nodes.json response: '{}'", data);
         // Look for the node and then check the page data
         Map<String, Object> page = traverse((Map<String, Object>) data, rootFolderPath + "/" + pageName);

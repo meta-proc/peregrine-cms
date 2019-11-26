@@ -37,7 +37,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.servlet.Servlet;
 import java.io.IOException;
 
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_MOVE_NODE;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_MOVE_NODE;
 import static com.peregrine.admin.util.AdminConstants.BEFORE_POSTFIX;
 import static com.peregrine.admin.util.AdminConstants.INTO;
 import static com.peregrine.admin.util.AdminConstants.MODEL_JSON;
@@ -48,7 +48,7 @@ import static com.peregrine.commons.util.PerConstants.ORDER_BEFORE_TYPE;
 import static com.peregrine.commons.util.PerConstants.ORDER_CHILD_TYPE;
 import static com.peregrine.commons.util.PerConstants.PATH;
 import static com.peregrine.commons.util.PerConstants.TYPE;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static com.peregrine.commons.util.PerUtil.POST;
@@ -67,22 +67,22 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Move Node To Servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + POST,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_MOVE_NODE
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Move Node To Servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + POST,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_MOVE_NODE
     }
 )
 @SuppressWarnings("serial")
 public class MoveNodeTo extends AbstractBaseServlet {
 
     @Reference
-    ModelFactory modelFactory;
+    transient ModelFactory modelFactory;
 
     @Reference
-    private ResourceRelocation resourceRelocation;
+    private transient ResourceRelocation resourceRelocation;
     @Reference
-    AdminResourceHandler resourceManagement;
+    private transient AdminResourceHandler resourceManagement;
 
     @Override
     protected Response handleRequest(Request request) throws IOException {
@@ -104,7 +104,11 @@ public class MoveNodeTo extends AbstractBaseServlet {
             Resource fromResource = request.getResourceByPath(fromPath);
             resourceManagement.moveNode(fromResource, toResource, addAsChild, addBefore);
             request.getResourceResolver().commit();
-            answer = new RedirectResponse((addAsChild ? toPath : toResource.getParent().getPath()) + MODEL_JSON);
+            Resource parent = toResource.getParent();
+            if(parent == null) {
+                throw new ManagementException("To Resource: '" + toResource.getPath() + "' has no parent");
+            }
+            answer = new RedirectResponse((addAsChild ? toPath : parent.getPath()) + MODEL_JSON);
         } catch(ManagementException e) {
             logger.error("problems while moving", e);
             answer = new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(e.getMessage()).setException(e);

@@ -26,6 +26,7 @@ package com.peregrine.admin.servlets;
  */
 
 import com.peregrine.commons.servlets.AbstractBaseServlet;
+import com.peregrine.intra.IntraSlingCaller;
 import org.apache.sling.models.factory.ModelFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -34,15 +35,12 @@ import javax.servlet.Servlet;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import com.peregrine.intra.IntraSlingCaller;
-
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_NODE;
+import static com.peregrine.commons.util.PerConstants.DATA_JSON_EXTENSION;
 import static com.peregrine.commons.util.PerConstants.JSON;
 import static com.peregrine.commons.util.PerConstants.JSON_MIME_TYPE;
-
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_NODE;
-import static com.peregrine.commons.util.PerConstants.DATA_JSON_EXTENSION;
 import static com.peregrine.commons.util.PerConstants.PATH;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.GET;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
@@ -60,21 +58,18 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Node Servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + GET,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_NODE
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Node Servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + GET,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_NODE
     }
 )
 @SuppressWarnings("serial")
 public class NodeServlet extends AbstractBaseServlet {
 
     @Reference
-    ModelFactory modelFactory;
-
-    @Reference
     @SuppressWarnings("unused")
-    private IntraSlingCaller intraSlingCaller;
+    private transient IntraSlingCaller intraSlingCaller;
 
     @Override
     protected Response handleRequest(Request request) throws IOException {

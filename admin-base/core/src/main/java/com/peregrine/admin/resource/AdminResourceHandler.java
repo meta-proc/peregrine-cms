@@ -139,7 +139,7 @@ public interface AdminResourceHandler {
      * @return Renamed Resource
      * @throws ManagementException If the rename failed
      */
-    Resource rename(Resource fromResource, String newName) throws ManagementException;
+    public Resource rename(Resource fromResource, String newName) throws ManagementException;
 
     /**
      * Create an Asset Resource which the given Byte Input Stream
@@ -182,8 +182,8 @@ public interface AdminResourceHandler {
      * @param resourceResolver Resource Resolver to obtain the resources
      * @param sitesParentPath Absolute Path to Sites
      * @param name Name of the Site to delete
-     * @return
-     * @throws ManagementException
+     * @return Resource of the Target Copy
+     * @throws ManagementException If a management error occurs 
      */
     void deleteSite(ResourceResolver resourceResolver, String sitesParentPath, String name) throws ManagementException;
 

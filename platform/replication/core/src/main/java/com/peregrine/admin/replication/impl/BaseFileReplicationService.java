@@ -26,31 +26,32 @@ package com.peregrine.admin.replication.impl;
  */
 
 import com.peregrine.admin.replication.AbstractionReplicationService;
-import com.peregrine.replication.ReferenceLister;
 import com.peregrine.commons.util.PerUtil;
 import com.peregrine.commons.util.PerUtil.ResourceChecker;
 import com.peregrine.render.RenderService;
 import com.peregrine.render.RenderService.RenderException;
+import com.peregrine.replication.ReferenceLister;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static com.peregrine.admin.replication.ReplicationUtil.updateReplicationProperties;
-import static com.peregrine.commons.util.PerConstants.RENDITION_ACTION;
 import static com.peregrine.commons.util.PerConstants.ASSET_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerConstants.JCR_CONTENT;
 import static com.peregrine.commons.util.PerConstants.NT_FILE;
 import static com.peregrine.commons.util.PerConstants.NT_FOLDER;
+import static com.peregrine.commons.util.PerConstants.RENDITION_ACTION;
 import static com.peregrine.commons.util.PerConstants.SLASH;
 import static com.peregrine.commons.util.PerConstants.SLING_FOLDER;
 import static com.peregrine.commons.util.PerConstants.SLING_ORDERED_FOLDER;
 import static com.peregrine.commons.util.PerUtil.RENDITIONS;
+import static com.peregrine.commons.util.PerUtil.doSave;
 
 /**
  * Base Class for External File System / Storage Replications
@@ -127,7 +128,6 @@ public abstract class BaseFileReplicationService
             }
         }
         if(resourceResolver != null) {
-            Session session = resourceResolver.adaptTo(Session.class);
             for(Resource item: resourceList) {
                 if(item != null) {
                     // Ignore jcr:content as they cannot be rendered to the FS (if needed then we need to map the file names)
@@ -139,11 +139,7 @@ public abstract class BaseFileReplicationService
                     }
                 }
             }
-            try {
-                session.save();
-            } catch(RepositoryException e) {
-                log.warn("Failed to save changes replicate parents", e);
-            }
+            doSave(resourceResolver, "Do File Replication");
         }
         return answer;
     }
@@ -186,7 +182,7 @@ public abstract class BaseFileReplicationService
 
     private void handleParents(Resource resource) throws ReplicationException {
         // Go through all its parents and make sure the folder does exist
-        if(!isFolderOnTarget(resource.getPath())) {
+        if(resource != null && !isFolderOnTarget(resource.getPath())) {
             Resource parent = resource.getParent();
             if(parent != null) {
                 handleParents(parent);
@@ -334,7 +330,7 @@ public abstract class BaseFileReplicationService
         private boolean exportFolders = false;
 
         public ExportExtension(String name, List<String> types) {
-            if(PerUtil.isEmpty(name)) {
+            if(isEmpty(name)) {
                 throw new IllegalArgumentException(EXTENSION_NAME_MUST_BE_PROVIDED);
             }
             if(types == null || types.isEmpty()) {

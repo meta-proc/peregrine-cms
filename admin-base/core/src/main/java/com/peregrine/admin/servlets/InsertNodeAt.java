@@ -41,11 +41,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_INSERT_NODE;
 import static com.peregrine.admin.util.AdminConstants.BEFORE_POSTFIX;
 import static com.peregrine.admin.util.AdminConstants.INTO;
 import static com.peregrine.admin.util.AdminConstants.MODEL_JSON;
 import static com.peregrine.admin.util.AdminConstants.NOT_PROVIDED;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_INSERT_NODE;
 import static com.peregrine.commons.util.PerConstants.APPS_ROOT;
 import static com.peregrine.commons.util.PerConstants.COMPONENT;
 import static com.peregrine.commons.util.PerConstants.CONTENT;
@@ -59,7 +59,7 @@ import static com.peregrine.commons.util.PerConstants.PATH;
 import static com.peregrine.commons.util.PerConstants.SLASH;
 import static com.peregrine.commons.util.PerConstants.TYPE;
 import static com.peregrine.commons.util.PerConstants.VARIATION;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static com.peregrine.commons.util.PerUtil.POST;
@@ -81,65 +81,48 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "insert node at servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + POST,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_INSERT_NODE
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "insert node at servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + POST,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_INSERT_NODE
     }
 )
 @SuppressWarnings("serial")
-public class InsertNodeAt extends AbstractBaseServlet {
+public class  InsertNodeAt extends AbstractBaseServlet {
 
     public static final String FAILED_TO_CREATE_INTERMEDIATE_RESOURCES = "Failed to create intermediate resources";
     public static final String RESOURCE_NOT_FOUND_BY_PATH = "Resource not found by Path";
-    @Reference
-    ModelFactory modelFactory;
 
     @Reference
-    ResourceRelocation resourceRelocation;
+    transient ModelFactory modelFactory;
 
     @Reference
-    AdminResourceHandler resourceManagement;
+    transient ResourceRelocation resourceRelocation;
+
+    @Reference
+    transient AdminResourceHandler resourceManagement;
 
     @Override
     protected Response handleRequest(Request request) throws IOException {
         String path = request.getParameter(PATH);
         Resource resource = getResource(request.getResourceResolver(), path);
-        //AS This is a fix for missing intermediary nodes from templates
+        // This is a fix for missing intermediary nodes from templates
         if(resource == null) {
             int index = path.lastIndexOf(JCR_CONTENT);
             if(index > 0 && index < path.length() - JCR_CONTENT.length()) {
                 // We found jcr:content. Now we check if that is a page and if so traverse down the path and create all nodes until we reach the parent
                 String pagePath = path.substring(0, index - 1);
                 Resource page = getResource(request.getResourceResolver(), pagePath);
-                if(page != null) {
-                    if(isPrimaryType(page, PAGE_PRIMARY_TYPE)) {
+                if(page != null && isPrimaryType(page, PAGE_PRIMARY_TYPE)) {
+                    try {
                         // Now we can traverse
-                        String rest = path.substring(index);
-                        logger.debug("Rest of Page Path: '{}'", rest);
-                        String[] nodeNames = rest.split("/");
-                        Resource intermediate = page;
-                        for(String nodeName : nodeNames) {
-                            if(nodeName != null && !nodeName.isEmpty()) {
-                                Resource temp = intermediate.getChild(nodeName);
-                                logger.debug("Node Child Name: '{}', parent resource: '{}', resource found: '{}'", nodeName, intermediate.getPath(), temp == null ? "null" : temp.getPath());
-                                if(temp == null) {
-                                    try {
-                                        intermediate = resourceManagement.createNode(intermediate, nodeName, NT_UNSTRUCTURED, null);
-                                    } catch(ManagementException e) {
-                                        return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(FAILED_TO_CREATE_INTERMEDIATE_RESOURCES).setRequestPath(path);
-                                    }
-                                } else {
-                                    intermediate = temp;
-                                }
-                            }
-                        }
-                        resource = getResource(request.getResourceResolver(), path);
+                        resource = traverse(request, page, path, index);
+                    } catch (ManagementException e) {
+                        return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(FAILED_TO_CREATE_INTERMEDIATE_RESOURCES).setRequestPath(path);
                     }
                 }
             }
         }
-        //AS End of Patch
         if(resource == null) {
             return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(RESOURCE_NOT_FOUND_BY_PATH).setRequestPath(path);
         }
@@ -158,7 +141,9 @@ public class InsertNodeAt extends AbstractBaseServlet {
         String data = request.getParameter(CONTENT);
         if(data != null && !data.isEmpty()) {
             ObjectMapper mapper = new ObjectMapper();
-            properties.putAll(mapper.readValue(data, Map.class));
+            Map contentProperties = mapper.readValue(data, Map.class);
+            logger.trace("Content Properties from Caller: '{}'", contentProperties);
+            properties.putAll(contentProperties);
         }
         if(component != null && !component.isEmpty()) {
             // Component overrides the JSon component if provided
@@ -173,11 +158,32 @@ public class InsertNodeAt extends AbstractBaseServlet {
         try {
             Resource newResource = resourceManagement.insertNode(resource, properties, addAsChild, addBefore, variation);
             newResource.getResourceResolver().commit();
-            return new RedirectResponse((addAsChild ? path : resource.getParent().getPath()) + MODEL_JSON);
+            Resource parent = resource.getParent();
+            if(parent == null) {
+                throw new ManagementException("Resource: '" + resource.getPath() + "' has no parent");
+            }
+            return new RedirectResponse((addAsChild ? path : parent.getPath()) + MODEL_JSON);
         } catch (ManagementException e) {
             return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(e.getMessage()).setException(e);
         }
+    }
 
+    private Resource traverse(Request request, Resource page, String path, int index) throws ManagementException {
+        // Now we can traverse
+        String rest = path.substring(index);
+        logger.debug("Rest of Page Path: '{}'", rest);
+        String[] nodeNames = rest.split("/");
+        Resource intermediate = page;
+        for(String nodeName : nodeNames) {
+            if(nodeName != null && !nodeName.isEmpty()) {
+                Resource temp = intermediate.getChild(nodeName);
+                logger.debug("Node Child Name: '{}', parent resource: '{}', resource found: '{}'", nodeName, intermediate.getPath(), temp);
+                intermediate = temp == null ?
+                    resourceManagement.createNode(intermediate, nodeName, NT_UNSTRUCTURED, null) :
+                    temp;
+            }
+        }
+        return getResource(request.getResourceResolver(), path);
     }
 }
 

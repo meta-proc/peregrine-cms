@@ -25,7 +25,8 @@ package com.peregrine.admin.servlets;
  * #L%
  */
 
-import java.io.IOException;
+import com.peregrine.commons.servlets.AbstractBaseServlet;
+import org.osgi.service.component.annotations.Component;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -34,9 +35,7 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 import javax.servlet.Servlet;
-
-import com.peregrine.commons.servlets.AbstractBaseServlet;
-import org.osgi.service.component.annotations.Component;
+import java.io.IOException;
 
 import static com.peregrine.admin.util.AdminConstants.CURRENT;
 import static com.peregrine.admin.util.AdminConstants.DATA;
@@ -45,7 +44,7 @@ import static com.peregrine.admin.util.AdminConstants.SEARCH_PATH;
 import static com.peregrine.commons.util.PerConstants.NAME;
 import static com.peregrine.commons.util.PerConstants.PAGE;
 import static com.peregrine.commons.util.PerConstants.PATH;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.GET;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
@@ -61,10 +60,10 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Search Servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + GET,
-        SLING_SERVLET_PATHS + EQUALS + SEARCH_PATH
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Search Servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + GET,
+        SLING_SERVLET_PATHS + EQUAL + SEARCH_PATH
     }
 )
 @SuppressWarnings("serial")
@@ -81,6 +80,9 @@ public class SearchServlet extends AbstractBaseServlet {
         } else {
             Session session = request.getResourceResolver().adaptTo(Session.class);
             JsonResponse answer = new JsonResponse();
+            if(session == null) {
+                return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage("Could not obtain JCR Session");
+            }
             try {
                 QueryManager qm = session.getWorkspace().getQueryManager();
                 Query q = qm.createQuery(query, Query.SQL);

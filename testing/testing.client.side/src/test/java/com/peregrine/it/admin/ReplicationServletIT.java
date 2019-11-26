@@ -31,12 +31,13 @@ import java.util.Map;
 import static com.peregrine.admin.replication.impl.LocalFileSystemReplicationService.CREATE_ALL_STRATEGY;
 import static com.peregrine.commons.util.PerConstants.ASSET_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerConstants.DATA_JSON_EXTENSION;
+import static com.peregrine.commons.util.PerConstants.JCR_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerConstants.PNG_MIME_TYPE;
 import static com.peregrine.commons.util.PerUtil.getStringOrNull;
 import static com.peregrine.it.basic.BasicTestHelpers.checkFile;
 import static com.peregrine.it.basic.BasicTestHelpers.checkFolderAndCreate;
 import static com.peregrine.it.basic.BasicTestHelpers.checkResourceByJson;
-import static com.peregrine.it.basic.BasicTestHelpers.convertToMap;
+import static com.peregrine.it.basic.BasicTestHelpers.convertResponseToMap;
 import static com.peregrine.it.basic.BasicTestHelpers.createFolderStructure;
 import static com.peregrine.it.basic.BasicTestHelpers.createOSGiServiceConfiguration;
 import static com.peregrine.it.basic.BasicTestHelpers.findFolderByPath;
@@ -51,7 +52,6 @@ import static com.peregrine.it.util.TestHarness.createTemplate;
 import static com.peregrine.it.util.TestHarness.deleteLeafFolder;
 import static com.peregrine.it.util.TestHarness.executeDeepReplication;
 import static com.peregrine.it.util.TestHarness.executeReplication;
-import static com.peregrine.commons.util.PerConstants.JCR_PRIMARY_TYPE;
 import static com.peregrine.it.util.TestHarness.uploadFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -298,6 +298,7 @@ public class ReplicationServletIT
     }
 
     @Test
+    @Ignore("S3 Access Tokens are hard to keep secret in an OSS project ")
     public void testRemoteS3PageExportReplication() throws Exception {
         checkFolderAndCreate(LOCAL_FOLDER, true);
         SlingClient client = slingInstanceRule.getAdminClient();
@@ -509,7 +510,7 @@ public class ReplicationServletIT
 
     private void checkReplicationResponse(SlingHttpResponse response, String sourceName, String sourcePath) throws IOException {
         // Ensure that each item is only replicated once
-        Map responseMap = convertToMap(response);
+        Map responseMap = convertResponseToMap(response);
         logger.info("Replication Response: '{}'", responseMap);
         assertEquals("Wrong Replication Source Name", sourceName, responseMap.get("sourceName"));
         assertEquals("Wrong Replication Source Path", sourcePath, responseMap.get("sourcePath"));

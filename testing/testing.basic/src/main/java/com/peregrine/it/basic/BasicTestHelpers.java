@@ -30,16 +30,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import static com.peregrine.commons.test.TestUtil.compareJson;
+import static com.peregrine.commons.test.TestUtil.convertJsonTextToMap;
 import static com.peregrine.commons.util.PerConstants.ECMA_DATE_FORMAT;
 import static com.peregrine.commons.util.PerConstants.JCR_CONTENT;
+import static com.peregrine.commons.util.PerConstants.JCR_CREATED;
+import static com.peregrine.commons.util.PerConstants.JCR_CREATED_BY;
 import static com.peregrine.commons.util.PerConstants.JCR_LAST_MODIFIED;
+import static com.peregrine.commons.util.PerConstants.JCR_LAST_MODIFIED_BY;
 import static com.peregrine.commons.util.PerConstants.JCR_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerConstants.JCR_TITLE;
+import static com.peregrine.commons.util.PerConstants.JCR_UUID;
 import static com.peregrine.commons.util.PerConstants.PAGE_CONTENT_TYPE;
 import static com.peregrine.commons.util.PerConstants.PAGE_PRIMARY_TYPE;
-import static com.peregrine.commons.util.PerConstants.PNG_MIME_TYPE;
-import static com.peregrine.commons.util.PerUtil.isEmpty;
-import static com.peregrine.commons.util.PerUtil.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -55,24 +60,27 @@ public class BasicTestHelpers {
 
     private static final Logger logger = LoggerFactory.getLogger(BasicTestHelpers.class.getName());
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private static final List<String> PROPERTIES_NOT_TO_CHECK = Arrays.asList(
+        JCR_CREATED, JCR_CREATED_BY, JCR_LAST_MODIFIED, JCR_LAST_MODIFIED_BY, JCR_UUID
+    );
 
 
     public static Map listResourceAsJson(SlingClient client, String path, int level) throws ClientException, IOException {
         SlingHttpResponse response = client.doGet(path + "." + level + ".json", 200);
         assertEquals("Unexpected Mime Type", "application/json;charset=utf-8", response.getFirstHeader("Content-Type").getValue());
-        return convertToMap(response);
+        return convertResponseToMap(response);
     }
 
     public static Map listComponentsAsJson(SlingClient client) throws ClientException, IOException {
         SlingHttpResponse response = client.doGet("/system/console/components.json", 200);
         assertEquals("Unexpected Mime Type", "application/json;charset=utf-8", response.getFirstHeader("Content-Type").getValue());
-        return convertToMap(response);
+        return convertResponseToMap(response);
     }
 
     public static Map listServicesAsJson(SlingClient client) throws ClientException, IOException {
         SlingHttpResponse response = client.doGet("/system/console/services.json", 200);
         assertEquals("Unexpected Mime Type", "application/json;charset=utf-8", response.getFirstHeader("Content-Type").getValue());
-        return convertToMap(response);
+        return convertResponseToMap(response);
     }
 
     public static String createOSGiServiceConfiguration(SlingClient client, String factoryPid, Map<String, Object> properties) throws ClientException, IOException {
@@ -154,7 +162,7 @@ public class BasicTestHelpers {
                         response = createFolder(client, folderPath, folder, 200);
                         logger.info("Create Folder Structure, folder path: '{}', response: '{}'", fullFolderPath, response.getContent());
                         // Check response
-                        Map listResponse = convertToMap(response.getContent());
+                        Map listResponse = convertJsonTextToMap(response.getContent());
                         checkResponse(listResponse, "type", "folder", "status", "created", "name", folder);
                     } else {
                         throw e;
@@ -166,7 +174,7 @@ public class BasicTestHelpers {
     }
 
     public static Map checkResponse(SlingHttpResponse response, String ... nameThenExpected) throws IOException {
-        Map answer = convertToMap(response.getContent());
+        Map answer = convertJsonTextToMap(response.getContent());
         checkResponse(answer, nameThenExpected);
         return answer;
     }
@@ -183,24 +191,8 @@ public class BasicTestHelpers {
         }
     }
 
-    public static Map convertToMap(SlingHttpResponse response) throws IOException {
-        return convertToMap(response == null ? null : response.getContent());
-    }
-
-    public static Map convertToMap(String json) throws IOException {
-        Map answer = new LinkedHashMap();
-        if(json != null) {
-            answer = JSON_MAPPER.readValue(json, LinkedHashMap.class);
-        }
-        return answer;
-    }
-
-    public static List convertToList(String json) throws IOException {
-        List answer = new ArrayList();
-        if(json != null) {
-            answer = JSON_MAPPER.readValue(json, ArrayList.class);
-        }
-        return answer;
+    public static Map convertResponseToMap(SlingHttpResponse response) throws IOException {
+        return convertJsonTextToMap(response == null ? null : response.getContent());
     }
 
     public static void checkPages(SlingHttpResponse listResponse, String ... expectedPageNames) throws IOException {
@@ -214,7 +206,7 @@ public class BasicTestHelpers {
                 expectedPageNamesList.add(name);
             }
         }
-        Map targetFolderMap = convertToMap(listResponse);
+        Map targetFolderMap = convertResponseToMap(listResponse);
         Set<Entry> entries = targetFolderMap.entrySet();
         for(Entry entry: entries) {
             String fieldName = entry.getKey() + "";
@@ -318,138 +310,200 @@ public class BasicTestHelpers {
         return answer;
     }
 
-//    public static enum CheckType { allProvided, everythingMatches, }
+    public static void checkTwoResources(SlingClient client, String firstResourcePath, String secondResourcePath, int levels, String...removeItems) throws ClientException, IOException {
+        Map firstResource = getResourcesJson(client, firstResourcePath, levels);
+        Map secondResource = getResourcesJson(client, secondResourcePath, levels);
+        cleanUpMap(firstResource, PROPERTIES_NOT_TO_CHECK);
+        cleanUpMap(secondResource, PROPERTIES_NOT_TO_CHECK);
+        for(String removeItem: removeItems) {
+            cleanMapByPath(firstResource, removeItem);
+            cleanMapByPath(secondResource, removeItem);
+        }
+        logger.info("First Map: '{}'", firstResource);
+        logger.info("Second Map: '{}'", secondResource);
+        compareJson(firstResource, secondResource);
+    }
+
     public static void checkResourceByJson(SlingClient client, String path, int levels, String expectedJson, boolean checkProvided) throws ClientException, IOException {
-        SlingHttpResponse response = client.doGet(path + "." + levels + ".json", 200);
-        assertEquals("Unexpected Mime Type", "application/json;charset=utf-8", response.getFirstHeader("Content-Type").getValue());
-        String jsonResponse = response.getContent();
-//        ObjectMapper mapper = new ObjectMapper();
-        Map expected = convertToMap(expectedJson);
-        Map actual = convertToMap(jsonResponse);
+        Map expected = convertJsonTextToMap(expectedJson);
+        Map actual = getResourcesJson(client, path, levels);
         logger.info("Expected Map: '{}'", expected);
         logger.info("Actual Map: '{}'", actual);
         compareJson(expected, actual);
     }
 
-    public static void compareJson(Map<Object, Object> expected, Map actual) throws IOException {
-        compareJson(expected, actual, "", false);
+    private static Map getResourcesJson(SlingClient client, String path, int levels) throws ClientException, IOException {
+        SlingHttpResponse response = client.doGet(path + "." + levels + ".json", 200);
+        assertEquals("Unexpected Mime Type", "application/json;charset=utf-8", response.getFirstHeader("Content-Type").getValue());
+        String jsonResponse = response.getContent();
+        return convertJsonTextToMap(jsonResponse);
     }
-    public static void compareJson(Map<Object, Object> expected, Map actual, boolean ignoreName) throws IOException {
-        compareJson(expected, actual, "", ignoreName);
-    }
-    public static void compareJson(Map<Object, Object> expected, Map actual, String path, boolean ignoreName) throws IOException {
-        for(Entry<Object, Object> entry: expected.entrySet()) {
-            Object key = entry.getKey() + "";
-            assertTrue("Did not find Map Entry with Name: " + key + " (path: " + path + ")", actual.containsKey(key));
-            String childPath = path + "/" + key;
-            Object value = entry.getValue();
-            if(value instanceof Boolean) {
-                assertEquals("Boolean Property mismatch. Name: " + key + " (path: " + path + ")", value, actual.get(key));
-            } else if(value instanceof Number) {
-                assertEquals("Number Property mismatch. Name: " + key + " (path: " + path + ")", value, actual.get(key));
-            } else if(value instanceof String) {
-                assertEquals("String Property mismatch. Name: " + key + " (path: " + path + ")", value, actual.get(key));
-            } else if(value instanceof Object[]) {
-                fail("Sling Json response should not contain an array. Name: " + key + " (path: " + path + ")");
-            } else if(value instanceof Map) {
-                Map expectedChild = (Map) value;
-                Map actualChild = (Map) actual.get(key);
-                assertNotNull("Child: " + key + " not found as child in response" + " (path: " + path + ")", actualChild);
-                compareJson(expectedChild, actualChild, childPath, ignoreName);
-            } else if(value instanceof List) {
-                List expectedlist = (List) value;
-                List actualList = (List) actual.get(key);
-                List actualList2 = new ArrayList(actualList);
-                logger.info("Expected List: '{}', Actual List: '{}'", expectedlist, actualList);
-                for(Object temp : expectedlist) {
-                    if(temp instanceof Map) {
-                        Map expectedListMap = (Map) temp;
-                        Map actualListMap = null;
-                        if(!ignoreName) {
-                            String name = (String) expectedListMap.get("name");
-                            if(name == null) {
-                                fail("Expected List Map entry has no name: " + expectedListMap);
-                            }
-                            for(Object temp2 : actualList2) {
-                                if(temp2 instanceof Map) {
-                                    Map tempMap = (Map) temp2;
-                                    String name2 = (String) tempMap.get("name");
-                                    if(name == null) {
-                                        fail("Given List Map entry has no name: " + tempMap);
-                                    }
-                                    if(name2.equals(name2)) {
-                                        actualListMap = tempMap;
-                                        break;
-                                    }
-                                }
-                            }
-                            if(actualListMap == null) {
-                                fail("No Actual List Map Entry found for: " + name);
-                            }
-                        } else {
-                            // When we ignore the name then we try to find a map entry in the actual
-                            // map that contains all entries from the expected map
-                            for(Object temp2 : actualList2) {
-                                if(temp2 instanceof Map) {
-                                    Map tempMap = (Map) temp2;
-                                    boolean found = true;
-                                    for(Object expectedKey : expectedListMap.keySet()) {
-                                        if(tempMap.containsKey(expectedKey)) {
-                                            Object expectedValue = expectedListMap.get(expectedKey);
-                                            Object actualValue = tempMap.get(expectedKey);
-                                            if(!(expectedValue == null && actualValue == null) && !(expectedValue.equals(actualValue))) {
-                                                found = false;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if(found) {
-                                        actualListMap = tempMap;
-                                        break;
-                                    }
-                                }
-                            }
-                            if(actualListMap == null) {
-                                fail("No Actual List Map Entry found for Expected Map: " + expectedListMap);
-                            }
-                        }
-                        actualList2.remove(actualListMap);
-                        compareJson(expectedListMap, actualListMap, path, ignoreName);
-                    } else if(temp instanceof String) {
-                        String item = (String) temp;
-                        logger.info("Expected List Item String: '{}'", item);
-                        String actualItem = null;
-                        for(Object temp2 : actualList2) {
-                            logger.info("Compare List Item, Expected: '{}', Actual: '{}'", item, temp2);
-                            if(temp2 instanceof String) {
-                                String temp2a = (String) temp2;
-                                if(item.equals(temp2a)) {
-                                    actualItem = temp2a;
-                                    break;
-                                }
-                            }
-                        }
-                        if(actualItem != null) {
-                            logger.info("Found and remove it: '{}'", actualItem);
-                            actualList2.remove(actualItem);
-                        } else {
-                            fail("No actual list item found for: " + item);
-                        }
-                    } else {
-                        fail("Unknown type of list value: " + temp.getClass() + " (path: " + path + ")");
-                    }
-                }
-                if(!actualList2.isEmpty()) {
-                    fail("Actual List has more entries: " + actualList2);
-                }
-            } else if(value == null) {
-                Object expectedNull = actual.get(key);
-                assertNull("Expected a null value", expectedNull);
+
+    private static void cleanMapByPath(Map<Object,Object> map, String pathToBeDeleted) {
+        String[] segments = pathToBeDeleted.split("/");
+        Map<Object,Object> current = map;
+        for(int i = 0; i < segments.length; i++) {
+            String segment = segments[i];
+            if(i + 1 == segments.length) {
+                // Last item -> remove it
+                current.remove(segment);
             } else {
-                fail("Unknown type of value: '" + (value == null ? "null" : value.getClass()) + "' (path: " + childPath + ")");
+                // Traverse the map
+                Object item = current.get(segment);
+                if(item instanceof Map) {
+                    current = (Map) item;
+                } else {
+                    // Child Map not found -> exit as path cannot be matched
+                    break;
+                }
             }
         }
     }
+
+    private static void cleanUpMap(Map<Object,Object> map, final List<String> removeProperties) {
+        map.entrySet()
+            .removeIf(e -> removeProperties.contains(e.getKey()));
+        for(Entry<Object,Object> entry: map.entrySet()) {
+            Object value = entry.getValue();
+            if(value instanceof List) {
+                List list = (List) value;
+                for(Object item: list) {
+                    if(item instanceof Map) {
+                        cleanUpMap((Map) item, removeProperties);
+                    }
+                }
+            } else if(value instanceof Object[]) {
+                Object[] list = (Object[]) value;
+                for(Object item: list) {
+                    if(item instanceof Map) {
+                        cleanUpMap((Map) item, removeProperties);
+                    }
+                }
+            } else if(value instanceof Map) {
+                cleanUpMap((Map) value, removeProperties);
+            }
+        }
+    }
+//
+//    public static void compareJson(Map<Object, Object> expected, Map actual) throws IOException {
+//        compareJson(expected, actual, "", false);
+//    }
+//    public static void compareJson(Map<Object, Object> expected, Map actual, boolean ignoreName) throws IOException {
+//        compareJson(expected, actual, "", ignoreName);
+//    }
+//    public static void compareJson(Map<Object, Object> expected, Map actual, String path, boolean ignoreName) throws IOException {
+//        for(Entry<Object, Object> entry: expected.entrySet()) {
+//            Object key = entry.getKey() + "";
+//            assertTrue("Did not find Map Entry with Name: " + key + " (path: " + path + ")", actual.containsKey(key));
+//            String childPath = path + "/" + key;
+//            Object value = entry.getValue();
+//            if(value instanceof Boolean) {
+//                assertEquals("Boolean Property mismatch. Name: " + key + " (path: " + path + ")", value, actual.get(key));
+//            } else if(value instanceof Number) {
+//                assertEquals("Number Property mismatch. Name: " + key + " (path: " + path + ")", value, actual.get(key));
+//            } else if(value instanceof String) {
+//                assertEquals("String Property mismatch. Name: " + key + " (path: " + path + ")", value, actual.get(key));
+//            } else if(value instanceof Object[]) {
+//                fail("Sling Json response should not contain an array. Name: " + key + " (path: " + path + ")");
+//            } else if(value instanceof Map) {
+//                Map expectedChild = (Map) value;
+//                Map actualChild = (Map) actual.get(key);
+//                assertNotNull("Child: " + key + " not found as child in response" + " (path: " + path + ")", actualChild);
+//                compareJson(expectedChild, actualChild, childPath, ignoreName);
+//            } else if(value instanceof List) {
+//                List expectedlist = (List) value;
+//                List actualList = (List) actual.get(key);
+//                List actualList2 = new ArrayList(actualList);
+//                logger.info("Expected List: '{}', Actual List: '{}'", expectedlist, actualList);
+//                for(Object temp : expectedlist) {
+//                    if(temp instanceof Map) {
+//                        Map expectedListMap = (Map) temp;
+//                        Map actualListMap = null;
+//                        if(!ignoreName) {
+//                            String name = (String) expectedListMap.get("name");
+//                            if(name == null) {
+//                                fail("Expected List Map entry has no name: " + expectedListMap);
+//                            }
+//                            for(Object temp2 : actualList2) {
+//                                if(temp2 instanceof Map) {
+//                                    Map tempMap = (Map) temp2;
+//                                    String name2 = (String) tempMap.get("name");
+//                                    if(name == null) {
+//                                        fail("Given List Map entry has no name: " + tempMap);
+//                                    }
+//                                    if(name.equals(name2)) {
+//                                        actualListMap = tempMap;
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                            if(actualListMap == null) {
+//                                fail("No Actual List Map Entry found for: " + name);
+//                            }
+//                        } else {
+//                            // When we ignore the name then we try to find a map entry in the actual
+//                            // map that contains all entries from the expected map
+//                            for(Object temp2 : actualList2) {
+//                                if(temp2 instanceof Map) {
+//                                    Map tempMap = (Map) temp2;
+//                                    boolean found = true;
+//                                    for(Object expectedKey : expectedListMap.keySet()) {
+//                                        if(tempMap.containsKey(expectedKey)) {
+//                                            Object expectedValue = expectedListMap.get(expectedKey);
+//                                            Object actualValue = tempMap.get(expectedKey);
+//                                            if(!(expectedValue == null && actualValue == null) && !(expectedValue.equals(actualValue))) {
+//                                                found = false;
+//                                                break;
+//                                            }
+//                                        }
+//                                    }
+//                                    if(found) {
+//                                        actualListMap = tempMap;
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                            if(actualListMap == null) {
+//                                fail("No Actual List Map Entry found for Expected Map: " + expectedListMap);
+//                            }
+//                        }
+//                        actualList2.remove(actualListMap);
+//                        compareJson(expectedListMap, actualListMap, path, ignoreName);
+//                    } else if(temp instanceof String) {
+//                        String item = (String) temp;
+//                        logger.info("Expected List Item String: '{}'", item);
+//                        String actualItem = null;
+//                        for(Object temp2 : actualList2) {
+//                            logger.info("Compare List Item, Expected: '{}', Actual: '{}'", item, temp2);
+//                            if(temp2 instanceof String) {
+//                                String temp2a = (String) temp2;
+//                                if(item.equals(temp2a)) {
+//                                    actualItem = temp2a;
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                        if(actualItem != null) {
+//                            logger.info("Found and remove it: '{}'", actualItem);
+//                            actualList2.remove(actualItem);
+//                        } else {
+//                            fail("No actual list item found for: " + item);
+//                        }
+//                    } else {
+//                        fail("Unknown type of list value: " + temp.getClass() + " (path: " + path + ")");
+//                    }
+//                }
+//                if(!actualList2.isEmpty()) {
+//                    fail("Actual List has more entries: " + actualList2);
+//                }
+//            } else if(value == null) {
+//                Object expectedNull = actual.get(key);
+//                assertNull("Expected a null value", expectedNull);
+//            } else {
+//                fail("Unknown type of value: '" + (value == null ? "null" : value.getClass()) + "' (path: " + childPath + ")");
+//            }
+//        }
+//    }
 
     public static void checkLastModified(SlingClient client, String path) throws IOException, ClientException, ParseException {
         checkLastModified(client, path, null);

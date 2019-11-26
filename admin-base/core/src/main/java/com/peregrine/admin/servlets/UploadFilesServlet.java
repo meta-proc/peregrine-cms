@@ -25,9 +25,26 @@ package com.peregrine.admin.servlets;
  * #L%
  */
 
+import com.peregrine.admin.resource.AdminResourceHandler;
+import com.peregrine.admin.resource.AdminResourceHandler.ManagementException;
+import com.peregrine.commons.servlets.AbstractBaseServlet;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.servlets.ServletResolverConstants;
+import org.apache.sling.models.factory.ModelFactory;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+import javax.servlet.http.Part;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_UPLOAD_FILES;
 import static com.peregrine.commons.util.PerConstants.PATH;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static com.peregrine.commons.util.PerUtil.POST;
@@ -73,10 +90,10 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Upload Files servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + POST,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_UPLOAD_FILES,
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Upload Files servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + POST,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_UPLOAD_FILES,
     }
 )
 @SuppressWarnings("serial")
@@ -88,9 +105,9 @@ public class UploadFilesServlet extends AbstractBaseServlet {
     public static final String ASSET_PATH = "assetPath";
     public static final String UPLOAD_FAILED_BECAUSE_OF_SERVLET_PARTS_PROBLEM = "Upload Failed because of Servlet Parts Problem";
     @Reference
-    ModelFactory modelFactory;
+    private transient ModelFactory modelFactory;
     @Reference
-    AdminResourceHandler resourceManagement;
+    private transient AdminResourceHandler resourceManagement;
 
     @Override
     protected Response handleRequest(Request request) throws IOException {

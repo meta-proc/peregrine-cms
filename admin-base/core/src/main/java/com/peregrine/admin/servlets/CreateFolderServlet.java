@@ -27,26 +27,20 @@ package com.peregrine.admin.servlets;
 
 import com.peregrine.admin.resource.AdminResourceHandler;
 import com.peregrine.admin.resource.AdminResourceHandler.ManagementException;
-import com.peregrine.commons.servlets.AbstractBaseServlet;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.factory.ModelFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
-import java.io.IOException;
 
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_CREATION_FOLDER;
-import static com.peregrine.commons.util.PerConstants.CREATED;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_CREATION_FOLDER;
 import static com.peregrine.commons.util.PerConstants.NAME;
 import static com.peregrine.commons.util.PerConstants.PATH;
-import static com.peregrine.commons.util.PerConstants.STATUS;
-import static com.peregrine.commons.util.PerConstants.TYPE;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static com.peregrine.commons.util.PerUtil.POST;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVLET_METHODS;
 import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES;
 import static org.osgi.framework.Constants.SERVICE_DESCRIPTION;
@@ -61,38 +55,33 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Create Folder servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + POST,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_CREATION_FOLDER
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Create Folder servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + POST,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_CREATION_FOLDER
+    },
+    reference = {
+        @Reference(name = "ModelFactory", bind = "setModelFactory", service = ModelFactory.class),
+        @Reference(name = "AdminResourceHandler", bind = "setResourceManagement", service = AdminResourceHandler.class)
     }
 )
 @SuppressWarnings("serial")
-public class CreateFolderServlet extends AbstractBaseServlet {
+public class CreateFolderServlet extends AbstractCreateServlet {
 
     public static final String FAILED_TO_CREATE_FOLDER = "Failed to create folder";
     public static final String FOLDER = "folder";
 
-    @Reference
-    ModelFactory modelFactory;
-
-    @Reference
-    AdminResourceHandler resourceManagement;
+    @Override
+    protected String getType() { return FOLDER; }
 
     @Override
-    protected Response handleRequest(Request request) throws IOException {
+    protected String getFailureMessage() { return FAILED_TO_CREATE_FOLDER; }
+
+    @Override
+    protected Resource doAction(Request request) throws ManagementException {
         String parentPath = request.getParameter(PATH);
         String name = request.getParameter(NAME);
-        try {
-            Resource newFolder = resourceManagement.createFolder(request.getResourceResolver(), parentPath, name);
-            request.getResourceResolver().commit();
-            return new JsonResponse()
-                .writeAttribute(TYPE, FOLDER).writeAttribute(STATUS, CREATED)
-                .writeAttribute(NAME, name).writeAttribute(PATH, newFolder.getPath());
-        } catch (ManagementException e) {
-            return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(FAILED_TO_CREATE_FOLDER).setRequestPath(parentPath).setException(e);
-        }
+        return resourceManagement.createFolder(request.getResourceResolver(), parentPath, name);
     }
-
 }
 
