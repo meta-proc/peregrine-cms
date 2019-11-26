@@ -152,15 +152,16 @@ public class ComponentDefinitionServlet extends AbstractBaseServlet {
           dialog = component.getChild(page ? EXPLORER_DIALOG_JSON : DIALOG_JSON);
         }
         if (dialog == null) {
-          answer = getDialogFromSuperType(component, page);
+          if( og ){
+            return getDialogFromSuperType(component, page, true);
+          }
+          return getDialogFromSuperType(component, page, false);
         } else {
-          answer = dialog;
+          return dialog;
         }
       }
-    } else {
-      return null;
     }
-    return answer;
+    return null;
   }
 }
 

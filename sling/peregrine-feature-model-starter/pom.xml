@@ -140,7 +140,7 @@ under the License.
                             <goal>convert-pm</goal>
                         </goals>
                         <configuration>
-                            <inputFolder>${sling.starter.folder}/src/main/provisioning</inputFolder>
+                            <inputFolder>/Users/sven.metzler/gitlab/actual/sling-org-apache-sling-starter/src/main/provisioning</inputFolder>
                             <outputFolder>target/fm</outputFolder>
                             <groupId>${{project.groupId}}</groupId>
                             <artifactId>${{project.artifactId}}</artifactId>

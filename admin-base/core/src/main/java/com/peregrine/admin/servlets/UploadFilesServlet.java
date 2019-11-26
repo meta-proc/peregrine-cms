@@ -13,9 +13,9 @@ package com.peregrine.admin.servlets;
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,24 +25,7 @@ package com.peregrine.admin.servlets;
  * #L%
  */
 
-import com.peregrine.admin.resource.AdminResourceHandler;
-import com.peregrine.admin.resource.AdminResourceHandler.ManagementException;
-import com.peregrine.commons.servlets.AbstractBaseServlet;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.servlets.ServletResolverConstants;
-import org.apache.sling.models.factory.ModelFactory;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.Part;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_UPLOAD_FILES;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_UPLOAD_FILES;
 import static com.peregrine.commons.util.PerConstants.PATH;
 import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
@@ -99,58 +82,62 @@ import org.osgi.service.component.annotations.Reference;
 @SuppressWarnings("serial")
 public class UploadFilesServlet extends AbstractBaseServlet {
 
-    public static final String RESOURCE_NAME = "resourceName";
-    public static final String RESOURCE_PATH = "resourcePath";
-    public static final String ASSET_NAME = "assetName";
-    public static final String ASSET_PATH = "assetPath";
-    public static final String UPLOAD_FAILED_BECAUSE_OF_SERVLET_PARTS_PROBLEM = "Upload Failed because of Servlet Parts Problem";
-    @Reference
-    private transient ModelFactory modelFactory;
-    @Reference
-    private transient AdminResourceHandler resourceManagement;
+  public static final String RESOURCE_NAME = "resourceName";
+  public static final String RESOURCE_PATH = "resourcePath";
+  public static final String ASSET_NAME = "assetName";
+  public static final String ASSET_PATH = "assetPath";
+  public static final String UPLOAD_FAILED_BECAUSE_OF_SERVLET_PARTS_PROBLEM = "Upload Failed because of Servlet Parts Problem";
+  @Reference
+  private transient ModelFactory modelFactory;
+  @Reference
+  private transient AdminResourceHandler resourceManagement;
 
-    @Override
-    protected Response handleRequest(Request request) throws IOException {
-        String characterEncoding = request.getRequest().getCharacterEncoding();
-        logger.trace("Current Character Encoding: '{}'", characterEncoding);
-        String path = request.getParameter(PATH);
-        try {
-            Resource resource = request.getResourceByPath(path);
-            logger.debug("Upload files to resource: '{}'", resource);
-            List<Resource> assets = new ArrayList<>();
-            for (Part part : request.getParts()) {
-                String assetName = part.getName();
-                if(!characterEncoding.equalsIgnoreCase(StandardCharsets.UTF_8.toString())) {
-                    String originalName = assetName;
-                    assetName = new String(originalName.getBytes (characterEncoding), StandardCharsets.UTF_8);
-                    logger.trace("Asset Name, original: '{}', converted: '{}'", originalName, assetName);
-                }
-                String contentType = part.getContentType();
-                logger.debug("part type {}",contentType);
-                logger.debug("part name {}",assetName);
-                Resource asset = resourceManagement.createAssetFromStream(resource, assetName, contentType, part.getInputStream());
-                assets.add(asset);
-            }
-            resource.getResourceResolver().commit();
-            logger.debug("Upload Done successfully and saved");
-            JsonResponse answer = new JsonResponse()
-                .writeAttribute(RESOURCE_NAME, resource.getName())
-                .writeAttribute(RESOURCE_PATH, resource.getPath())
-                .writeArray("assets");
-            for(Resource asset: assets) {
-                answer.writeObject();
-                answer.writeAttribute(ASSET_NAME, asset.getName());
-                answer.writeAttribute(ASSET_PATH, asset.getPath());
-                answer.writeClose();
-            }
-            return answer;
-        } catch(ManagementException e) {
-            logger.debug("Upload Failed", e);
-            return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(e.getMessage()).setRequestPath(path).setException(e);
-        } catch(ServletException e) {
-            return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(UPLOAD_FAILED_BECAUSE_OF_SERVLET_PARTS_PROBLEM).setRequestPath(path).setException(e);
+  @Override
+  protected Response handleRequest(Request request) throws IOException {
+    String characterEncoding = request.getRequest().getCharacterEncoding();
+    logger.trace("Current Character Encoding: '{}'", characterEncoding);
+    String path = request.getParameter(PATH);
+    try {
+      Resource resource = request.getResourceByPath(path);
+      logger.debug("Upload files to resource: '{}'", resource);
+      List<Resource> assets = new ArrayList<>();
+      for (Part part : request.getParts()) {
+        String assetName = part.getName();
+        if (!characterEncoding.equalsIgnoreCase(StandardCharsets.UTF_8.toString())) {
+          String originalName = assetName;
+          assetName = new String(originalName.getBytes(characterEncoding), StandardCharsets.UTF_8);
+          logger.trace("Asset Name, original: '{}', converted: '{}'", originalName, assetName);
         }
+        String contentType = part.getContentType();
+        logger.debug("part type {}", contentType);
+        logger.debug("part name {}", assetName);
+        Resource asset = resourceManagement
+            .createAssetFromStream(resource, assetName, contentType, part.getInputStream());
+        assets.add(asset);
+      }
+      resource.getResourceResolver().commit();
+      logger.debug("Upload Done successfully and saved");
+      JsonResponse answer = new JsonResponse()
+          .writeAttribute(RESOURCE_NAME, resource.getName())
+          .writeAttribute(RESOURCE_PATH, resource.getPath())
+          .writeArray("assets");
+      for (Resource asset : assets) {
+        answer.writeObject();
+        answer.writeAttribute(ASSET_NAME, asset.getName());
+        answer.writeAttribute(ASSET_PATH, asset.getPath());
+        answer.writeClose();
+      }
+      return answer;
+    } catch (ManagementException e) {
+      logger.debug("Upload Failed", e);
+      return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(e.getMessage())
+          .setRequestPath(path).setException(e);
+    } catch (ServletException e) {
+      return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST)
+          .setErrorMessage(UPLOAD_FAILED_BECAUSE_OF_SERVLET_PARTS_PROBLEM).setRequestPath(path)
+          .setException(e);
     }
+  }
 
 }
 

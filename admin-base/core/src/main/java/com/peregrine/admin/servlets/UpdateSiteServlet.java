@@ -13,9 +13,9 @@ package com.peregrine.admin.servlets;
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,16 +25,6 @@ package com.peregrine.admin.servlets;
  * #L%
  */
 
-import com.peregrine.admin.resource.AdminResourceHandler;
-import com.peregrine.admin.resource.AdminResourceHandler.ManagementException;
-import com.peregrine.commons.servlets.AbstractBaseServlet;
-import org.apache.commons.lang3.StringUtils;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.servlet.Servlet;
-import java.io.IOException;
-
 import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_UPDATE_SITE;
 import static com.peregrine.commons.util.PerConstants.NAME;
 import static com.peregrine.commons.util.PerConstants.SITE;
@@ -42,16 +32,6 @@ import static com.peregrine.commons.util.PerConstants.STATUS;
 import static com.peregrine.commons.util.PerConstants.TYPE;
 import static com.peregrine.commons.util.PerConstants.UPDATED;
 import static com.peregrine.commons.util.PerUtil.EQUAL;
-import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
-import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
-import static com.peregrine.commons.util.PerUtil.POST;
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_UPDATE_SITE;
-import static com.peregrine.commons.util.PerConstants.NAME;
-import static com.peregrine.commons.util.PerConstants.SITE;
-import static com.peregrine.commons.util.PerConstants.STATUS;
-import static com.peregrine.commons.util.PerConstants.TYPE;
-import static com.peregrine.commons.util.PerConstants.UPDATED;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static com.peregrine.commons.util.PerUtil.POST;
@@ -88,31 +68,33 @@ import org.osgi.service.component.annotations.Reference;
 @SuppressWarnings("serial")
 public class UpdateSiteServlet extends AbstractBaseServlet {
 
-    private static final String NAME_PARAMETER = "name";
-    private static final String FAILED_TO_UPDATE_SITE = "Failed to update site";
+  private static final String NAME_PARAMETER = "name";
+  private static final String FAILED_TO_UPDATE_SITE = "Failed to update site";
 
-    @Reference
-    AdminResourceHandler resourceManagement;
+  @Reference
+  AdminResourceHandler resourceManagement;
 
 
-    @Override
-    protected Response handleRequest(Request request) throws IOException {
-        String name = request.getParameter(NAME_PARAMETER);
-        if(StringUtils.isBlank(name)) {
-            return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage("No site name provided");
-        }
-        try {
-            resourceManagement.updateSite(request.getResourceResolver(), name);
-            request.getResourceResolver().commit();
-            return new JsonResponse()
-                    .writeAttribute(TYPE, SITE)
-                    .writeAttribute(STATUS, UPDATED)
-                    .writeAttribute(NAME, name);
-        } catch (ManagementException e) {
-            return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(FAILED_TO_UPDATE_SITE).setException(e);
-        }
-
+  @Override
+  protected Response handleRequest(Request request) throws IOException {
+    String name = request.getParameter(NAME_PARAMETER);
+    if (StringUtils.isBlank(name)) {
+      return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST)
+          .setErrorMessage("No site name provided");
     }
+    try {
+      resourceManagement.updateSite(request.getResourceResolver(), name);
+      request.getResourceResolver().commit();
+      return new JsonResponse()
+          .writeAttribute(TYPE, SITE)
+          .writeAttribute(STATUS, UPDATED)
+          .writeAttribute(NAME, name);
+    } catch (ManagementException e) {
+      return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST)
+          .setErrorMessage(FAILED_TO_UPDATE_SITE).setException(e);
+    }
+
+  }
 
 }
 

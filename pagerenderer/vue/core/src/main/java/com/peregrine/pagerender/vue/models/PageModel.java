@@ -196,7 +196,6 @@ public class PageModel
     return "en";
   }
 
-  private PageModel getTamplatePageModel() {
     private PageModel getTemplatePageModel() {
         final String path = getTemplate();
         if (path == null) {

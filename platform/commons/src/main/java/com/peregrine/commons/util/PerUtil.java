@@ -105,6 +105,11 @@ public final class PerUtil {
         throw new UnsupportedOperationException();
     }
 
+    /** @return True if the given text is either null or empty **/
+    public static boolean isEmpty(String text) {
+        return text == null || text.isEmpty();
+    }
+
     /** @return True if the given text is both not null and not empty **/
     public static boolean isNotEmpty(String text) {
         return text != null && !text.isEmpty();
