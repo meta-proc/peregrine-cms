@@ -68,10 +68,6 @@
                 <targetPath>../vault-work/META-INF</targetPath>
             </resource>
 
-            <resource>
-                <directory>${basedir}/node_modules/mdbvue/</directory>
-                <targetPath>etc/felibs/pagerender-vue/mdbvue/</targetPath>
-            </resource>
 
             <resource>
                 <directory>${basedir}/node_modules/bootstrap-css-only/css</directory>
@@ -150,16 +146,6 @@
                     </execution>
 
                     <execution>
-                        <id>npm run load-mdbv-pro</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <!-- Optional config which provides for running any npm command -->
-                        <configuration>
-                            <arguments>run load-mdbv-pro</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
@@ -193,16 +179,6 @@
                                 <NODE_PATH>./node_modules</NODE_PATH>
                             </environmentVariables>
                             <arguments>run site</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm run unload-mdbv-pro</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <!-- Optional config which provides for running any npm command -->
-                        <configuration>
-                            <arguments>run unload-mdbv-pro</arguments>
                         </configuration>
                     </execution>
                 </executions>

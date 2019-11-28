@@ -14,7 +14,7 @@ export default {
   },
   plugins: [
     css(),
-    resolve( {include:[ 'mdbvue'], extensions: ['.vue', '.js', '.css']}),
+    resolve(),
     replace({
       'process.env.NODE_ENV': JSON.stringify( 'production' )
     }),
