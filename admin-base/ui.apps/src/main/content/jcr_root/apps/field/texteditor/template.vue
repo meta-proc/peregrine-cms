@@ -99,8 +99,20 @@
                             'justifyFull',
                             'unorderedList',
                             'orderedList',
-                            'removeformat'
-                        ]
+                            'removeformat',
+                            'foreColor'
+                        ],
+                        plugins: {
+                            colors: {
+                                colorList: [
+                                    "000000",
+                                    "ffffff",
+                                    "0d4786",
+                                    "0bbbef"
+                                ]
+                            }
+                        }
+
                     }
                 },
                 characterCount: 0,
