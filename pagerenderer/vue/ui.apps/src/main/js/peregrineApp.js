@@ -25,7 +25,6 @@
 import { LoggerFactory } from './logger.js'
 import experiences from './experiences.js'
 import helper from './helper.js'
-import mdbvPro from './mdbvLoader';
 
 let log = LoggerFactory.logger('peregrineApp').setDebugLevel()
 import state from './state.js'
@@ -125,8 +124,6 @@ function initPeregrineApp() {
 
 
     Vue.use( EventBus );
-
-    mdbvPro.load( Vue );
 
     perVueApp = new Vue({
         el: '#peregrine-app',
