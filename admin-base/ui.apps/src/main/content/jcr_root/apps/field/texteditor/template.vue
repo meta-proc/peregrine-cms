@@ -97,19 +97,19 @@
                             'justifyCenter',
                             'justifyRight',
                             'justifyFull',
+                            'foreColor',
                             'unorderedList',
                             'orderedList',
-                            'removeformat',
-                            'foreColor'
+                            'removeformat'
                         ],
                         plugins: {
                             colors: {
-                                colorList: [
+                                foreColorList: [
                                     "000000",
                                     "ffffff",
                                     "0d4786",
                                     "0bbbef"
-                                ]
+                                ],
                             }
                         }
 

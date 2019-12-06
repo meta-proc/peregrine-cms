@@ -40,17 +40,18 @@
                                 ico: "justify-left"
                             }
                         },
+
                         btns: [
                             "removeformat",
                             "p",
                             "headers",
-                            "strong",
+                            "foreColor",
                             "alignments",
-                            "foreColor"
+                            "strong",
                         ],
                         plugins: {
                             colors: {
-                                colorList: [
+                                foreColorList: [
                                     "000000",
                                     "ffffff",
                                     "0d4786",
