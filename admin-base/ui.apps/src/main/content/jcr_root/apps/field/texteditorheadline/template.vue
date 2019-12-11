@@ -51,7 +51,7 @@
                         ],
                         plugins: {
                             colors: {
-                                foreColorList: [
+                                colorList: [
                                     "000000",
                                     "ffffff",
                                     "0d4786",
