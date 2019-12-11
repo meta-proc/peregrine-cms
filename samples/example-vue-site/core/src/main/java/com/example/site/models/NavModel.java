@@ -31,14 +31,11 @@ import com.peregrine.nodetypes.models.AbstractComponent;
 import com.peregrine.nodetypes.models.IComponent;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceUtil;
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.models.annotations.Default;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -60,7 +57,13 @@ public class NavModel extends AbstractComponent {
         SlingHttpServletRequest request = rx.getRequest();
         Resource homePage = getResourceAt(request.getResource(), 3);
         Resource content = homePage.getChild("jcr:content");
-        return content.adaptTo(ValueMap.class).get("brand", String.class);
+        if(content != null) {
+            ValueMap props = content.adaptTo(ValueMap.class);
+            if(props != null) {
+                return props.get("brand", String.class);
+            }
+        }
+        return null;
     }
 
     public List<NavItem> getNavigation() {
@@ -78,8 +81,12 @@ public class NavModel extends AbstractComponent {
             if("per:Page".equals(child.getResourceType())) {
 
                 Resource content = child.getChild("jcr:content");
-                ValueMap map = content.adaptTo(ValueMap.class);
-                ret.add(new NavItem(child.getPath(), ""+map.get("jcr:title")));
+                if(content != null) {
+                    ValueMap map = content.adaptTo(ValueMap.class);
+                    if (map != null) {
+                        ret.add(new NavItem(child.getPath(), "" + map.get("jcr:title")));
+                    }
+                }
             }
         }
         return ret;

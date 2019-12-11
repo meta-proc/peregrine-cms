@@ -28,13 +28,13 @@ package com.peregrine.adaption.impl;
 import com.peregrine.adaption.Filter;
 import com.peregrine.adaption.PerPage;
 import com.peregrine.adaption.PerPageManager;
-import com.peregrine.commons.util.PerUtil;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.peregrine.commons.util.PerConstants.JCR_CONTENT;
@@ -43,7 +43,6 @@ import static com.peregrine.commons.util.PerConstants.JCR_LAST_MODIFIED_BY;
 import static com.peregrine.commons.util.PerConstants.JCR_TITLE;
 import static com.peregrine.commons.util.PerConstants.PAGE_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerUtil.TEMPLATE;
-import static com.peregrine.commons.util.PerUtil.getModifiableProperties;
 import static com.peregrine.commons.util.PerUtil.isPrimaryType;
 
 /**
@@ -231,12 +230,16 @@ public class PerPageImpl extends PerBaseImpl implements PerPage {
         Calendar now = Calendar.getInstance();
         // Update Content Properties
         ModifiableValueMap properties = getModifiableProperties();
-        properties.put(JCR_LAST_MODIFIED_BY, user);
-        properties.put(JCR_LAST_MODIFIED, now);
+        if(properties != null) {
+            properties.put(JCR_LAST_MODIFIED_BY, user);
+            properties.put(JCR_LAST_MODIFIED, now);
+        }
         // Update Page
         properties = resource.adaptTo(ModifiableValueMap.class);
-        properties.put(JCR_LAST_MODIFIED_BY, user);
-        properties.put(JCR_LAST_MODIFIED, now);
+        if(properties != null) {
+            properties.put(JCR_LAST_MODIFIED_BY, user);
+            properties.put(JCR_LAST_MODIFIED, now);
+        }
     }
 
     private Resource getLastChild(Resource res) {
@@ -260,51 +263,24 @@ public class PerPageImpl extends PerBaseImpl implements PerPage {
      * @param resource Starting Page Resource
      * @return Previous Page Wrapper Object if found
      */
-    private PerPage findPrevious(Resource resource) {
-        PerPage answer = findPreviousChildPage(resource.getParent(), resource);
-        if (answer != null) {
-
-            Resource child = answer.getResource();
-            while(child != null) {
-                child = getLastChild(child);
-                if(child != null) {
-                    answer = new PerPageImpl(child);
+    private @Nullable PerPage findPrevious(@NotNull Resource resource) {
+        Resource parent = resource.getParent();
+        PerPage answer = null;
+        if(parent != null) {
+            answer = findPreviousChildPage(parent, resource);
+            if (answer != null) {
+                Resource child = answer.getResource();
+                while (child != null) {
+                    child = getLastChild(child);
+                    if (child != null) {
+                        answer = new PerPageImpl(child);
+                    }
                 }
+            } else {
+                answer = new PerPageImpl(resource.getParent());
             }
-            return answer;
-        } else {
-            return new PerPageImpl(resource.getParent());
         }
-        // if(answer == null) {
-        //     Resource parent = resource.getParent();
-        //     Resource current = resource;
-        //     Iterable<Resource> children = parent.getChildren();
-        //     Resource previous = null;
-        //     for(Resource res: children) {
-        //         if(!res.equals(current) && isPrimaryType(res, PAGE_PRIMARY_TYPE)) {
-        //             previous = res;
-        //         } else if(res.equals(current)) {
-        //             break;
-        //         }
-        //     }
-
-        //     // while(parent != null) {
-        //     //     // Find any sibling in the parent this is before the this resource's path
-        //     //     answer = findPreviousChildPage(parent, child);
-        //     //     if(answer == null) {
-        //     //         child = parent;
-        //     //         parent = parent.getParent();
-        //     //         if(!isPrimaryType(parent, PAGE_PRIMARY_TYPE)) {
-        //     //             // The search ends at the first non-page node
-        //     //             break;
-        //     //         }
-        //     //     } else {
-        //     //         break;
-        //     //     }
-        //     // }
-        // }
-
-        // return answer;
+        return answer;
     }
 
     /**
@@ -313,7 +289,7 @@ public class PerPageImpl extends PerBaseImpl implements PerPage {
      * @param before Sibling that is the next in the tree
      * @return Page Wrapper Object that comes before the given sibling
      */
-    private PerPage findPreviousChildPage(Resource resource, Resource before) {
+    private PerPage findPreviousChildPage(@NotNull Resource resource, @NotNull Resource before) {
         Resource last = null;
         for(Resource child: resource.getChildren()) {
             // JCR Content nodes will not yield a page -> ignore
@@ -336,7 +312,7 @@ public class PerPageImpl extends PerBaseImpl implements PerPage {
         implements Filter<PerPage>
     {
         @Override
-        public <T> boolean include(T t) {
+        public boolean include(PerPage t) {
             return true;
         }
     }

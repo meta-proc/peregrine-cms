@@ -26,10 +26,10 @@ package com.peregrine.admin.replication.impl;
  */
 
 import com.peregrine.admin.replication.AbstractionReplicationService;
-import com.peregrine.replication.ReferenceLister;
-import com.peregrine.replication.Replication;
 import com.peregrine.commons.util.PerUtil;
 import com.peregrine.commons.util.PerUtil.ResourceChecker;
+import com.peregrine.replication.ReferenceLister;
+import com.peregrine.replication.Replication;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -204,22 +204,18 @@ public class DistributionReplicationService
                 } catch(PersistenceException e) {
                     throw new ReplicationException("Could not set Replication User before distribution", e);
                 }
-                if(distributor != null) {
-                    DistributionResponse response = distributor.distribute(
-                        agentName,
-                        resourceResolver,
-                        new SimpleDistributionRequest(
-                            activate ?
-                                DistributionRequestType.ADD :
-                                DistributionRequestType.DELETE,
-                            paths)
-                    );
-                    log.trace("Distributor Response: '{}'", response);
-                    if(!response.isSuccessful() || !(response.getState() == ACCEPTED || response.getState() != DISTRIBUTED)) {
-                        throw new ReplicationException(String.format(DISTRIBUTION_FAILED, response));
-                    }
-                } else {
-                    throw new ReplicationException(NO_DISTRIBUTOR_AVAILABLE);
+                DistributionResponse response = distributor.distribute(
+                    agentName,
+                    resourceResolver,
+                    new SimpleDistributionRequest(
+                        activate ?
+                            DistributionRequestType.ADD :
+                            DistributionRequestType.DELETE,
+                        paths)
+                );
+                log.trace("Distributor Response: '{}'", response);
+                if(!response.isSuccessful() || !(response.getState() == ACCEPTED || response.getState() != DISTRIBUTED)) {
+                    throw new ReplicationException(String.format(DISTRIBUTION_FAILED, response));
                 }
             }
         }

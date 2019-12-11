@@ -37,9 +37,9 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.peregrine.render.RenderService;
 import com.peregrine.replication.ReferenceLister;
 import com.peregrine.replication.Replication;
-import com.peregrine.render.RenderService;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.osgi.framework.BundleContext;
@@ -60,6 +60,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static com.peregrine.commons.util.PerConstants.ASSET_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerConstants.HTML_MIME_TYPE;
 import static com.peregrine.commons.util.PerConstants.JSON_MIME_TYPE;
@@ -69,7 +70,6 @@ import static com.peregrine.commons.util.PerUtil.RENDITIONS;
 import static com.peregrine.commons.util.PerUtil.getMimeType;
 import static com.peregrine.commons.util.PerUtil.getPrimaryType;
 import static com.peregrine.commons.util.PerUtil.intoList;
-import static com.peregrine.commons.util.PerUtil.isNotEmpty;
 import static com.peregrine.commons.util.PerUtil.splitIntoMap;
 import static com.peregrine.commons.util.PerUtil.splitIntoProperties;
 
@@ -314,6 +314,7 @@ public class RemoteS3SystemReplicationService
     @Override
     String storeRendering(Resource resource, String extension, String content) throws ReplicationException {
         PutObjectRequest request = createPutRequest(awsBucketName, resource.getPath(), extension, content);
+        if(request == null) { throw new ReplicationException("Could not create Put Request"); }
         if(extension.endsWith(JSON)) {
             log.trace("Set JSon Content Type");
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -350,6 +351,7 @@ public class RemoteS3SystemReplicationService
     @Override
     String storeRendering(Resource resource, String extension, byte[] content) throws ReplicationException {
         PutObjectRequest request = createPutRequest(awsBucketName, resource.getPath(), extension,content);
+        if(request == null) { throw new ReplicationException("Could not create Put Request"); }
         // Check if this is an Asset and if so check for the rendition
         String mimeType = null;
         String primaryType = getPrimaryType(resource);

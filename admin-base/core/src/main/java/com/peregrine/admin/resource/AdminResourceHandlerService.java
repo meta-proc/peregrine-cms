@@ -120,8 +120,9 @@ import org.slf4j.LoggerFactory;
     service = AdminResourceHandler.class,
     immediate = true
 )
-public class AdminResourceHandlerService
-    implements AdminResourceHandler {
+public final class AdminResourceHandlerService
+    implements AdminResourceHandler
+{
     public static final String DELETION_PROPERTY_NAME = "_opDelete";
     public static final String MODE_PROPERTY = "mode";
 
@@ -217,7 +218,7 @@ public class AdminResourceHandlerService
     private static final String ROOT_PROPERTY = "root";
     private static final String RULES_PROPERTY = "rules";
 
-    private static final String NAME_CONSTRAINT_VIOLATION = "The provided name '%s' is not valid.";
+    public static final String NAME_CONSTRAINT_VIOLATION = "The provided name '%s' is not valid.";
 
 
     static {
@@ -257,7 +258,6 @@ public class AdminResourceHandlerService
     void removeImageMetadataSelector(ImageMetadataSelector selector) {
         imageMetadataSelectors.remove(selector);
     }
-
 
     public Resource createFolder(ResourceResolver resourceResolver, String parentPath, String name) throws ManagementException {
         if(!nodeNameValidation.isValidPageName(name)) {
@@ -461,6 +461,7 @@ public class AdminResourceHandlerService
             baseResourceHandler.updateModification(answer);
             return answer;
         } catch (RepositoryException e) {
+            logger.trace("Failed to insert node at: " + resource.getPath(), e);
             throw new ManagementException(String.format(FAILED_TO_INSERT, resource.getPath()), e);
         }
     }
@@ -661,7 +662,6 @@ public class AdminResourceHandlerService
             throw new ManagementException(String.format(FAILED_TO_CREATE, NODE, parent.getPath(), name), e);
         }
     }
-
 
     // TODO: needs deep clone
     private Node createNode(
@@ -987,9 +987,11 @@ public class AdminResourceHandlerService
         resourcesToPackage.add(copier.copyFromRoot(OBJECTS_ROOT, title));
         // copy /content/templates/<fromSite> to /content/templates/<toSite> and fix all references
         Resource templatesCopy = copier.copyFromRoot(TEMPLATES_ROOT, title);
-        // Update css paths stored in /content/sites in the template
-        updateTemplateCssPaths(templatesCopy, fromName, targetName);
-        resourcesToPackage.add(templatesCopy);
+        if(templatesCopy != null) {
+            // Update css paths stored in /content/sites in the template
+            updateTemplateCssPaths(templatesCopy, fromName, targetName);
+            resourcesToPackage.add(templatesCopy);
+        }
         // copy /content/sites/<fromSite> to /content/sites/<toSite> and fix all references
         answer = copier.copyFromRoot(SITES_ROOT, title);
         resourcesToPackage.add(answer);
@@ -1942,7 +1944,7 @@ public class AdminResourceHandlerService
         return newPage;
     }
 
-    public void handleAssetDimensions(PerAsset perAsset) throws RepositoryException, IOException {
+    public static void handleAssetDimensions(PerAsset perAsset) throws RepositoryException, IOException {
         InputStream is = perAsset.getRenditionStream((String) null);
         // Ignore images that do not have a jcr:data element aka stream
         if (is != null) {

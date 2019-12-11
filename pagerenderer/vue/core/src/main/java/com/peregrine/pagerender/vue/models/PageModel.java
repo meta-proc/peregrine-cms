@@ -45,6 +45,8 @@ import static com.peregrine.commons.util.PerConstants.JCR_TITLE;
 import static com.peregrine.commons.util.PerConstants.JSON;
 import static com.peregrine.commons.util.PerConstants.PAGE_PRIMARY_TYPE;
 import static com.peregrine.commons.util.PerConstants.SLASH;
+import static com.peregrine.commons.util.PerUtil.DOMAINS;
+import static com.peregrine.commons.util.PerUtil.TEMPLATE;
 import static com.peregrine.pagerender.vue.models.PageRenderVueConstants.PR_VUE_COMPONENT_PAGE_TYPE;
 
 import java.util.ArrayList;
@@ -60,33 +62,14 @@ import java.util.List;
 @Exporter(name = JACKSON,
           extensions = JSON)
 public class PageModel
-    extends Container {
+        extends Container {
 
     public static final String SITE_CSS = "siteCSS";
     public static final String PREFETCH_DNS = "prefetchDNS";
-    public static final String DOMAINS = "domains";
     public static final String SITE_JS = "siteJS";
-    public static final String TEMPLATE = "template";
 
-    public PageModel(Resource r) {
-        super(r);
-    }
-
-    public Resource getParentContent(Resource res) {
-        Resource page = res.getParent();
-        if(page != null) {
-            Resource parentPage = page.getParent();
-            if(parentPage != null) {
-                if(PAGE_PRIMARY_TYPE.equals(parentPage.getResourceType())) {
-                    Resource child = parentPage.getChild(JCR_CONTENT);
-                    return child;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Inject private ModelFactory modelFactory;
+    @Inject
+    private ModelFactory modelFactory;
 
     @Inject
     @Optional
@@ -114,15 +97,33 @@ public class PageModel
     @Optional
     private String title;
 
-    @Inject private String dataFrom;
+    @Inject
+    private String dataFrom;
 
-    @Inject private String dataDefault;
+    @Inject
+    private String dataDefault;
 
-    @Inject private String[] loaders;
+    @Inject
+    private String[] loaders;
 
-    @Inject private String[] suffixToParameter;
+    @Inject
+    private String[] suffixToParameter;
 
-    @Inject private String description;
+    @Inject
+    private String description;
+
+    public PageModel(final Resource resource) {
+        super(resource);
+    }
+
+    public Resource getParentContent(final Resource resource) {
+        return java.util.Optional.ofNullable(resource)
+                .map(Resource::getParent)
+                .map(Resource::getParent)
+                .filter(r -> PAGE_PRIMARY_TYPE.equals(r.getResourceType()))
+                .map(r -> r.getChild(JCR_CONTENT))
+                .orElse(null);
+    }
 
     public String getSiteRoot() {
         String path = getPagePath();
@@ -131,7 +132,10 @@ public class PageModel
     }
 
     public String getPagePath() {
-        return getResource().getParent().getPath();
+        return java.util.Optional.ofNullable(getResource())
+                .map(Resource::getParent)
+                .map(Resource::getPath)
+                .orElse(null);
     }
 
     public String[] getPrefetchDNS() {
@@ -139,7 +143,7 @@ public class PageModel
             String[] value = (String[]) getInheritedProperty(PREFETCH_DNS);
             if(value != null && value.length != 0) return value;
             if(getTemplate() != null) {
-                PageModel templatePageModel = getTamplatePageModel();
+                PageModel templatePageModel = getTemplatePageModel();
                 if(templatePageModel != null) {
                     return templatePageModel.getPrefetchDNS();
                 }
@@ -153,7 +157,7 @@ public class PageModel
             String[] value = (String[]) getInheritedProperty(SITE_CSS);
             if(value != null && value.length != 0) return value;
             if(getTemplate() != null) {
-                PageModel templatePageModel = getTamplatePageModel();
+                PageModel templatePageModel = getTemplatePageModel();
                 if(templatePageModel != null) {
                     return templatePageModel.getSiteCSS();
                 }
@@ -167,7 +171,7 @@ public class PageModel
             String[] value = (String[]) getInheritedProperty(DOMAINS);
             if(value != null && value.length != 0) return value;
             if(getTemplate() != null) {
-                PageModel templatePageModel = getTamplatePageModel();
+                PageModel templatePageModel = getTemplatePageModel();
                 if(templatePageModel != null) {
                     return templatePageModel.getDomains();
                 }
@@ -176,20 +180,26 @@ public class PageModel
         return domains;
     }
 
-    public String getTemplateSiteLanguage(){
-      Resource resource = getResource().getResourceResolver().getResource(getTemplate() + SLASH + JCR_CONTENT);
-      if( resource != null ){
-        ValueMap map = resource.getValueMap();
-        return (String) map.get("siteLanguage");
-      }
-      return "en";
+  public String getTemplateSiteLanguage(){
+    Resource resource = getResource().getResourceResolver().getResource(getTemplate() + SLASH + JCR_CONTENT);
+    if( resource != null ){
+      ValueMap map = resource.getValueMap();
+      return (String) map.get("siteLanguage");
     }
+    return "en";
+  }
 
-    private PageModel getTamplatePageModel() {
-        String template = getTemplate();
-        if(template == null) return null;
-        Resource templateResource = getResource().getResourceResolver().getResource(getTemplate() + SLASH + JCR_CONTENT);
-        return (PageModel) modelFactory.getModelFromResource(templateResource);
+    private PageModel getTemplatePageModel() {
+        final String path = getTemplate();
+        if (path == null) {
+            return null;
+        }
+
+        return java.util.Optional.ofNullable(getResource())
+                .map(Resource::getResourceResolver)
+                .map(rr -> rr.getResource(path + SLASH + JCR_CONTENT))
+                .map(r -> (PageModel) modelFactory.getModelFromResource(r))
+                .orElse(null);
     }
 
     private Object getInheritedProperty(String propertyName) {
@@ -209,7 +219,7 @@ public class PageModel
         if(siteJS == null) {
             String[] value = (String[]) getInheritedProperty(SITE_JS);
             if(value != null && value.length != 0) return value;
-            PageModel templatePageModel = getTamplatePageModel();
+            PageModel templatePageModel = getTemplatePageModel();
             if(templatePageModel != null) {
                 return templatePageModel.getSiteJS();
             }
@@ -219,12 +229,9 @@ public class PageModel
 
     public String getTemplate() {
         if(template == null) {
-            String value = (String) getInheritedProperty(TEMPLATE);
-            if(value != null) {
-                this.template = template;
-                return value;
-            }
+            return (String) getInheritedProperty(TEMPLATE);
         }
+
         return template;
     }
 
@@ -250,7 +257,7 @@ public class PageModel
 
     public List<Tag> getTags() {
         Resource tags = getResource().getChild("tags");
-        List<Tag> answer = new ArrayList<Tag>();
+        List<Tag> answer = new ArrayList<>();
         if(tags != null) {
             for(Resource tag: tags.getChildren()) {
                 answer.add(new Tag(tag));
@@ -261,7 +268,7 @@ public class PageModel
 
     public List<String> getRenderedTags() {
         Resource tags = getResource().getChild("tags");
-        List<String> answer = new ArrayList<String>();
+        List<String> answer = new ArrayList<>();
         if(tags != null) {
             for(Resource tag: tags.getChildren()) {
                 answer.add(new Tag(tag).getName());
@@ -276,7 +283,9 @@ public class PageModel
         if(metaproperties != null) {
             for(Resource metaproperty : metaproperties.getChildren()) {
                 MetaProperty metaProperty = new MetaProperty(metaproperty);
-                if( metaProperty.isProperty()) answer.add(metaProperty);
+                if(metaProperty.isProperty()) {
+                    answer.add(metaProperty);
+                }
             }
         }
         return answer;
@@ -288,7 +297,9 @@ public class PageModel
         if(metaproperties != null) {
             for(Resource metaproperty : metaproperties.getChildren()) {
                 MetaProperty metaProperty = new MetaProperty(metaproperty);
-                if( metaProperty.isName()) answer.add(metaProperty);
+                if(metaProperty.isName()) {
+                    answer.add(metaProperty);
+                }
             }
         }
         return answer;
@@ -318,24 +329,25 @@ public class PageModel
     }
 
     public class MetaProperty {
-        public String path;
-        public String metatype;
-        public String key;
-        public String value;
+        private String path;
+        private String metaType;
+        private String key;
+        private String value;
 
         public MetaProperty(Resource r) {
             this.path = r.getPath();
             this.path = path.substring(path.indexOf("/jcr:content"));
-            this.metatype = r.getValueMap().get("metatype", String.class);
-            this.key = r.getValueMap().get("key", String.class);
-            this.value = r.getValueMap().get("value", String.class);
+            final ValueMap valueMap = r.getValueMap();
+            this.metaType = valueMap.get("metatype", String.class);
+            this.key = valueMap.get("key", String.class);
+            this.value = valueMap.get("value", String.class);
         }
 
         public String getPath() { return path; }
-        public String getMetaType() { return metatype; }
+        public String getMetaType() { return metaType; }
         public String getKey() { return key; }
         public String getValue() { return value; }
-        public Boolean isProperty() { return "property".equalsIgnoreCase(metatype); }
-        public Boolean isName() { return "name".equalsIgnoreCase(metatype); }
+        public boolean isProperty() { return "property".equalsIgnoreCase(metaType); }
+        public boolean isName() { return "name".equalsIgnoreCase(metaType); }
     }
 }

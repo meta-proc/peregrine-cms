@@ -29,7 +29,6 @@ import com.peregrine.transform.ImageContext;
 import com.peregrine.transform.ImageTransformation;
 import com.peregrine.transform.OperationContext;
 import org.apache.sling.commons.mime.MimeTypeService;
-import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -40,7 +39,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import static com.peregrine.commons.util.PerConstants.PNG_MIME_TYPE;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static org.osgi.framework.Constants.SERVICE_DESCRIPTION;
@@ -56,8 +55,8 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = ImageTransformation.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Greyscale Image Transformation (transformation name: vips:greyscale)",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Greyscale Image Transformation (transformation name: vips:greyscale)",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR
     }
 )
 @Designate(
@@ -67,10 +66,10 @@ public class GreyscaleImageTransformation
     extends AbstractVipsImageTransformation
 {
     public static final String THUMBNAIL_TRANSFORMATION_NAME = "vips:greyscale";
-    public static final String PNGSAVE = "pngsave";
+    public static final String OPERATION_NAME_PNGSAVE = "pngsave";
     public static final String GREY_16 = "grey16";
     public static final String STRIP_TRUE = "--strip=true";
-    public static final String COLOURSPACE = "colourspace";
+    public static final String OPERATION_NAME = "colourspace";
 
     @ObjectClassDefinition(
         name = "Peregrine: Greyscale Image Transformation Configuration",
@@ -141,7 +140,7 @@ public class GreyscaleImageTransformation
             imageContext.setTargetMimeType("v");
         }
         transform0(
-            imageContext, COLOURSPACE,
+            imageContext, VIPS, OPERATION_NAME,
             // {in}, {out} mark the placement of the input / output file (path / name)
             IN_TOKEN, OUT_TOKEN,
             // Last Parameter is the color space type: Grey 16
@@ -149,7 +148,7 @@ public class GreyscaleImageTransformation
         );
         if(requiresConversion) {
             imageContext.setTargetMimeType(PNG_MIME_TYPE);
-            transform0(imageContext, PNGSAVE,
+            transform0(imageContext, VIPS, OPERATION_NAME_PNGSAVE,
                 // {in}, {out} mark the placement of the input / output file (path / name)
                 IN_TOKEN, OUT_TOKEN,
                 // Last Parameter is to strip the color settings from JPEG to be able to save it as PNG

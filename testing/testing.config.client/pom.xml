@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.peregrine-cms</groupId>
         <artifactId>testing.parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -55,6 +55,7 @@
                         <Sling-Initial-Content>
                             SLING-INF/apps/it;path:=/apps/it;overwrite=true;uninstall=false,
                             SLING-INF/content/it;path:=/content/it;overwrite=true;uninstall=false,
+                            SLING-INF/content/sites;path:=/content/sites;overwrite=true;uninstall=false,
                         </Sling-Initial-Content>
                         <_dsannotations>*</_dsannotations>
                         <_metatypeannotations>*</_metatypeannotations>

@@ -36,20 +36,17 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.Servlet;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
-import static com.peregrine.admin.servlets.AdminPaths.JSON_EXTENSION;
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_MOVE;
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_RENAME;
+import static com.peregrine.admin.util.AdminPathConstants.JSON_EXTENSION;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_MOVE;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_RENAME;
 import static com.peregrine.admin.util.AdminConstants.SOURCE_NAME;
 import static com.peregrine.admin.util.AdminConstants.SOURCE_PATH;
-import static com.peregrine.commons.util.PerConstants.ORDER_AFTER_TYPE;
 import static com.peregrine.commons.util.PerConstants.ORDER_BEFORE_TYPE;
 import static com.peregrine.commons.util.PerConstants.ORDER_CHILD_TYPE;
 import static com.peregrine.commons.util.PerConstants.PATH;
 import static com.peregrine.commons.util.PerConstants.TYPE;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static com.peregrine.commons.util.PerUtil.POST;
@@ -63,12 +60,12 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Move Resource Servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + POST,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_MOVE,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_RENAME,
-        SLING_SERVLET_SELECTORS + EQUALS + JSON_EXTENSION
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Move Resource Servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + POST,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_MOVE,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_RENAME,
+        SLING_SERVLET_SELECTORS + EQUAL + JSON_EXTENSION
     }
 )
 @SuppressWarnings("serial")
@@ -87,12 +84,10 @@ public class MoveServlet extends AbstractBaseServlet {
     public static final String MOVE = "move";
     public static final String TO = "to";
 
-    private List<String> acceptedTypes = Arrays.asList(ORDER_BEFORE_TYPE, ORDER_AFTER_TYPE, ORDER_CHILD_TYPE);
-
     @Reference
-    private ResourceRelocation resourceRelocation;
+    private transient ResourceRelocation resourceRelocation;
     @Reference
-    AdminResourceHandler resourceManagement;
+    private transient AdminResourceHandler resourceManagement;
 
     @Override
     protected Response handleRequest(Request request) throws IOException {

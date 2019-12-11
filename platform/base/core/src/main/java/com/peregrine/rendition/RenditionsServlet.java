@@ -25,8 +25,28 @@ package com.peregrine.rendition;
  * #L%
  */
 
-import static com.peregrine.commons.util.PerConstants.JCR_MIME_TYPE;
+import com.peregrine.adaption.PerAsset;
+import com.peregrine.commons.servlets.AbstractBaseServlet;
+import com.peregrine.rendition.BaseResourceHandler.HandlerException;
+import com.peregrine.transform.ImageContext;
+import org.apache.commons.io.IOUtils;
+import org.apache.sling.api.resource.Resource;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLDecoder;
+
 import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerConstants.JCR_MIME_TYPE;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.GET;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
@@ -37,32 +57,15 @@ import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVL
 import static org.osgi.framework.Constants.SERVICE_DESCRIPTION;
 import static org.osgi.framework.Constants.SERVICE_VENDOR;
 
-import com.peregrine.adaption.PerAsset;
-import com.peregrine.commons.servlets.AbstractBaseServlet;
-import com.peregrine.rendition.BaseResourceHandler.HandlerException;
-import com.peregrine.transform.ImageContext;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URLDecoder;
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import org.apache.commons.io.IOUtils;
-import org.apache.sling.api.resource.Resource;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Rendition Provider Servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + GET,
-        SLING_SERVLET_METHODS + EQUALS + POST,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + "per/Asset"
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Rendition Provider Servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + GET,
+        SLING_SERVLET_METHODS + EQUAL + POST,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + "per/Asset"
     }
 )
 @SuppressWarnings("serial")
@@ -74,6 +77,8 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * Create a thumbnail image with: curl -u admin:admin http://localhost:8080/content/assets/test.png.rendition.json/thumbnail.png
  */
 public class RenditionsServlet extends AbstractBaseServlet {
+
+    private static final String REDIRECT_SERVLET_CLASS_NAME = "org.apache.sling.servlets.get.impl.RedirectServlet";
 
     @Reference
     BaseResourceHandler renditionHandler;
@@ -87,14 +92,15 @@ public class RenditionsServlet extends AbstractBaseServlet {
     )
     void bindServlet(Servlet servlet) {
         logger.trace("Bind Servlet: '{}', Name: '{}'", servlet, servlet.getClass().getName());
-        if(servlet.getClass().getName().equals("org.apache.sling.servlets.get.impl.RedirectServlet")) {
+        if(REDIRECT_SERVLET_CLASS_NAME.equals(servlet.getClass().getName())) {
             redirectServlet = servlet;
-            logger.trace("Redirect Servlet: '{}'", redirectServlet);
         }
     }
     void unbindServlet(Servlet servlet) {
         logger.trace("Unbind Servlet: '{}'", servlet);
-        if(servlet.getClass().getName().equals("org.apache.sling.servlets.get.impl.RedirectServlet")) { redirectServlet = null; }
+        if(REDIRECT_SERVLET_CLASS_NAME.equals(servlet.getClass().getName())) {
+            redirectServlet = null;
+        }
     }
 
     @Override
@@ -142,7 +148,11 @@ public class RenditionsServlet extends AbstractBaseServlet {
             ImageContext imageContext = null;
             try {
                 imageContext = renditionHandler.createRendition(resource, renditionName, sourceMimeType);
-                request.getResourceResolver().commit();
+                if(imageContext != null && imageContext.canBeStored()) {
+                    request.getResourceResolver().commit();
+                } else {
+                    request.getResourceResolver().revert();
+                }
             } catch(HandlerException e) {
                 return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(e.getMessage()).setException(e);
             }
@@ -150,7 +160,10 @@ public class RenditionsServlet extends AbstractBaseServlet {
                 // Got a output stream -> send it back
                 answer = new StreamResponse(imageContext.getTargetMimeType(), imageContext.getImageStream());
             } else {
-                return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage("Failed to create a rendition of image: " + asset.getName() + ", rendition: " + renditionName);
+                return new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(
+                    "Failed to create a rendition of image: " + asset.getName() + ", rendition: " + renditionName
+                    + ". Most likely due to misspelt or non-existing Rendition"
+                );
             }
         } else {
             // This was not a request for a rendition but just the original asset -> load and send it back

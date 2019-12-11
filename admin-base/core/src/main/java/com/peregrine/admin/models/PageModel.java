@@ -39,9 +39,9 @@ import javax.inject.Named;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.peregrine.admin.util.AdminConstants.TOOLING_PAGE_COMPONENT_PATH;
 import static com.peregrine.commons.util.PerConstants.JACKSON;
 import static com.peregrine.commons.util.PerConstants.JSON;
-import static com.peregrine.admin.util.AdminConstants.TOOLING_PAGE_COMPONENT_PATH;
 
 /**
  * Created by rr on 12/2/2016.
@@ -154,8 +154,14 @@ public class PageModel
             ret.addFirst(new TitlePath(res));
             res = getParentContent(res);
             // we do not want to stop at level 2 and not include it
-            if(res != null && res.getParent().getPath().equals("/content/admin")) {
-                break;
+            if(res != null) {
+                Resource parent = res.getParent();
+                if (parent != null) {
+                    String path = parent.getPath();
+                    if (path.equals("/content/admin")) {
+                        break;
+                    }
+                }
             }
         }
         return ret;
@@ -173,7 +179,8 @@ public class PageModel
         }
 
         public String getPath() {
-            return res.getParent().getPath();
+            Resource parent = res.getParent();
+            return parent == null ? "" : parent.getPath();
         }
     }
 }

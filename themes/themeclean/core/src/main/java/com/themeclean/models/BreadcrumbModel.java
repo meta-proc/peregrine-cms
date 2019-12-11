@@ -2,9 +2,6 @@ package com.themeclean.models;
 
 import com.peregrine.nodetypes.models.AbstractComponent;
 import com.peregrine.nodetypes.models.IComponent;
-import java.util.ArrayList;
-import java.util.List;
-import javax.inject.Inject;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -14,6 +11,10 @@ import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
     //GEN[:DATA
@@ -370,7 +371,7 @@ public class BreadcrumbModel extends AbstractComponent {
     	try{
 			    		
     		ValueMap props = resource.adaptTo(ValueMap.class);
-		    String resourceType = props.get("jcr:primaryType", "type not found");
+		    String resourceType = props == null ? "" : props.get("jcr:primaryType", "type not found");
 		    // we only care about per:page child
 		    if(resourceType.equals("per:Page")){
 			    TextLink link = new TextLink(resource.getPath(), getPageTitle(resource.getPath()));
@@ -393,8 +394,11 @@ public class BreadcrumbModel extends AbstractComponent {
 		try{
 			String resourcePath = pageUrl + "/jcr:content";
 			ResourceResolver resourceResolver = getResource().getResourceResolver();
-			ValueMap props = resourceResolver.getResource(resourcePath).adaptTo(ValueMap.class);
-			return props.get("jcr:title", "title not found");
+			Resource contentResource = resourceResolver.getResource(resourcePath);
+			ValueMap props = contentResource == null ?
+				null :
+				contentResource.adaptTo(ValueMap.class);
+			return props == null ? "props for title not found...." : props.get("jcr:title", "title not found");
 		} catch(Exception e){
 			LOG.error("getPageTitle error: {}",e);
 			return "title not found....";
