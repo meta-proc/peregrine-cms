@@ -130,7 +130,7 @@ public class ComponentDefinitionServlet extends AbstractBaseServlet {
         return answer;
     }
 
-    private @Nullable Resource getDialogFromSuperType(@NotNull Resource resource, boolean page) {
+    private @Nullable Resource getDialogFromSuperType(@NotNull Resource resource, boolean page, boolean og) {
         Resource answer = null;
         String componentPath = resource.getValueMap().get(SLING_RESOURCE_SUPER_TYPE, String.class);
         if(componentPath != null) {

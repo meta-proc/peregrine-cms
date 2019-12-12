@@ -41,7 +41,7 @@ import static com.peregrine.commons.util.PerConstants.SITE;
 import static com.peregrine.commons.util.PerConstants.STATUS;
 import static com.peregrine.commons.util.PerConstants.TYPE;
 import static com.peregrine.commons.util.PerConstants.UPDATED;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static com.peregrine.commons.util.PerUtil.POST;

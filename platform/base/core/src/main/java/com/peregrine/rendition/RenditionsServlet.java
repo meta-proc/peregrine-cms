@@ -44,7 +44,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 
-import static com.peregrine.commons.util.PerUtil.EQUALS;
 import static com.peregrine.commons.util.PerConstants.JCR_MIME_TYPE;
 import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.GET;
