@@ -14,7 +14,10 @@
     mixins: [VueFormGenerator.abstractField],
     methods: {
       handleControlClick: function (btn) {
-        $perAdminApp.getApp().$adminEventBus.$emit(btn.event);
+        const payload = {
+          path: $perAdminApp.getView().state.editor.path
+        };
+        $perAdminApp.getApp().$adminEventBus.$emit(btn.event, payload);
       }
     }
   }
