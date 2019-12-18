@@ -75,6 +75,7 @@
                 default: {
                     config: {
                         svgPath: '/etc/felibs/admin/images/trumbowyg-icons.svg',
+                        resetCss: true,
                         btnsDef: {
                             formattingWithCode: {
                                 dropdown: ['p', 'quote', 'preformatted', 'h1', 'h2', 'h3', 'h4'],

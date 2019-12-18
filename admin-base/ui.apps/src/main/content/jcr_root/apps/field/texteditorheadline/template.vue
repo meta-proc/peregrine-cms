@@ -17,6 +17,7 @@
                 default: {
                     config: {
                         svgPath: '/etc/felibs/admin/images/trumbowyg-icons.svg',
+                        resetCss: true,
                         btnsDef: {
                             headers: {
                                 title: "Headers",
