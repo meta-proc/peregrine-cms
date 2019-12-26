@@ -438,7 +438,7 @@ export default {
                         this.leftOverlayArea()
                     }
                 } else if(!isRoot) {
-                    
+
                     var y = pos.y - targetBox.top
                     if(y < targetBox.height/2) {
                         this.dropPosition = 'before'
@@ -545,9 +545,13 @@ export default {
             var targetEl = this.selectedComponent
             var view = $perAdminApp.getView()
             var pagePath = view.pageView.path
+            let path = targetEl.getAttribute('data-per-path')
+            if (targetEl.getAttribute('data-per-target-path')) {
+                path = targetEl.getAttribute('data-per-target-path');
+            }
             var payload = {
                 pagePath: view.pageView.path,
-                path: targetEl.getAttribute('data-per-path')
+                path: path
             }
             if(payload.path !== '/jcr:content') {
                 $perAdminApp.stateAction('deletePageNode',  payload)
