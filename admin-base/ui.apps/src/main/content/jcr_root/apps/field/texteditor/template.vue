@@ -98,10 +98,22 @@
                             'justifyCenter',
                             'justifyRight',
                             'justifyFull',
+                            'foreColor',
                             'unorderedList',
                             'orderedList',
                             'removeformat'
-                        ]
+                        ],
+                        plugins: {
+                            colors: {
+                                colorList: [
+                                    "000000",
+                                    "ffffff",
+                                    "0d4786",
+                                    "0bbbef"
+                                ],
+                            }
+                        }
+
                     }
                 },
                 characterCount: 0,

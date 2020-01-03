@@ -41,19 +41,22 @@
                                 ico: "justify-left"
                             }
                         },
+
                         btns: [
                             "removeformat",
                             "p",
                             "headers",
-                            "strong",
+                            "foreColor",
                             "alignments",
-                            "foreColor"
+                            "strong",
                         ],
                         plugins: {
                             colors: {
                                 colorList: [
                                     "000000",
-                                    "ffffff"
+                                    "ffffff",
+                                    "0d4786",
+                                    "0bbbef"
                                 ]
                             },
                             cleanPaste: {
