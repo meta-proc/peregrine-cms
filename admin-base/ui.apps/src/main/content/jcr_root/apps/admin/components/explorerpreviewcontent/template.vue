@@ -466,5 +466,6 @@
 
   .explorer .explorer-layout .row .explorer-preview .explorer-preview-content.preview-asset .asset-info-view img {
     max-height: 100%;
+    padding-top: 1em;
   }
 </style>
