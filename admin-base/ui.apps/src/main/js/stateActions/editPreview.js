@@ -23,11 +23,10 @@
  * #L%
  */
 import {LoggerFactory} from '../logger'
+import {get, set} from '../utils'
+import {IgnoreContainers} from '../constants.js'
 
 let log = LoggerFactory.logger('editPreview').setLevelDebug()
-
-import {set, get} from '../utils'
-import {IgnoreContainers} from '../constants.js'
 
 export default function (me, target) {
 
@@ -77,5 +76,5 @@ export default function (me, target) {
       }
       resolve()
     }
-  )
+  });
 }
