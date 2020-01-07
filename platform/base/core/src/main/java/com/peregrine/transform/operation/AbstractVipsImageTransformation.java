@@ -47,8 +47,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static com.peregrine.commons.util.PerUtil.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Base Class for VIPS Image Transformation made by
@@ -81,7 +82,7 @@ public abstract class AbstractVipsImageTransformation
 
     private boolean vipsInstalled = false;
     private long lastCheckTime = -1;
-    private long checkTimeout = 5 * 60 * 1000;
+    private long checkTimeout = 5 * 60 * 1000L;
     private String transformationName = getDefaultTransformationName();
 
     abstract MimeTypeService getMimeTypeService();
@@ -120,9 +121,10 @@ public abstract class AbstractVipsImageTransformation
 
     protected void configure(boolean enabled, String transformationName) {
         this.enabled = enabled;
-        this.transformationName = transformationName == null || transformationName.isEmpty() ?
-            getDefaultTransformationName() :
-            transformationName;
+        // In case Transformation Name is null or empty then return getDefaultTransformationName() instead
+        this.transformationName = Optional.ofNullable(transformationName)
+            .filter(t -> t.isEmpty())
+            .orElse(getDefaultTransformationName());
         if(enabled) {
             if(transformationName.isEmpty()) {
                 throw new IllegalArgumentException(TRANSFORMATION_NAME_CANNOT_BE_EMPTY);
@@ -135,12 +137,13 @@ public abstract class AbstractVipsImageTransformation
      * Transforms an image using the given Operation Name and Parameters
      *
      * @param imageContext Context of the Image to be transformed which cannot be null
-     * @param operationName VIPS Operation Name which cannot be empty
+     * @param command Name of the command. If or null empty it will use thd default 'vips'
+     * @param operationName VIPS Operation Name which can only be empty if command is provided
      * @param parameters Optional Parameters for the VIPS Operation
      * @throws TransformationException If image context is null, operation name is empty, files cannot be created
      *         or the VIPS process executions fails
      */
-    protected void transform0(ImageContext imageContext, String operationName, String...parameters)
+    protected void transform0(ImageContext imageContext, String command, String operationName, String...parameters)
         throws TransformationException
     {
         if(!enabled) {
@@ -149,7 +152,10 @@ public abstract class AbstractVipsImageTransformation
             if (imageContext == null) {
                 throw new TransformationException(IMAGE_CONTEXT_MUST_BE_DEFINED_FOR_TRANSFORMATION);
             }
-            if (isEmpty(operationName)) {
+            if(isEmpty(command)) {
+                command = VIPS;
+            }
+            if(VIPS.equals(command) && isEmpty(operationName)) {
                 throw new TransformationException(VIPS_OPERATION_NAME_CANNOT_BE_EMPTY);
             }
             if (checkVips()) {
@@ -174,7 +180,11 @@ public abstract class AbstractVipsImageTransformation
                         throw new TransformationException(COULD_NOT_CREATE_OUTPUT_FILE + outputFileName);
                     }
                     ProcessRunner runner = new ProcessRunner();
-                    List<String> commands = new ArrayList<>(Arrays.asList(VIPS, operationName));
+                    List<String> commands = new ArrayList<>();
+                    commands.add(command);
+                    if(!isEmpty(operationName)) {
+                        commands.add(operationName);
+                    }
                     boolean inputUsed = false, outputUsed = false;
                     for (String parameter : parameters) {
                         if (IN_TOKEN.equals(parameter)) {
@@ -210,7 +220,8 @@ public abstract class AbstractVipsImageTransformation
                     throw new TransformationException(COULD_NOT_CREATE_TEMPORARY_FOLDER + name);
                 }
             } else {
-                log.debug("VIPS not installed -> ignore transformation: '{}'", transformationName);
+                log.trace("VIPS not installed -> ignore transformation: '{}'", transformationName);
+                imageContext.markAsFlawed();
             }
         }
     }
@@ -259,11 +270,15 @@ public abstract class AbstractVipsImageTransformation
             log.error("Failed to create Output File", e);
         } catch(FileNotFoundException e) {
             log.error("Failed to create File Output Stream", e);
-            output.delete();
+            if(!output.delete()) {
+                log.error("Failed to delete File Output Stream", e);
+            }
             output = null;
         } catch(IOException e) {
             log.error("Failed to write to file", e);
-            output.delete();
+            if(!output.delete()) {
+                log.error("Failed to delete File Output Stream", e);
+            }
             output = null;
         } finally {
             IOUtils.closeQuietly(fos);

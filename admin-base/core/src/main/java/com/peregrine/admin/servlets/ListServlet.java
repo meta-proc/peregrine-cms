@@ -37,9 +37,9 @@ import javax.servlet.Servlet;
 import java.io.IOException;
 import java.util.Collections;
 
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_LIST;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_LIST;
 import static com.peregrine.commons.util.PerConstants.JACKSON;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.GET;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
@@ -58,10 +58,10 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "List Servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + GET,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_LIST
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "List Servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + GET,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_LIST
     }
 )
 @SuppressWarnings("serial")
@@ -74,9 +74,10 @@ public class ListServlet extends AbstractBaseServlet {
     public static final String UNKNOWN_SUFFIX = "Unknown suffix: ";
     public static final String ERROR_WHILE_EXPORTING_MODEL = "Error while exporting model";
     public static final String NO_EXPORTER_JACKSON_DEFINED = "no exporter 'jackson' defined";
+    public static final String RESOURCE_BY_PATH_NOT_FOUND = "Resource '%s' was not found";
 
     @Reference
-    ModelFactory modelFactory;
+    private transient ModelFactory modelFactory;
 
 
     @Override
@@ -99,13 +100,17 @@ public class ListServlet extends AbstractBaseServlet {
     private Response getJSONFromResource(Resource resource, String resourcePath) throws IOException {
         Response answer;
         Resource res = resource.getResourceResolver().getResource(resourcePath);
-        try {
-            String out = modelFactory.exportModelForResource(res, JACKSON, String.class, Collections.<String, String> emptyMap());
-            answer = new PlainJsonResponse(out);
-        } catch (ExportException e) {
-            answer = new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(ERROR_WHILE_EXPORTING_MODEL).setException(e);
-        } catch (MissingExporterException e) {
-            answer = new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(NO_EXPORTER_JACKSON_DEFINED).setException(e);
+        if(res == null) {
+            answer = new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(String.format(RESOURCE_BY_PATH_NOT_FOUND, resourcePath));
+        } else {
+            try {
+                String out = modelFactory.exportModelForResource(res, JACKSON, String.class, Collections.<String, String> emptyMap());
+                answer = new PlainJsonResponse(out);
+            } catch (ExportException e) {
+                answer = new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(ERROR_WHILE_EXPORTING_MODEL).setException(e);
+            } catch (MissingExporterException e) {
+                answer = new ErrorResponse().setHttpErrorCode(SC_BAD_REQUEST).setErrorMessage(NO_EXPORTER_JACKSON_DEFINED).setException(e);
+            }
         }
         return answer;
     }

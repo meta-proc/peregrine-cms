@@ -36,7 +36,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.servlet.Servlet;
 import java.io.IOException;
 
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_UPDATE_RESOURCE;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_UPDATE_RESOURCE;
 import static com.peregrine.commons.util.PerConstants.CONTENT;
 import static com.peregrine.commons.util.PerConstants.CREATED;
 import static com.peregrine.commons.util.PerConstants.NAME;
@@ -44,7 +44,7 @@ import static com.peregrine.commons.util.PerConstants.PAGE;
 import static com.peregrine.commons.util.PerConstants.PATH;
 import static com.peregrine.commons.util.PerConstants.STATUS;
 import static com.peregrine.commons.util.PerConstants.TYPE;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static com.peregrine.commons.util.PerUtil.POST;
@@ -73,10 +73,10 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Update Resource servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + POST,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_UPDATE_RESOURCE
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Update Resource servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + POST,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_UPDATE_RESOURCE
     }
 )
 @SuppressWarnings("serial")
@@ -84,10 +84,10 @@ public class UpdateResourceServlet extends AbstractBaseServlet {
 
     public static final String FAILED_TO_UPDATE_PAGE = "Failed to Update Page";
     @Reference
-    ModelFactory modelFactory;
+    private transient ModelFactory modelFactory;
 
     @Reference
-    AdminResourceHandler resourceManagement;
+    private transient AdminResourceHandler resourceManagement;
 
     @Override
     protected Response handleRequest(Request request) throws IOException {

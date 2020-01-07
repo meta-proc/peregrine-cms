@@ -1,10 +1,10 @@
 package com.peregrine.intra;
 
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.engine.SlingRequestProcessor;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.servlethelpers.MockSlingHttpServletResponse;
-import org.apache.sling.engine.SlingRequestProcessor;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -14,7 +14,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
 import static org.osgi.framework.Constants.SERVICE_DESCRIPTION;
@@ -24,8 +24,8 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
     service = IntraSlingCaller.class,
     immediate = true,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Intra-Sling Caller",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Intra-Sling Caller",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR
     }
 )
 public class IntraSlingCallerService
@@ -62,7 +62,7 @@ public class IntraSlingCallerService
             logger.trace("Response Status: '{}'", resp.getStatus());
             //AS TODO: do we need to support redirects (301 / 302)
             if(resp.getStatus() != 200) {
-                String content = resp.getOutput().toString();
+                String content = new String(resp.getOutput());
                 logger.error("Request of: '{}' failed (status: {}). Output : '{}'", req.getRequestURI(), resp.getStatus(), content);
                 throw new CallException(String.format(CALLING_REQUEST_FAILED, req.getRequestURI(), resp.getStatus()));
             } else {

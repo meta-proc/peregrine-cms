@@ -38,13 +38,32 @@ import javax.servlet.Servlet;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_NODES;
-import static com.peregrine.commons.util.PerConstants.*;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_NODES;
+import static com.peregrine.commons.util.PerConstants.ALLOWED_OBJECTS;
+import static com.peregrine.commons.util.PerConstants.ASSET_PRIMARY_TYPE;
+import static com.peregrine.commons.util.PerConstants.COMPONENT;
+import static com.peregrine.commons.util.PerConstants.ECMA_DATE_FORMAT;
+import static com.peregrine.commons.util.PerConstants.ECMA_DATE_FORMAT_LOCALE;
+import static com.peregrine.commons.util.PerConstants.JCR_CONTENT;
+import static com.peregrine.commons.util.PerConstants.JCR_CREATED;
+import static com.peregrine.commons.util.PerConstants.JCR_CREATED_BY;
+import static com.peregrine.commons.util.PerConstants.JCR_LAST_MODIFIED;
+import static com.peregrine.commons.util.PerConstants.JCR_LAST_MODIFIED_BY;
+import static com.peregrine.commons.util.PerConstants.JCR_MIME_TYPE;
+import static com.peregrine.commons.util.PerConstants.JCR_PRIMARY_TYPE;
+import static com.peregrine.commons.util.PerConstants.JCR_TITLE;
+import static com.peregrine.commons.util.PerConstants.METAPROPERTIES;
+import static com.peregrine.commons.util.PerConstants.NAME;
+import static com.peregrine.commons.util.PerConstants.PAGE_PRIMARY_TYPE;
+import static com.peregrine.commons.util.PerConstants.PATH;
+import static com.peregrine.commons.util.PerConstants.PER_REPLICATED;
+import static com.peregrine.commons.util.PerConstants.PER_REPLICATED_BY;
+import static com.peregrine.commons.util.PerConstants.PER_REPLICATION_REF;
+import static com.peregrine.commons.util.PerConstants.TAGS;
+import static com.peregrine.commons.util.PerConstants.TITLE;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.GET;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
@@ -65,10 +84,10 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Nodes servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + GET,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_NODES
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Nodes servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + GET,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_NODES
     }
 )
 @SuppressWarnings("serial")
@@ -86,10 +105,10 @@ public class NodesServlet extends AbstractBaseServlet {
 
     private static final String[] OMIT_PREFIXES = new String[] {JCR_PREFIX, PER_PREFIX};
 
-    private static DateFormat formatter = new SimpleDateFormat(ECMA_DATE_FORMAT, ECMA_DATE_FORMAT_LOCALE);
+    private DateFormat formatter = new SimpleDateFormat(ECMA_DATE_FORMAT, ECMA_DATE_FORMAT_LOCALE);
 
     @Reference
-    ModelFactory modelFactory;
+    private transient ModelFactory modelFactory;
 
     @Override
     protected Response handleRequest(Request request) throws IOException {
@@ -113,7 +132,7 @@ public class NodesServlet extends AbstractBaseServlet {
                 json.writeAttribute(PATH, child.getPath());
             }
             for (String key: child.getValueMap().keySet()) {
-                if(key.indexOf(":") < 0) {
+                if(key.indexOf(':') < 0) {
                     json.writeAttribute(key, child.getValueMap().get(key, String.class));
                 }
             }
@@ -121,88 +140,73 @@ public class NodesServlet extends AbstractBaseServlet {
         }
     }
 
-    private void convertResource(JsonResponse json, Resource resource) throws IOException {
-        convertResource(json, resource, false);
-    }
-
     private void convertResource(JsonResponse json, ResourceResolver rs, String[] segments, int pos, String fullPath) throws IOException {
-        String path = "";
+        StringBuilder builder = new StringBuilder();
         for(int i = 1; i <= pos; i++) {
-            path += "/" + segments[i];
+            builder.append('/').append(segments[i]);
         }
+        String path = builder.toString();
         logger.debug("looking up {}", path);
         Resource res = rs.getResource(path);
-        json.writeAttribute(NAME,res.getName());
-        json.writeAttribute(PATH,res.getPath());
-        writeProperties(res, json);
-        json.writeArray(CHILDREN);
-        Iterable<Resource> children = res.getChildren();
-        for(Resource child : children) {
-            if(fullPath.startsWith(child.getPath())) {
-                json.writeObject();
-                convertResource(json, rs, segments, pos+1, fullPath);
-                json.writeClose();
-            } else {
-                if(!JCR_CONTENT.equals(child.getName())) {
+        if(res != null) {
+            json.writeAttribute(NAME, res.getName());
+            json.writeAttribute(PATH, res.getPath());
+            writeProperties(res, json);
+            json.writeArray(CHILDREN);
+            Iterable<Resource> children = res.getChildren();
+            for (Resource child : children) {
+                if (fullPath.startsWith(child.getPath())) {
                     json.writeObject();
-                    json.writeAttribute(NAME,child.getName());
-                    json.writeAttribute(PATH,child.getPath());
-                    writeProperties(child, json);
-                    if(isPrimaryType(child, ASSET_PRIMARY_TYPE)) {
-                        ValueMap props = child.getChild(JCR_CONTENT).getValueMap();
-                        String mimeType = props.get(JCR_MIME_TYPE, String.class);
-                        String title = props.get(TITLE, String.class);
-                        String description = props.get("description", String.class);
-                        json.writeAttribute(MIME_TYPE, mimeType);
-                        json.writeAttribute(TITLE, title);
-                        json.writeAttribute("description", description);
-
-                        Resource tags = child.getChild("jcr:content/tags");
-                        List<Tag> answer = new ArrayList<Tag>();
-                        if(tags != null) {
-                            for(Resource tag: tags.getChildren()) {
-                                answer.add(new Tag(tag));
-                            }
-                        }
-                        if(answer.size() > 0) {
-                            json.writeArray("tags");
-                            for (Tag tag : answer) {
-                                json.writeObject();
-                                json.writeAttribute(PATH, tag.getPath());
-                                json.writeAttribute(NAME, tag.getName());
-                                json.writeAttribute("value", tag.getValue());
-                                json.writeClose();
-                            }
-                            json.writeClose();
-                        }
-                    
-                    }
-                    if(isPrimaryType(child, PAGE_PRIMARY_TYPE)) {
-                        Resource content = child.getChild(JCR_CONTENT);
-                        if(content != null) {
-                            for (String key: content.getValueMap().keySet()) {
-                                if(key.equals(JCR_TITLE)) {
-                                    String title = content.getValueMap().get(JCR_TITLE, String.class);
-                                    json.writeAttribute(TITLE, title);
-                                } else {
-                                    if(key.indexOf(":") < 0) {
-                                        json.writeAttribute(key, content.getValueMap().get(key, String.class));
-                                    }
-                                }
-                            }
-                            String component = PerUtil.getComponentNameFromResource(content);
-                            json.writeAttribute(COMPONENT, component);
-                            convertNamedChild(json, content, TAGS);
-                            convertNamedChild(json, content, METAPROPERTIES);
-                        } else {
-                            logger.debug("No Content Child found for: '{}'", child.getPath());
-                        }
-                    }
+                    convertResource(json, rs, segments, pos + 1, fullPath);
                     json.writeClose();
+                } else {
+                    if (!JCR_CONTENT.equals(child.getName())) {
+                        json.writeObject();
+                        json.writeAttribute(NAME, child.getName());
+                        json.writeAttribute(PATH, child.getPath());
+                        writeProperties(child, json);
+                        if (isPrimaryType(child, ASSET_PRIMARY_TYPE)) {
+                            convertAssetChild(child, json);
+                        } else if (isPrimaryType(child, PAGE_PRIMARY_TYPE)) {
+                            convertPageChild(child, json);
+                        }
+                        json.writeClose();
+                    }
                 }
             }
+            json.writeClose();
         }
-        json.writeClose();
+    }
+
+    private void convertAssetChild(Resource child, JsonResponse json) throws IOException {
+        Resource childContent = child.getChild(JCR_CONTENT);
+        if(childContent != null) {
+            String mimeType = childContent.getValueMap().get(JCR_MIME_TYPE, String.class);
+            json.writeAttribute(MIME_TYPE, mimeType);
+        } else {
+            logger.debug("No Asset Content Child found for: '{}'", child.getPath());
+        }
+    }
+    private void convertPageChild(Resource child, JsonResponse json) throws IOException {
+        Resource content = child.getChild(JCR_CONTENT);
+        if(content != null) {
+            for (String key: content.getValueMap().keySet()) {
+                if(key.equals(JCR_TITLE)) {
+                    String title = content.getValueMap().get(JCR_TITLE, String.class);
+                    json.writeAttribute(TITLE, title);
+                } else {
+                    if(key.indexOf(':') < 0) {
+                        json.writeAttribute(key, content.getValueMap().get(key, String.class));
+                    }
+                }
+            }
+            String component = PerUtil.getComponentNameFromResource(content);
+            json.writeAttribute(COMPONENT, component);
+            convertNamedChild(json, content, TAGS);
+            convertNamedChild(json, content, METAPROPERTIES);
+        } else {
+            logger.debug("No Content Child found for: '{}'", child.getPath());
+        }
     }
 
     private void convertNamedChild(JsonResponse json, Resource content, String name) throws IOException {
@@ -264,25 +268,5 @@ public class NodesServlet extends AbstractBaseServlet {
         }
         return data;
     }
-
-    class Tag {
-        private String path;
-        private String name;
-        private String value;
-
-        public Tag(Resource r) {
-            this.path = r.getPath();
-            this.path = path.substring(path.indexOf("/jcr:content"));
-            this.name = r.getName();
-            this.value = r.getValueMap().get("value", String.class);
-        }
-
-        public String getName() { return name; }
-        public String getValue() { return value; }
-        public String getPath() { return path; }
-        @Override
-        public String toString() { return name; }
-    }
-
 }
 

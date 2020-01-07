@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static com.peregrine.commons.util.PerUtil.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static com.peregrine.commons.util.PerUtil.listMissingResources;
 import static com.peregrine.commons.util.PerUtil.splitIntoParameterMap;
 
@@ -38,7 +38,7 @@ import static com.peregrine.commons.util.PerUtil.splitIntoParameterMap;
  */
 @Component(
     configurationPolicy = ConfigurationPolicy.REQUIRE,
-    service = { DefaultReplicationMapper.class, Replication.class },
+    service = { DefaultReplicationMapper.class/*, Replication.class */},
     immediate = true
 )
 @Designate(ocd = DefaultReplicationMapperService.Configuration.class, factory = true)

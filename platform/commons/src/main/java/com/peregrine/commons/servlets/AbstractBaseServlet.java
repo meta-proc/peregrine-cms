@@ -5,17 +5,17 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.request.RequestDispatcherOptions;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
-import org.apache.tika.parser.txt.CharsetDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
@@ -121,11 +121,13 @@ public abstract class AbstractBaseServlet
         private SlingHttpServletRequest request;
         private SlingHttpServletResponse response;
         private Map<String, String> parameters = new HashMap<>();
+        private String method;
 
         public Request(SlingHttpServletRequest request, SlingHttpServletResponse response) {
             this.request = request;
             this.response = response;
             this.parameters = ServletHelper.obtainParameters(request);
+            this.method = request.getMethod();
         }
 
         public SlingHttpServletRequest getRequest() {
@@ -147,13 +149,6 @@ public abstract class AbstractBaseServlet
         public String getParameter(String name, String defaultValue) {
             String answer = parameters.get(name);
             return answer == null ? defaultValue : answer;
-        }
-
-        public String getParameterUtf8(String name) {
-            String rawParam = getParameter(name);
-            if(StringUtils.isBlank(rawParam)) return rawParam;
-            CharsetDetector detector = new CharsetDetector();
-            return detector.getString(rawParam.getBytes(), "utf-8");
         }
 
         public int getIntParameter(String name, int defaultValue) {
@@ -183,6 +178,12 @@ public abstract class AbstractBaseServlet
         public String getSuffix() { return request.getRequestPathInfo().getSuffix(); }
 
         public Collection<Part> getParts() throws IOException, ServletException { return request.getParts(); }
+
+        public boolean isPost() { return HttpConstants.METHOD_POST.equals(method); }
+
+        public boolean isGet() { return HttpConstants.METHOD_GET.equals(method); }
+
+        public String getMethod() { return method; }
     }
 
     /**
@@ -198,17 +199,31 @@ public abstract class AbstractBaseServlet
         /** @return Type of the response **/
         public String getType() { return type; }
 
-        /** @return Response Content as text **/
+        /**
+         * Get response content.
+         * @throws IOException if there's an error getting the content
+         * @return Response Content as text 
+         */
         public String getContent() throws IOException {
             return null;
         }
 
-        /** @return Writes the content to a given Output Stream **/
+        /**
+         * Writes the content to a given Output Stream.
+         * @param outputStream Output steeam to write to
+         * @throws IOException if the content can't be written to the output steam
+         */
         public void writeTo(OutputStream outputStream) throws IOException {
             throw new UnsupportedOperationException(WRITE_TO_IS_NOT_SUPPORTED);
         }
 
-        /** @return The Servlet handles the output by itself **/
+        /** 
+         * The Servlet handles the output by itself.
+         * @param request The request
+         * @param response The response
+         * @throws IOException If there's an i/o error
+         * @throws ServletException If there;s a servlet error
+         */
         public void handleDirect(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException, ServletException {
             throw new UnsupportedOperationException(HANDLE_DIRECT_IS_NOT_SUPPORTED);
         }
@@ -442,23 +457,49 @@ public abstract class AbstractBaseServlet
             this.httpErrorCode = httpErrorCode;
             return this;
         }
-        /** Sets the Error Code which is returned as 'code' number field **/
+        /** 
+         * Sets the Error Code which is returned as 'code' number field.
+         * @param code The code to set
+         * @throws IOException If an error response can't be created
+         * @return An error response object
+         */
         public ErrorResponse setErrorCode(int code) throws IOException {
             return (ErrorResponse) writeAttribute(CODE, code);
         }
-        /** Sets the Error Message which is returned as 'message' text field **/
+        /** 
+         * Sets the Error Message which is returned as 'message' text field.
+         * @param message The error mesage to set
+         * @throws IOException If an error response can't be created
+         * @return An error response object
+         */
         public ErrorResponse setErrorMessage(String message) throws IOException {
             return (ErrorResponse) writeAttribute(MESSAGE, message);
         }
-        /** Sets the Request Past which is returned as 'path' text field **/
+        /** 
+         * Sets the Request Past which is returned as 'path' text field.
+         * @param path The path to set
+         * @throws IOException If an error response can't be created
+         * @return An error response object
+         */
         public ErrorResponse setRequestPath(String path) throws IOException {
             return (ErrorResponse) writeAttribute(PATH, path);
         }
-        /** Sets the Custom Error Field which is returned as the provide name / value field **/
+        /** 
+         * Sets the Custom Error Field which is returned as the provide name / value field.
+         * @param fieldName Field name to set
+         * @param value Field value
+         * @throws IOException If an error response can't be created
+         * @return An error response object
+         */
         public ErrorResponse setCustom(String fieldName, String value) throws IOException {
             return (ErrorResponse) writeAttribute(fieldName, value);
         }
-        /** Sets an Exception that cause the Error which is written out a serialized exception **/
+        /** 
+         * Sets an Exception that cause the Error which is written out a serialized exception.
+         * @param e Exception to set
+         * @throws IOException If an error response can't be created
+         * @return An error response object
+         */
         public ErrorResponse setException(Exception e) throws IOException {
             if(e != null) {
                 StringWriter out = new StringWriter();
@@ -567,7 +608,9 @@ public abstract class AbstractBaseServlet
 
         @Override
         public void handleDirect(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException, ServletException {
-            request.getRequestDispatcher(resource, requestDispatcherOptions).forward(request, response);
+            RequestDispatcher dispatcher = request.getRequestDispatcher(resource, requestDispatcherOptions);
+            if(dispatcher == null) { throw new ServletException("Request Dispatcher not found for resource: " + response); }
+            dispatcher.forward(request, response);
         }
 
         @Override

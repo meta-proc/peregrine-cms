@@ -30,13 +30,15 @@ import com.peregrine.commons.servlets.ServletHelper;
 import com.peregrine.commons.util.PerConstants;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.osgi.service.component.annotations.Component;
 
 import javax.servlet.Servlet;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_COMPONENT_DEFINITION;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_COMPONENT_DEFINITION;
 import static com.peregrine.commons.util.PerConstants.APPS_ROOT;
 import static com.peregrine.commons.util.PerConstants.MODEL;
 import static com.peregrine.commons.util.PerConstants.NAME;
@@ -45,7 +47,7 @@ import static com.peregrine.commons.util.PerConstants.PATH;
 import static com.peregrine.commons.util.PerConstants.SLASH;
 import static com.peregrine.commons.util.PerConstants.SLING_RESOURCE_SUPER_TYPE;
 import static com.peregrine.commons.util.PerConstants.SLING_RESOURCE_TYPE;
-import static com.peregrine.commons.util.PerUtil.EQUALS;
+import static com.peregrine.commons.util.PerUtil.EQUAL;
 import static com.peregrine.commons.util.PerUtil.GET;
 import static com.peregrine.commons.util.PerUtil.PER_PREFIX;
 import static com.peregrine.commons.util.PerUtil.PER_VENDOR;
@@ -63,10 +65,10 @@ import static org.osgi.framework.Constants.SERVICE_VENDOR;
 @Component(
     service = Servlet.class,
     property = {
-        SERVICE_DESCRIPTION + EQUALS + PER_PREFIX + "Component Definition Servlet",
-        SERVICE_VENDOR + EQUALS + PER_VENDOR,
-        SLING_SERVLET_METHODS + EQUALS + GET,
-        SLING_SERVLET_RESOURCE_TYPES + EQUALS + RESOURCE_TYPE_COMPONENT_DEFINITION
+        SERVICE_DESCRIPTION + EQUAL + PER_PREFIX + "Component Definition Servlet",
+        SERVICE_VENDOR + EQUAL + PER_VENDOR,
+        SLING_SERVLET_METHODS + EQUAL + GET,
+        SLING_SERVLET_RESOURCE_TYPES + EQUAL + RESOURCE_TYPE_COMPONENT_DEFINITION
     }
 )
 @SuppressWarnings("serial")
@@ -80,10 +82,17 @@ public class ComponentDefinitionServlet extends AbstractBaseServlet {
     protected Response handleRequest(Request request) throws IOException {
         String path = request.getParameter(PATH);
         Resource resource = request.getResourceByPath(path);
+        if(resource == null) {
+            // In case the resource could not be found issue an Error Resposne
+            return new ErrorResponse().setErrorCode(404).setErrorMessage("Resource with Path: '" + path + "' not found");
+        }
         boolean page = false;
         if(resource.getResourceType().equals(PerConstants.PAGE_PRIMARY_TYPE)) {
+            Resource jcrContent = resource.getChild(PerConstants.JCR_CONTENT);
+            if(jcrContent == null) {
+                return new ErrorResponse().setErrorCode(404).setErrorMessage("Page with Path: '" + path + "' has no Content Chile Node");
+            }
             page = true;
-            resource = resource.getChild(PerConstants.JCR_CONTENT);
         }
         String componentPath = "";
         if(path.startsWith(APPS_ROOT + SLASH)) {
@@ -93,6 +102,10 @@ public class ComponentDefinitionServlet extends AbstractBaseServlet {
         }
 
         Resource component = request.getResourceByPath(componentPath);
+        if(component == null) {
+            // In case the resource could not be found issue an Error Resposne
+            return new ErrorResponse().setErrorCode(404).setErrorMessage("Component Resource with Path: '" + componentPath + "' not found");
+        }
         logger.debug("Component Path: '{}', Component: '{}'", componentPath, component);
         if("/apps/admin/components/assetview".equals(path)) {
             page = true;
@@ -117,7 +130,8 @@ public class ComponentDefinitionServlet extends AbstractBaseServlet {
         return answer;
     }
 
-    private Resource getDialogFromSuperType(Resource resource, boolean page, boolean og) {
+    private @Nullable Resource getDialogFromSuperType(@NotNull Resource resource, boolean page, boolean og) {
+        Resource answer = null;
         String componentPath = resource.getValueMap().get(SLING_RESOURCE_SUPER_TYPE, String.class);
         if(componentPath != null) {
             if (!componentPath.startsWith(APPS_ROOT + SLASH)) {
@@ -126,24 +140,23 @@ public class ComponentDefinitionServlet extends AbstractBaseServlet {
             ResourceResolver resourceResolver = resource.getResourceResolver();
             Resource component = resourceResolver.getResource(componentPath);
             Resource dialog;
-            if( og ){
-                dialog = component.getChild(OG_TAG_DIALOG_JSON);
-            } else {
-                dialog = component.getChild(page ? EXPLORER_DIALOG_JSON : DIALOG_JSON);
-            }
-            if (dialog == null) {
+            if(component != null) {
                 if( og ){
-                  return getDialogFromSuperType(component, page, true);
+                  dialog = component.getChild(OG_TAG_DIALOG_JSON);
+                } else {
+                  dialog = component.getChild(page ? EXPLORER_DIALOG_JSON : DIALOG_JSON);
                 }
-              return getDialogFromSuperType(component, page, false);
-
-            } else {
-                return dialog;
+                if (dialog == null) {
+                  if( og ){
+                    answer = getDialogFromSuperType(component, page, true);
+                  }
+                  answer = getDialogFromSuperType(component, page, false);
+                } else {
+                    answer = dialog;
+                }
             }
-        } else {
-            return null;
         }
+        return answer;
     }
-
 }
 
