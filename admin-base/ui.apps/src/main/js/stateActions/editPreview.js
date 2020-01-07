@@ -40,41 +40,39 @@ export default function (me, target) {
       '/state/tools/workspace/ignoreContainers', IgnoreContainers.DISABLED);
 
   return new Promise((resolve, reject) => {
+    const current = get(view, '/state/tools/workspace/preview', '');
     if (target === 'preview') {
-      const current = get(view, '/state/tools/workspace/preview', '');
-      if (target === 'preview') {
-        if (current === 'preview') {
-          set(view, '/state/tools/workspace/preview', '');
-          if (currIgnoreContainers === IgnoreContainers.ON_HOLD) {
-            set(view, '/state/tools/workspace/ignoreContainers',
-                IgnoreContainers.ENABLED);
-            set(view, '/pageView/view', IgnoreContainers.ENABLED);
-          } else {
-            set(view, '/pageView/view', view.state.tools.workspace.view);
-          }
+      if (current === 'preview') {
+        set(view, '/state/tools/workspace/preview', '');
+        if (currIgnoreContainers === IgnoreContainers.ON_HOLD) {
+          set(view, '/state/tools/workspace/ignoreContainers',
+              IgnoreContainers.ENABLED);
+          set(view, '/pageView/view', IgnoreContainers.ENABLED);
         } else {
-          set(view, '/state/tools/workspace/preview', target);
-          set(view, '/pageView/view', target)
-          if (currIgnoreContainers === IgnoreContainers.ENABLED) {
-            set(view, '/state/tools/workspace/ignoreContainers',
-                IgnoreContainers.ON_HOLD);
-          }
-        }
-      } else if (target === IgnoreContainers.ENABLED) {
-        if (current !== 'preview') {
-          if (currIgnoreContainers === IgnoreContainers.ENABLED) {
-            set(view, '/state/tools/workspace/ignoreContainers',
-                IgnoreContainers.DISABLED);
-            set(view, '/pageView/view', view.state.tools.workspace.view);
-          } else {
-            set(view, '/state/tools/workspace/ignoreContainers', target);
-            set(view, '/pageView/view', target);
-          }
+          set(view, '/pageView/view', view.state.tools.workspace.view);
         }
       } else {
-        set(view, '/state/tools/workspace/view', target);
+        set(view, '/state/tools/workspace/preview', target);
+        set(view, '/pageView/view', target)
+        if (currIgnoreContainers === IgnoreContainers.ENABLED) {
+          set(view, '/state/tools/workspace/ignoreContainers',
+              IgnoreContainers.ON_HOLD);
+        }
       }
-      resolve()
+    } else if (target === IgnoreContainers.ENABLED) {
+      if (current !== 'preview') {
+        if (currIgnoreContainers === IgnoreContainers.ENABLED) {
+          set(view, '/state/tools/workspace/ignoreContainers',
+              IgnoreContainers.DISABLED);
+          set(view, '/pageView/view', view.state.tools.workspace.view);
+        } else {
+          set(view, '/state/tools/workspace/ignoreContainers', target);
+          set(view, '/pageView/view', target);
+        }
+      }
+    } else {
+      set(view, '/state/tools/workspace/view', target);
     }
+    resolve();
   });
 }
