@@ -6,6 +6,7 @@ public class AdminPathConstants {
         // Hide constructor
     }
 
+    public static final String EQUALS = "=";
     public static final String JSON_EXTENSION = "json";
     public static final String API_PREFIX = "perapi/admin/";
     public static final String RESOURCE_TYPE_ACCESS = API_PREFIX + "access";

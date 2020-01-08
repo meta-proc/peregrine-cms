@@ -40,10 +40,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.peregrine.admin.servlets.AdminPaths.JSON_EXTENSION;
-import static com.peregrine.admin.servlets.AdminPaths.RESOURCE_TYPE_COPY;
 import static com.peregrine.admin.util.AdminConstants.SOURCE_NAME;
 import static com.peregrine.admin.util.AdminConstants.SOURCE_PATH;
+import static com.peregrine.admin.util.AdminPathConstants.EQUALS;
+import static com.peregrine.admin.util.AdminPathConstants.JSON_EXTENSION;
+import static com.peregrine.admin.util.AdminPathConstants.RESOURCE_TYPE_COPY;
 import static com.peregrine.commons.util.PerConstants.*;
 import static com.peregrine.commons.util.PerUtil.*;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
