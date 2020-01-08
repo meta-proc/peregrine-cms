@@ -175,7 +175,6 @@ public interface AdminResourceHandler {
      */
     Resource copySite(ResourceResolver resourceResolver, String sitesParentPath, String fromName, String targetName, String title) throws ManagementException;
 
-
     /**
      * Delete a peregrine cms site
      *
@@ -183,9 +182,24 @@ public interface AdminResourceHandler {
      * @param sitesParentPath Absolute Path to Sites
      * @param name Name of the Site to delete
      * @return Resource of the Target Copy
-     * @throws ManagementException If a management error occurs 
+     * @throws ManagementException If a management error occurs
      */
     void deleteSite(ResourceResolver resourceResolver, String sitesParentPath, String name) throws ManagementException;
+
+    /**
+     * Copies a resource to a new location
+     *
+     * @param resourceResolver Resource Resolver to obtain the resources
+     * @param resourceToCopy the resource to copy
+     * @param newParent the new parent of the copied resource
+     * @param newName the new node name for the copy
+     * @param newTitle the new title property for the copy
+     * @param nextSibling the resource to order the copy before
+     * @param deep true to copy all children of the resource; false to only copy the resource and its content
+     * @return the copied resource
+     * @throws ManagementException
+     */
+    Resource copyResource(ResourceResolver resourceResolver, Resource resourceToCopy, Resource newParent, String newName, String newTitle, Resource nextSibling, boolean deep) throws ManagementException;
 
     /**
      * Update a peregrine cms site's components and felibs from its source site

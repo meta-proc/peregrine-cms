@@ -271,6 +271,11 @@ class PerAdminImpl {
         })
     }
 
+    populateBoilerplates(path, target = 'nodes', includeParents = false) {
+        const boilerplatePath = path.split('/').slice(0,4).join('/')+'/boilerplates'
+        return this.populateNodesForBrowser(boilerplatePath, target, includeParents)
+    }
+
     populateNodesForBrowser(path, target = 'nodes', includeParents = false) {
         return new Promise( (resolve, reject) => {
             fetch('/admin/nodes.json'+path+'?includeParents='+includeParents)
@@ -464,6 +469,21 @@ class PerAdminImpl {
             data.append('templatePath', templatePath)
             data.append('title', title)
             updateWithForm('/admin/createPage.json'+parentPath, data)
+                .then( (data) => this.populateNodesForBrowser(parentPath) )
+                .then( () => resolve() )
+        })
+    }
+
+    createPageFromBoilerplate(parentPath, name, boilerplatePagePath) {
+        return new Promise( (resolve, reject) => {
+            let data = new FormData()
+            data.append('path', boilerplatePagePath)
+            data.append('to', parentPath)
+            data.append('deep', 'true')
+            data.append('newName', name)
+            data.append('newTitle', name)
+            data.append('type', 'child')
+            updateWithForm('/admin/createPageFromBoilerplate.json', data)
                 .then( (data) => this.populateNodesForBrowser(parentPath) )
                 .then( () => resolve() )
         })

@@ -25,6 +25,7 @@ public class AdminPathConstants {
     public static final String RESOURCE_TYPE_MOVE_NODE = API_PREFIX + "moveNodeTo";
     public static final String RESOURCE_TYPE_MOVE = API_PREFIX + "move";
     public static final String RESOURCE_TYPE_RENAME = API_PREFIX + "rename";
+    public static final String RESOURCE_TYPE_COPY = API_PREFIX + "copy";
     public static final String RESOURCE_TYPE_NODE = API_PREFIX + "node";
     public static final String RESOURCE_TYPE_NODES = API_PREFIX + "nodes";
     public static final String RESOURCE_TYPE_REF = API_PREFIX + "ref";
