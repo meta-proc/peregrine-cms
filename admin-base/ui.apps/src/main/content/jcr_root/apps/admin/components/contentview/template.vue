@@ -380,10 +380,10 @@ export default {
             let inline = targetEl.getAttribute('data-per-inline-edit') ? targetEl : undefined
             while(!targetEl.getAttribute('data-per-path')) {
                 targetEl = targetEl.parentElement
-                if(!inline && targetEl.getAttribute('data-per-inline-edit')) {
-                    inline = targetEl
+              if(!targetEl) { break }
+              if(!inline && targetEl.getAttribute('data-per-inline-edit')) {
+                  inline = targetEl
                 }
-                if(!targetEl) { break }
             }
             return { targetEl, inline }
         },
@@ -393,7 +393,6 @@ export default {
             if(e.target && e.target.getAttribute('contenteditable') === 'true') return;
             const target = this.getTargetEl(e)
             let targetEl = target.targetEl
-            let view = $perAdminApp.getView();
             if(targetEl) {
                 var path = targetEl.getAttribute('data-per-path')
                if (targetEl.getAttribute('data-per-target-path')) {
@@ -445,7 +444,6 @@ export default {
             if(!e || this.isTouch) return
             if($perAdminApp.getNodeFromViewOrNull('/state/editorVisible')) return
             var targetEl = this.getTargetEl(e).targetEl
-            let view = $perAdminApp.getView();
             if(targetEl) {
                 if (this.isContainer(targetEl)) {
                     if (this.isIgnoreContainersEnabled) return;
