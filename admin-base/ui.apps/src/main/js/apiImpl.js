@@ -301,10 +301,43 @@ class PerAdminImpl {
                     }
                     let promises = []
                     if(data && data.model) {
-                        for(let i = 0; i < data.model.fields.length; i++) {
-                            let from = data.model.fields[i].valuesFrom
-                            if(from) {
-                                data.model.fields[i].values = []
+                        console.log(data.model)
+                        if(data.model.groups) {
+                            for(let j = 0; j < data.model.groups.lenght; j++) {
+                                for(let i = 0; i < data.model.groups[j].fields.length; i++) {
+                                    let from = data.model.groups[j].fields[i].valuesFrom
+                                    if(from) {
+                                        data.model.groups[j].fields[i].values = []
+                                        let promise = axios.get(from).then( (response) => {
+                                            for(var key in response.data) {
+                                                if(response.data[key]['jcr:title']) {
+                                                    const nodeName = key
+                                                    const val = from.replace('.infinity.json', '/'+nodeName)
+                                                    let name = response.data[key].name
+                                                    if(!name) {
+                                                        name = response.data[key]['jcr:title']
+                                                    }
+                                                    data.model.groups[j].fields[i].values.push({ value: val, name: name })
+                                                }
+                                            }
+                                        }).catch( (error) => {
+                                            logger.error('missing node', data.model.groups[j].fields[i].valuesFrom, 'for list population in dialog', error)
+                                        })
+                                        promises.push(promise)
+                                    }
+                                    let visible = data.model.groups[j].fields[i].visible
+                                    if(visible) {
+                                        data.model.groups[j].fields[i].visible = function(model) {
+                                            return exprEval.Parser.evaluate( visible, this );
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            for(let i = 0; i < data.model.fields.length; i++) {
+                                let from = data.model.fields[i].valuesFrom
+                                if(from) {
+                                    data.model.fields[i].values = []
                                 if (typeof from === 'string') {
                                     from = [ from ];
                                 }
@@ -383,6 +416,7 @@ class PerAdminImpl {
                             }
                             translateFields(data.ogTags.fields);
                         }
+                    }
                         Promise.all(promises).then( () => {
                             populateView('/admin/componentDefinitions', data.name, data)
                             resolve(name)
