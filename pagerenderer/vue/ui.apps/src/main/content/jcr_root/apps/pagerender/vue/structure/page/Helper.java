@@ -43,6 +43,7 @@ public class Helper implements Use {
     private String siteRootPath;
     private String siteName;
     private String siteLanguage;
+    private Boolean excludeFromZohoMarketingHub;
 
     public String getSiteLanguage() {
       return siteLanguage;
@@ -68,12 +69,15 @@ public class Helper implements Use {
         return model.getClass().toString();
     }
 
+    public Boolean getExcludeFromZohoMarketingHub() {
+        return excludeFromZohoMarketingHub;
+    }
+
     public void init(Bindings bindings) {
         Resource resource = (Resource) bindings.get("resource");
         SlingHttpServletRequest request = (SlingHttpServletRequest) bindings.get("request");
         SlingScriptHelper sling = (SlingScriptHelper) bindings.get("sling");
         Map<String,String> properties = (Map<String,String>) bindings.get("properties");
-
 
         try {
           model = sling.getService(ModelFactory.class).getModelFromResource(resource);
@@ -83,9 +87,12 @@ public class Helper implements Use {
 
         String path = resource.getPath();
         String lang = "";
+        excludeFromZohoMarketingHub = false;
         if(path.startsWith("/content/sites/")) {
             path = path.substring("/content/sites/".length());
             lang = (String) ((PageModel) model).getTemplateSiteLanguage();
+            excludeFromZohoMarketingHub =
+                (Boolean) ((PageModel) model).getExcludeFromZohoMarketingHub();
         } else if(path.startsWith("/content/templates/")) {
             path = path.substring("/content/templates/".length());
             lang = properties.get("siteLanguage");
