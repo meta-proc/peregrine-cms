@@ -22,7 +22,7 @@
         <module>distribution</module>
         <module>felib</module>
         <module>node-js</module>
-        <module>login</module>
+        <!-- module>login</module -->
         <module>replication</module>
     </modules>
 
