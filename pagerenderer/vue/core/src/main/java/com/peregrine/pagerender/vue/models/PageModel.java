@@ -189,18 +189,14 @@ public class PageModel
     return "en";
   }
 
-  public Boolean getExcludeFromZohoMarketingHub() {
+  public String getExcludeFromZohoMarketingHub() {
       Resource resource = getResource();
       if( resource != null ){
           ValueMap map = resource.getValueMap();
           Object value = map.get("excludeFromZohoMarketingHub");
-          if (value instanceof Boolean) {
-              return (Boolean) value;
-          } else {
-              return Boolean.valueOf((String) map.get("excludeFromZohoMarketingHub"));
-          }
+          return String.valueOf(value);
       }
-      return false;
+      return "false";
   }
 
     private PageModel getTemplatePageModel() {

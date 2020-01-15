@@ -43,7 +43,7 @@ public class Helper implements Use {
     private String siteRootPath;
     private String siteName;
     private String siteLanguage;
-    private Boolean excludeFromZohoMarketingHub;
+    private String excludeFromZohoMarketingHub;
 
     public String getSiteLanguage() {
       return siteLanguage;
@@ -69,7 +69,7 @@ public class Helper implements Use {
         return model.getClass().toString();
     }
 
-    public Boolean getExcludeFromZohoMarketingHub() {
+    public String getExcludeFromZohoMarketingHub() {
         return excludeFromZohoMarketingHub;
     }
 
@@ -87,12 +87,12 @@ public class Helper implements Use {
 
         String path = resource.getPath();
         String lang = "";
-        excludeFromZohoMarketingHub = false;
+        excludeFromZohoMarketingHub = "false";
         if(path.startsWith("/content/sites/")) {
             path = path.substring("/content/sites/".length());
             lang = (String) ((PageModel) model).getTemplateSiteLanguage();
             excludeFromZohoMarketingHub =
-                (Boolean) ((PageModel) model).getExcludeFromZohoMarketingHub();
+                (String) ((PageModel) model).getExcludeFromZohoMarketingHub();
         } else if(path.startsWith("/content/templates/")) {
             path = path.substring("/content/templates/".length());
             lang = properties.get("siteLanguage");
