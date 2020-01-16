@@ -189,6 +189,16 @@ public class PageModel
     return "en";
   }
 
+  public String getExcludeFromZohoMarketingHub() {
+      Resource resource = getResource();
+      if( resource != null ){
+          ValueMap map = resource.getValueMap();
+          Object value = map.get("excludeFromZohoMarketingHub");
+          return String.valueOf(value);
+      }
+      return "false";
+  }
+
     private PageModel getTemplatePageModel() {
         final String path = getTemplate();
         if (path == null) {

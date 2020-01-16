@@ -93,6 +93,7 @@ public class ComponentDefinitionServlet extends AbstractBaseServlet {
                 return new ErrorResponse().setErrorCode(404).setErrorMessage("Page with Path: '" + path + "' has no Content Chile Node");
             }
             page = true;
+            resource = jcrContent;
         }
         String componentPath = "";
         if(path.startsWith(APPS_ROOT + SLASH)) {

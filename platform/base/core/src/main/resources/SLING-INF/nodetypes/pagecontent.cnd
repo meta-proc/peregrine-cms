@@ -30,6 +30,7 @@
   - hostname (string) = 'www.metaproc.com' autocreated
   - canonicalLink (string) = '' autocreated
   - hideInNav (boolean) = 'false' autocreated
+  - excludeFromZohoMarketingHub (string) = 'false' autocreated
   - excludeFromSitemap (boolean) = 'false' autocreated
   - changefreq (string) = 'weekly' autocreated
     < 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never'

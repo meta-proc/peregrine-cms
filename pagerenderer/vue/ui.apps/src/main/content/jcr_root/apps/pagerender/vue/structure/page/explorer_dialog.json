@@ -180,6 +180,16 @@
   },
   {
     "type": "materialswitch",
+    "model": "excludeFromZohoMarketingHub",
+    "label": "excludeFromZohoMarketingHubLabel",
+    "textOn": "yes",
+    "textOff": "no",
+    "valueOn": "true",
+    "valueOff": "false",
+    "hint": "excludeFromZohoMarketingHubHint"
+  },
+  {
+    "type": "materialswitch",
     "label": "Exclude from Sitemap",
     "model": "excludeFromSitemap",
     "textOn": "yes",

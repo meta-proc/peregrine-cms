@@ -124,6 +124,7 @@ public class PerConstants {
     public static final String HOSTNAME = "hostname";
     public static final String CANONICAL_LINK_ELEMENT = "canonicalLink";
     public static final String HIDE_IN_NAVIGATION = "hideInNav";
+    public static final String EXCLUDE_FROM_ZOHO_MARKETING_HUB = "excludeFromZohoMarketingHub";
     public static final String EXCLUDE_FROM_SITEMAP = "excludeFromSitemap";
     public static final String CHANGE_FREQUENCY = "changefreq";
     public static final String PRIORITY = "priority";
@@ -134,6 +135,7 @@ public class PerConstants {
             Pair.of(HOSTNAME, "www.metaproc.com"),
             Pair.of(CANONICAL_LINK_ELEMENT, "https://www.metaproc.com"),
             Pair.of(HIDE_IN_NAVIGATION, false),
+            Pair.of(EXCLUDE_FROM_ZOHO_MARKETING_HUB, false),
             Pair.of(EXCLUDE_FROM_SITEMAP, false),
             Pair.of(CHANGE_FREQUENCY, "weekly"),
             Pair.of(PRIORITY, "0.5"),
