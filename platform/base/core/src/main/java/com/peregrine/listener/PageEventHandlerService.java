@@ -54,7 +54,7 @@ public class PageEventHandlerService implements ResourceChangeListener {
       for (ResourceChange change : changes) {
         log.trace("Resource Change: '{}'", change);
 
-        try (ResourceResolver resolver = PerUtil.loginService(factory, PerConstants.PAGE_EVENT_HANDLER_SUB_SERVICE)) {
+        try (ResourceResolver resolver = PerUtil.loginService(factory, PerConstants.RESOURCE_HANDLER_SUB_SERVICE)) {
           Resource resource = PerUtil.getResource(resolver, change.getPath());
           String primaryType = PerUtil.getPrimaryType(resource);
 
